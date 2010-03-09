@@ -4,7 +4,7 @@ Created on Mar 8, 2010
 @author: epeli
 '''
 
-
+import sys
 
 def parse_cmd(f):
     
@@ -16,6 +16,13 @@ def parse_cmd(f):
     
     return parse
 
+
+def writeln(msg, out=sys.stdout):
+    out.write("%s\n"  % msg)
+
+def errln(msg):
+    writeln(msg, out=sys.stderr)
+    
 
 
 if __name__ == "__main__":
