@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 '''
 Created on Mar 9, 2010
 
@@ -10,33 +12,53 @@ import sys
 import os
 
 
-from subuser.authorizedkeys import AuthorizedKeysDB, parse_subuser_key
+from subuser.authorizedkeys import AuthorizedKeysDB
+from subuser.authorizedkeys import parse_subuser_key
+from subuser.authorizedkeys import AuthorizedKeysException
 
-KEYPATH = os.path.join( os.path.dirname(__file__), "authorized_keys") 
+THIS_DIR = os.path.dirname(__file__) 
 
 class TestParseSubuserKey(unittest.TestCase):
     
     def test_parse(self):
-        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subuser foobar" ssh-rsa avain== joku kommentti foobar@subuser'
+        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subuser foobar" ssh-rsa avain== kommentti'
         username, type, key, comment = parse_subuser_key(line)
         self.assertEquals(username, "foobar")
         self.assertEquals(type, "ssh-rsa")
         self.assertEquals(key, "avain==")
-        self.assertEquals(comment, "joku kommentti")
+        self.assertEquals(comment, "kommentti")
+        
+    def test_parse_multiple_comment_words(self):
+        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subuser foobar" ssh-rsa avain== monisanainen kommentti'
+        username, type, key, comment = parse_subuser_key(line)
+        self.assertEquals(comment, "monisanainen kommentti")        
+        
     
     def test_no_comment(self):
-        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subuser foobar" ssh-rsa avain== foobar@subuser'
+        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subuser foobar" ssh-rsa avain=='
+        username, type, key, comment = parse_subuser_key(line)
+        self.assertEquals(comment, "")        
+
+    def test_simple_cmd(self):
+        line = 'command="subuser foobar" ssh-rsa avain== kommentti'
         username, type, key, comment = parse_subuser_key(line)
         self.assertEquals(username, "foobar")
         self.assertEquals(type, "ssh-rsa")
         self.assertEquals(key, "avain==")
-        self.assertEquals(comment, "")        
-
-
+        self.assertEquals(comment, "kommentti")
+        
 class TestAuthorizedKeysDB(unittest.TestCase):
     
     def setUp(self):
-        self.db = AuthorizedKeysDB(KEYPATH)
+        self.db = AuthorizedKeysDB(THIS_DIR)
+    
+    def test_lock(self):
+        exception = False
+        try:
+            AuthorizedKeysDB(THIS_DIR)
+        except AuthorizedKeysException:
+            exception = True
+        self.assert_(exception)
     
     def test_test(self):
         pass
@@ -49,10 +71,10 @@ class TestAuthorizedKeysDB(unittest.TestCase):
         count = len(self.db.subusers["foobar"].pubkeys.keys())
         self.assertEquals(count, 2)
     
-    def test_dummy(self):
-        for line in self.db.iter_in_authorized_keys_format():
-            print line
-    
+            
+    def tearDown(self):
+#        self.db.commit()
+        self.db.close()
 
 if __name__ == "__main__":
     print "hello"

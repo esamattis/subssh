@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 '''
 Created on Mar 9, 2010
 
@@ -14,28 +16,36 @@ re.sub(r"\s{1}\w+@subuser$", "", key)
 
 import os
 import re
+import time
+
+import config
 
 
+class PubKeyException(Exception):
+    pass
 
-    
-subuser_pattern = re.compile(r"\s{1}([a-z]+)@subuser$")    
-options_pattern = re.compile(r"command=\"([^\"]+)\"[^ ]* ")      
-
+# Detects if key is created by SubUser and extracts username from it
+options_pattern = re.compile(r"^command=\"[^\"]*subuser ([a-z]+)\"[^ ]* ")  
 def parse_subuser_key(line):
     """
     
     
-    
     """
-    match = subuser_pattern.search(line)
-    username = match.groups(1)[0]
+    match = options_pattern.search(line)
+    if not match:
+        raise PubKeyException("Not created by SubUser")
     
-    # Remove username/subuser identifier from end
-    line = subuser_pattern.sub("", line)
-    # Remove options from start
-    line = options_pattern.sub("", line)
+    username = match.group(1)
     
-    type, key = line.split(None, 2)
+    fields = options_pattern.sub("", line).split(None, 2)
+    
+    type, key = fields[0:2] # Type and key are always there
+    
+    try: # Comment is optional
+        comment = fields[2]
+    except IndexError:
+        comment = ''
+    
     
     return username, type, key, comment
 
@@ -90,7 +100,7 @@ class Subuser(object):
         return ("command=\"%(subuser_cmd)s %(username)s\","
                 "%(ssh_options)s "
                 "%(type)s %(key)s "
-                "%(comment)s %(username)s@subuser" % {
+                "%(comment)s" % {
                                                       
                 'subuser_cmd': self.subuser_cmd,
                 'ssh_options':  self.ssh_options,
@@ -102,21 +112,25 @@ class Subuser(object):
     
     
     
-    
+
+class AuthorizedKeysException(Exception):
+    pass
     
 class AuthorizedKeysDB(object):
     
     
-    
-    
-    def __init__(self, keypath=None):
+    def __init__(self, ssh_home=None):
         
-        if not keypath:
-            keypath = os.path.join( os.environ["HOME"], 
-                                     ".ssh", "authorized_keys" )
+        if not ssh_home:
+            ssh_home = config.SSH_HOME
+        
+        self.keypath = os.path.join( ssh_home, "authorized_keys" )
             
+        self.lockpath = os.path.join(ssh_home, "subuser_lock")
         
-        keyfile = open(keypath, "r")
+        self._acquire_lock()
+        
+        keyfile = open(self.keypath, "r")
             
         self.custom_key_lines = []
         self.subusers = {}
@@ -124,24 +138,41 @@ class AuthorizedKeysDB(object):
 
         for line in keyfile:
             line = line.strip()
-            if line.strip().endswith("subuser"):
-                self.add_key_from_str(line)
-            else:
+            try:
+                username, type, key, comment = parse_subuser_key(line)
+            except PubKeyException:
                 self.custom_key_lines.append(line)
+            else:
+                self.add_key(username, type, key, comment)
+        
+        keyfile.close()
+                
+
+
+    def _acquire_lock(self):
+        timeout = 100
+        while os.path.exists(self.lockpath):
+            time.sleep(0.01)
+            timeout -= 1
+            if timeout <= 0:
+                raise AuthorizedKeysException("authorized_keys lock file timeout")
+            
+            
+        open(self.lockpath, "w").close()        
         
     
     
-    def iter_in_authorized_keys_format(self):
-        for custom_line in self.custom_key_lines:
-            yield custom_line
+    def iter_all_keys(self):
         for user in self.subusers.values():
             for line in user.iter_in_authorized_keys_format():
                 yield line
+        for custom_line in self.custom_key_lines:
+            yield custom_line
         
         
     
-    def add_key_from_str(self, line):
-        username, type, key, comment = parse_subuser_key(line)
+    def add_key(self, username, type, key, comment):
+        
         try:
             user = self.subusers[username]
         except KeyError:
@@ -149,8 +180,21 @@ class AuthorizedKeysDB(object):
             self.subusers[username] = user
             
         user.add_key(type, key, comment)
+
+
+    def commit(self):
+        f = open(self.keypath, "w")
+        for line in self.iter_all_keys():
+            f.write(line + "\n")
+        f.close()
         
         
         
+    def _unlock(self):
+        os.remove(self.lockpath)
+        
+        
+    def close(self):
+        self._unlock()    
     
     
