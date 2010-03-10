@@ -18,7 +18,7 @@ import re
 
 from subuser import tools
 
-from permissions import VCSPermissions
+from general import VCS, set_default_permissions
 
 logger = logging.getLogger(__name__)
 
@@ -32,29 +32,19 @@ class config:
 
 
 
-
-class Git(VCSPermissions):
+class Git(VCS):
     
     
     required_by_valid_repo  = ("config", 
                                "objects",
                                "hooks")
 
-    authzfilename = "subuserpermissions"
-                              
-    _permissions_section = "/"
 
 
 
 
 
-
-
-
-
-
-
-def _create_git_repository(path, owner):
+def _create_repository(path, owner):
     
     if not os.path.exists(path):
         os.makedirs(path)
@@ -78,8 +68,9 @@ exec git-update-server-info""")
     os.chmod("hooks/post-update", 0700)
 
 
+    set_default_permissions(path, owner, Git)
 
-
+    
 
 
 

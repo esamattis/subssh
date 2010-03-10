@@ -6,17 +6,17 @@
 
 
 
-[app:vcs.svn]
+[app:subuser.apps.vcs.svn]
 #repositories = ~/.subuser/repos/svn
 #webview = ~/.subuser/repos/websvn
 
-[app:vcs.git]
+[app:subuser.apps.vcs.git]
 #repositories = ~/.subuser/repos/svn
 #webview = ~/.subuser/repos/websvn
 
 
-[app:uptime]
+[app:subuser.apps.uptime]
 hello = config hello
 
 
-[app:whoami]
+[app:subuser.apps.whoami]

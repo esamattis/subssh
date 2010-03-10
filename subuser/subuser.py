@@ -31,7 +31,7 @@ def main():
         msg += " cmd: " +  ssh_original_command
     except KeyError:
         logger.info("Connection without cmd " + msg)
-        sys.stderr.write( "cmds: %s\n" % ", ".join(apps.all.keys()).strip(",") )
+        sys.stderr.write( "cmds: %s\n" % ", ".join(apps.cmds.keys()).strip(",") )
         return 0
         
     cmd = ssh_original_command.split()[0]

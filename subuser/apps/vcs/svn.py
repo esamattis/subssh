@@ -29,11 +29,11 @@ authz-db = authz
 
 import os
 import subprocess
-
+from ConfigParser import SafeConfigParser
 
 from subuser import tools
 
-from permissions import VCSPermissions
+from general import VCS, set_default_permissions
 
 class config:
     """Default config"""
@@ -41,8 +41,24 @@ class config:
     webview = os.path.join( os.environ["HOME"], "repos", "webgit" )
 
 
+class Subversion(VCS):
+    
 
-def _create_svn_repository(path, owner):
+    required_by_valid_repo = ("conf/svnserve.conf",)
+    
+    _permissions_section = "/"
+    
+    
+def enable_svn_permissions(path, dbfile="authz"):
+    confpath = os.path.join(path, "conf/svnserve.conf")
+    conf = SafeConfigParser()
+    conf.read(confpath)
+    conf.set("general", "authz-db", dbfile)
+    f = open(confpath, "w")
+    conf.write(f)
+    f.close()
+
+def _create_repository(path, owner):
     
     if not os.path.exists(path):
         os.makedirs(path)
@@ -56,29 +72,13 @@ def _create_svn_repository(path, owner):
                       ))
 
     
-    confpath = os.path.join(path, "conf/svnserve.conf")
-    conf = SafeConfigParser()
-    conf.read(confpath)
-    conf.set("general", "authz-db", "authz")
-    f = open(confpath, "w")
-    conf.write(f)
-    f.close()
+    enable_svn_permissions(path, Subversion.permdb_name)
     
-    subversion = Subversion(path)
-    subversion.add_permission(owner, "rw")
-    subversion.add_permission("*", "r")
-    subversion.save()
+    set_default_permissions(path, owner, Subversion)
 
 
 
 
-class Subversion(VCSPermissions):
-    
-    
-    required_by_valid_repo = (authzfilename, 
-                              conffilename) = ("conf/authz", 
-                                               "conf/svnserve.conf")
-    _permissions_section = "/"
     
     
 
@@ -87,7 +87,8 @@ def create_svn_repository(username, cmd, args):
     
     repo_name = tools.to_safe_chars(args[0])
      
-    _create_svn_repository(os.path.join(config.repositories, repo_name), username)
+    _create_repository(os.path.join(config.repositories, repo_name), 
+                           username)
 
 
 @tools.parse_cmd
