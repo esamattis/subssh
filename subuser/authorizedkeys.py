@@ -18,18 +18,17 @@ import os
 import re
 import time
 
-import config
+from subuser import config
 
 
 class PubKeyException(Exception):
     pass
 
-# Detects if key is created by SubUser and extracts username from it
 options_pattern = re.compile(r"^command=\"[^\"]*subuser ([a-z]+)\"[^ ]* ")  
 def parse_subuser_key(line):
     """
-    
-    
+    Detects if public key line is created by SubUser and extracts username 
+    from it
     """
     match = options_pattern.search(line)
     if not match:

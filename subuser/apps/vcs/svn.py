@@ -29,10 +29,17 @@ authz-db = authz
 
 import os
 import subprocess
-from ConfigParser import SafeConfigParser
 
-import tools
-import config
+
+from subuser import tools
+
+from permissions import VCSPermissions
+
+class config:
+    """Default config"""
+    repositories = os.path.join( os.environ["HOME"], "repos", "svn" )
+    webview = os.path.join( os.environ["HOME"], "repos", "webgit" )
+
 
 
 def _create_svn_repository(path, owner):
@@ -63,50 +70,24 @@ def _create_svn_repository(path, owner):
     subversion.save()
 
 
-class InvalidRepository(IOError):
-    pass
 
-class Subversion(object):
+
+class Subversion(VCSPermissions):
+    
     
     required_by_valid_repo = (authzfilename, 
                               conffilename) = ("conf/authz", 
                                                "conf/svnserve.conf")
+    _permissions_section = "/"
     
-    def __init__(self, repo_path):
-        self.repo_path = repo_path
-        
-        for path in self.required_by_valid_repo:
-            if not os.path.exists(os.path.join(repo_path, path)):
-                raise InvalidRepository("%s does not seem to be "
-                                        "valid Subversion repository" % path)
-                                
-        
-        self.authzconfig = SafeConfigParser()
-        self.authzconfig.read(os.path.join(repo_path, self.authzfilename))
-
-
-    def add_permission(self, username, permissions):
-        if not self.authzconfig.has_section("/"):
-            self.authzconfig.add_section("/")
-            
-        self.authzconfig.set("/", username, permissions)
-        
-    def remove_permissions(self, username):
-        self.authzconfig.remove_option("/", username)
     
-    def save(self):
-        f = open(os.path.join(self.repo_path, self.authzfilename), "w")
-        self.authzconfig.write(f)
-        f.close()
-        
-
 
 @tools.parse_cmd
 def create_svn_repository(username, cmd, args):
     
     repo_name = tools.to_safe_chars(args[0])
      
-    _create_svn_repository(os.path.join(config.SVN_REPOS, repo_name), username)
+    _create_svn_repository(os.path.join(config.repositories, repo_name), username)
 
 
 @tools.parse_cmd
@@ -115,7 +96,7 @@ def handle_svn(username, cmd, args):
     return subprocess.call(['/usr/bin/svnserve', 
                             '--tunnel-user=' + username,
                             '-t', '-r',  
-                            config.SVN_REPOS])
+                            config.repositories])
     
     
 

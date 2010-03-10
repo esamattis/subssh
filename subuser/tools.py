@@ -10,12 +10,14 @@ import subprocess
 import re
 
 
+
+
 safe_chars_pat = re.compile(r"[^a-z_A-Z\-]{1}")
 def to_safe_chars(string):
-    string = string.replace("ä", "a")
-    string = string.replace("Ä", "A")
-    string = string.replace("ö", "o")
-    string = string.replace("Ö", "O")
+    string = string.replace("Ã¤", "a")
+    string = string.replace("Ã„", "A")
+    string = string.replace("Ã¶", "o")
+    string = string.replace("Ã–", "O")
     string = string.replace(" ", "_")
     return safe_chars_pat.sub("", string)
             

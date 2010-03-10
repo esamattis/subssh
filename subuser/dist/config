@@ -1,0 +1,22 @@
+[general]
+
+#log = "~/.subuser/main.log"
+
+
+
+
+
+[app:vcs.svn]
+#repositories = ~/.subuser/repos/svn
+#webview = ~/.subuser/repos/websvn
+
+[app:vcs.git]
+#repositories = ~/.subuser/repos/svn
+#webview = ~/.subuser/repos/websvn
+
+
+[app:uptime]
+hello = config hello
+
+
+[app:whoami]

@@ -10,18 +10,8 @@ import sys
 import config
 
 
-sys.path.insert(0, os.path.dirname(__file__))
-
-must_exist = (os.path.dirname(config.CMD_LOG), 
-              config.GIT_REPOS, 
-              config.SVN_REPOS)
-
-for path in must_exist:
-    if not os.path.exists(path):
-        os.makedirs(path)
-
 import logging
-logging.basicConfig(filename=config.CMD_LOG ,level=logging.DEBUG,
+logging.basicConfig(filename=config.log ,level=logging.DEBUG,
                     format="%(asctime)s %(levelname)s: %(message)s")
 logger = logging.getLogger("main")
 
@@ -47,7 +37,7 @@ def main():
     cmd = ssh_original_command.split()[0]
     
     try:
-        f = apps.all[cmd]
+        f = apps.cmds[cmd]
     except KeyError:
         logger.warning("Unknown cmd. " + msg)
         sys.stderr.write("Unknown command %s\n" % cmd)

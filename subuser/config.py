@@ -6,13 +6,32 @@ Created on Mar 5, 2010
 @author: epeli
 '''
 
+
 import os.path
-
-SVN_REPOS = os.path.join( os.environ["HOME"], "repos", "svn" )
-
-GIT_REPOS = os.path.join( os.environ["HOME"], "repos", "git" )
-
-CMD_LOG = os.path.join( os.environ["HOME"], ".subuser", "log", "cmds.log" )
+from ConfigParser import SafeConfigParser
 
 
-SSH_HOME = os.path.join( os.environ["HOME"], ".ssh" )
+
+this = os.path.abspath(os.path.dirname(__file__))
+# TODO: Move to home
+config_path = os.path.join(this, "dist", "config")
+
+_config = SafeConfigParser()
+_config.read(config_path)
+
+# Defaults
+log = os.path.join( os.environ["HOME"], ".subuser", "log", "cmds.log" )
+
+for option, value in _config.items("general"):
+    globals()[option] = value
+
+def yield_enabled_apps():
+    for sec in _config.sections():
+        if sec.startswith("app:"):
+            yield ("subuser.apps." + 
+                    sec.replace("app:", "").strip(),
+                    _config.items(sec) )
+            
+        
+        
+        

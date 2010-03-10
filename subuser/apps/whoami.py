@@ -5,7 +5,9 @@ Created on Mar 9, 2010
 @author: epeli
 '''
 
-import tools
+from subuser import tools
+from subuser import config
+
 
 def whoami(username, ssh_original_command):
     tools.writeln(username)
