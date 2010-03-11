@@ -16,7 +16,7 @@ logging.basicConfig(filename=config.log ,level=logging.DEBUG,
 logger = logging.getLogger("main")
 
 
-import apps
+import apploader
 
 
 
@@ -31,13 +31,15 @@ def main():
         msg += " cmd: " +  ssh_original_command
     except KeyError:
         logger.info("Connection without cmd " + msg)
-        sys.stderr.write( "cmds: %s\n" % ", ".join(apps.cmds.keys()).strip(",") )
+        sys.stderr.write( "cmds: %s\n" % 
+                          ", ".join([name for name, app in apploader.cmds.items()
+                                     if not hasattr(app, "no_user")]).strip(",") )
         return 0
         
     cmd = ssh_original_command.split()[0]
     
     try:
-        f = apps.cmds[cmd]
+        f = apploader.cmds[cmd]
     except KeyError:
         logger.warning("Unknown cmd. " + msg)
         sys.stderr.write("Unknown command %s\n" % cmd)

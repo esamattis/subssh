@@ -11,27 +11,38 @@ import re
 
 
 
+safe_chars = r"a-z_A-Z\-\."
 
-safe_chars_pat = re.compile(r"[^a-z_A-Z\-]{1}")
+safe_chars_only_pat = re.compile(r"^[%s]+$" % safe_chars )
+
+
+not_safe_char = re.compile(r"[^%s]{1}" % safe_chars)
 def to_safe_chars(string):
     string = string.replace("ä", "a")
     string = string.replace("Ä", "A")
     string = string.replace("ö", "o")
     string = string.replace("Ö", "O")
     string = string.replace(" ", "_")
-    return safe_chars_pat.sub("", string)
+    return not_safe_char.sub("", string)
             
-    
+
+def no_user(f):
+    f.no_user = False
+    return f
     
     
 
 def parse_cmd(f):
-    
     def parse(username, ssh_original_command): 
         parts = ssh_original_command.split()
         cmd = parts[0]
         args = [arg.strip('"').strip("'") for arg in parts[1:]]
         return f(username, cmd, args)
+    parse.__dict__ = f.__dict__
+    parse.__doc__ = f.__doc__
+    parse.__name__ = f.__name__
+    
+    
     
     return parse
 

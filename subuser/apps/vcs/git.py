@@ -24,11 +24,22 @@ logger = logging.getLogger(__name__)
 
 valid_repo = re.compile(r"^/[a-z_-]+\.git$")
 
+gitshell = [ "git", "shell", "-c"]
+
+permissions = {
+        "git-upload-pack": "r",
+        "git-upload-archive": "r",
+        "git-receive-pack": "rw",
+        }
+
+
+
 
 class config:
     """Default config"""
     repositories = os.path.join( os.environ["HOME"], "repos", "git" )
     webview = os.path.join( os.environ["HOME"], "repos", "webgit" )
+    rwurl = "ssh://vcs.linkkijkl.fi/"
 
 
 
@@ -44,8 +55,7 @@ class Git(VCS):
 
 
 
-def _create_repository(path, owner):
-    
+def init_repository(path, owner):
     if not os.path.exists(path):
         os.makedirs(path)
     path = os.path.abspath(path)
@@ -61,8 +71,9 @@ def _create_repository(path, owner):
 # dumb transports.
 #
 
+exec git-update-server-info
 
-exec git-update-server-info""")
+""")
     f.close()
     
     os.chmod("hooks/post-update", 0700)
@@ -78,27 +89,68 @@ def unquote(string):
     return string.strip().strip("'").strip('"').strip()
 
 
+
+
+
+@tools.parse_cmd
+def handle_init_repo(username, cmd, args):
     
+    repo_name = " ".join(args).strip()
+     
+    if not tools.safe_chars_only_pat.match(repo_name):
+        tools.errln("Bad repository name. Must match [%s]+" % tools.safe_chars)
+        return 1
+     
+    repo_name += ".git"
+    
+    repo_path = os.path.join(config.repositories, repo_name)
+    if os.path.exists(repo_path):
+        tools.errln("Repository %s already exists." % repo_name)
+        return 1
+    
+    
+    init_repository(repo_path, username)
+
+    tools.writeln("\nCreated Git repository to " +
+                  config.rwurl + repo_name)
+
+
+
+
+def check_permissions(username, cmd, repo_path):
+    repo = Git(repo_path)
+    if username == repo.owner:
+        return True
+    
+    required = permissions[cmd.strip()]
+    return repo.has_permissions(username, required)
+            
+        
+    
+
+@tools.no_user
 @tools.parse_cmd
 def handle_git(username,  cmd, args):
     
-    
-    gitshell = [ "git", "shell", "-c"]
-
     request_repo = unquote(args[0])
     
     if not valid_repo.match(request_repo):
-        msg = "illegal repository '%s'" % request_repo
+        msg = "illegal repository path '%s'" % request_repo
         logger.fatal("%s tried to access %s" % (username, msg))
         sys.stderr.write(msg.capitalize() + "\n")
         return 1    
     
-    repo_to_be_served = os.path.join(config.repositories, request_repo.lstrip("/"))
+    real_repository = os.path.join(config.repositories, 
+                                   request_repo.lstrip("/"))
     
-    git_cmd = cmd + " '%s'" %  repo_to_be_served
     
+    if not check_permissions(username, cmd, real_repository):
+        tools.errln("Subuser unauthorized")
+        return 1
+    
+    
+    git_cmd = cmd + " '%s'" %  real_repository
     gitshell.append(git_cmd)
-    
     return subprocess.call(gitshell)
     
 
@@ -107,4 +159,5 @@ cmds = {
         "git-upload-pack": handle_git,
         "git-receive-pack": handle_git,
         "git-upload-archive": handle_git,
+        "git-init": handle_init_repo,
         }

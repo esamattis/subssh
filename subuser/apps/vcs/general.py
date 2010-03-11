@@ -19,11 +19,19 @@ class InvalidPermissions(Exception):
 
 
 def set_default_permissions(path, owner, klass):
+    
+    f = open(os.path.join(path, klass.owner_filename), "w")
+    f.write(owner)
+    f.close()        
+    
+    
     repo = klass(path)
-    repo.set_owner(owner)
     repo.set_permissions("*", "r")
     repo.set_permissions(owner, "rw")
     repo.save()
+
+
+
 
 
 class VCS(object):
@@ -38,7 +46,10 @@ class VCS(object):
     _permissions_section = "permissions"
     
     permdb_name="subuser_permissions"
+    
     owner_filename="subuser_owner"
+    
+    _owner_changed = False
     
     def __init__(self, repo_path):
         
@@ -69,27 +80,37 @@ class VCS(object):
     
     def set_owner(self, username):
         self.owner = username
-        f = open(self.owner_filepath, "w")
-        f.write(username)
-        f.close()        
+        self._owner_changed = True
 
 
     def set_permissions(self, username, permissions):
         self.permdb.set(self._permissions_section, username, permissions)
     
     def has_permissions(self, username, permissions):
+        # Owner is the god here
         if username == self.owner:
             return True
-        try:
-            permissions_got = self.permdb.get(self._permissions_section, 
+        
+        permissions_got = ""
+        
+        try: # First get general permissions
+            permissions_got += self.permdb.get(self._permissions_section, "*")
+        except NoOptionError:
+            pass
+        
+        try: # and user specific permissions
+            permissions_got += self.permdb.get(self._permissions_section, 
                                                username)
         except NoOptionError:
-            return False
+            pass
         
+        # Iterate through required permissions
         for perm in permissions:
+            # If even one is missing bail out!
             if perm not in permissions_got:
                 return False
-        
+            
+        # If everything was found, authorize the user
         return True
         
     def get_permissions(self, username):
@@ -105,4 +126,12 @@ class VCS(object):
         f = open(self.permdb_filepath, "w")
         self.permdb.write(f)
         f.close()
+        
+        if self._owner_changed:
+            f = open(self.owner_filepath, "w")
+            f.write(self.owner)
+            f.close()        
+        
+        
+        
         
