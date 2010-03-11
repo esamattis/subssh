@@ -18,39 +18,45 @@ import re
 
 from subuser import tools
 
-from general import VCS, set_default_permissions
+from general import VCS, set_default_permissions, InvalidPermissions
 
 logger = logging.getLogger(__name__)
 
-valid_repo = re.compile(r"^/[a-z_-]+\.git$")
 
-gitshell = [ "git", "shell", "-c"]
-
-permissions = {
-        "git-upload-pack": "r",
-        "git-upload-archive": "r",
-        "git-receive-pack": "rw",
-        }
 
 
 
 
 class config:
-    """Default config"""
     repositories = os.path.join( os.environ["HOME"], "repos", "git" )
+    
     webview = os.path.join( os.environ["HOME"], "repos", "webgit" )
+    
     rwurl = "ssh://vcs.linkkijkl.fi/"
 
+    
 
 
 class Git(VCS):
-    
     
     required_by_valid_repo  = ("config", 
                                "objects",
                                "hooks")
 
+    permissions_required = { "git-upload-pack":    "r",
+                             "git-upload-archive": "r",
+                             "git-receive-pack":   "rw" }    
+    
+    
+    def execute(self, username, cmd):
+        
+        if not self.has_permissions(username, self.permissions_required[cmd]):
+            raise InvalidPermissions("%s has no permissions to run %s on %s" %
+                                     (username, cmd, self.repo_name))                                 
+        
+        shell_cmd = cmd + " '%s'" %  self.repo_path
 
+        return subprocess.call(("git", "shell", "-c", shell_cmd))
 
 
 
@@ -85,9 +91,6 @@ exec git-update-server-info
 
 
 
-def unquote(string):
-    return string.strip().strip("'").strip('"').strip()
-
 
 
 
@@ -98,14 +101,15 @@ def handle_init_repo(username, cmd, args):
     repo_name = " ".join(args).strip()
      
     if not tools.safe_chars_only_pat.match(repo_name):
-        tools.errln("Bad repository name. Must match [%s]+" % tools.safe_chars)
+        tools.errln("Bad repository name. Allowed characters: %s (regexp)" % tools.safe_chars)
         return 1
      
-    repo_name += ".git"
+    if not repo_name.endswith(".git"):
+        repo_name += ".git" 
     
     repo_path = os.path.join(config.repositories, repo_name)
     if os.path.exists(repo_path):
-        tools.errln("Repository %s already exists." % repo_name)
+        tools.errln("Repository '%s' already exists." % repo_name)
         return 1
     
     
@@ -117,41 +121,32 @@ def handle_init_repo(username, cmd, args):
 
 
 
-def check_permissions(username, cmd, repo_path):
-    repo = Git(repo_path)
-    if username == repo.owner:
-        return True
-    
-    required = permissions[cmd.strip()]
-    return repo.has_permissions(username, required)
             
-        
     
+valid_repo = re.compile(r"^/[%s]+\.git$" % tools.safe_chars)
 
 @tools.no_user
 @tools.parse_cmd
 def handle_git(username,  cmd, args):
     
-    request_repo = unquote(args[0])
+    request_repo = args[0]
     
     if not valid_repo.match(request_repo):
-        msg = "illegal repository path '%s'" % request_repo
-        logger.fatal("%s tried to access %s" % (username, msg))
-        sys.stderr.write(msg.capitalize() + "\n")
+        tools.errln("Illegal repository path '%s'" % request_repo)
         return 1    
     
-    real_repository = os.path.join(config.repositories, 
-                                   request_repo.lstrip("/"))
+    repo_name = request_repo.lstrip("/")
     
+    # Transform virtual root
+    real_repository_path = os.path.join(config.repositories, repo_name)
     
-    if not check_permissions(username, cmd, real_repository):
-        tools.errln("Subuser unauthorized")
+    repo = Git(real_repository_path)
+    
+    try: # run requested command on the repository
+        return repo.execute(username, cmd)
+    except InvalidPermissions, e:
+        tools.errln(e.args[0], log=logger.error)
         return 1
-    
-    
-    git_cmd = cmd + " '%s'" %  real_repository
-    gitshell.append(git_cmd)
-    return subprocess.call(gitshell)
     
 
 

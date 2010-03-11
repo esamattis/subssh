@@ -18,14 +18,14 @@ class InvalidPermissions(Exception):
     pass
 
 
-def set_default_permissions(path, owner, klass):
+def set_default_permissions(path, owner, vcs_class):
     
-    f = open(os.path.join(path, klass.owner_filename), "w")
+    f = open(os.path.join(path, vcs_class.owner_filename), "w")
     f.write(owner)
     f.close()        
     
     
-    repo = klass(path)
+    repo = vcs_class(path)
     repo.set_permissions("*", "r")
     repo.set_permissions(owner, "rw")
     repo.save()
@@ -54,6 +54,7 @@ class VCS(object):
     def __init__(self, repo_path):
         
         self.repo_path = repo_path
+        self.repo_name = self.repo_path.split("/")[-1]
         
         for path in self.required_by_valid_repo:
             if not os.path.exists(os.path.join(repo_path, path)):
@@ -87,10 +88,7 @@ class VCS(object):
         self.permdb.set(self._permissions_section, username, permissions)
     
     def has_permissions(self, username, permissions):
-        # Owner is the god here
-        if username == self.owner:
-            return True
-        
+
         permissions_got = ""
         
         try: # First get general permissions
@@ -118,8 +116,6 @@ class VCS(object):
                                username)
     
     def remove_all_permissions(self, username):
-        if username == self.owner:
-            raise InvalidPermissions("Can't remove permissions from the owner!")
         self.permdb.remove_option(self._permissions_section, username)
     
     def save(self):

@@ -36,20 +36,20 @@ from subuser import tools
 from general import VCS, set_default_permissions
 
 class config:
-    """Default config"""
     repositories = os.path.join( os.environ["HOME"], "repos", "svn" )
+    
     webview = os.path.join( os.environ["HOME"], "repos", "webgit" )
+    
     rwurl = "svn+ssh://vcs.linkkijkl.fi/"
 
 class Subversion(VCS):
-    
 
     required_by_valid_repo = ("conf/svnserve.conf",)
-    
-    
     permdb_name= "conf/" + VCS.permdb_name
-    
     _permissions_section = "/"
+    
+
+        
     
     
 def enable_svn_permissions(path, dbfile="authz"):
@@ -83,28 +83,35 @@ def init_repository(path, owner):
 
 
     
-    
+
 @tools.parse_cmd
 def handle_init_repo(username, cmd, args):
-    
-    
     
     repo_name = " ".join(args).strip()
      
     if not tools.safe_chars_only_pat.match(repo_name):
-        tools.errln("Bad repository name. Must match ^%s+$" % tools.safe_chars)
+        tools.errln("Bad repository name. Allowed characters: %s (regexp)" % tools.safe_chars)
         return 1
      
-    init_repository(os.path.join(config.repositories, repo_name), 
-                    username)
+
+    repo_path = os.path.join(config.repositories, repo_name)
+    if os.path.exists(repo_path):
+        tools.errln("Repository '%s' already exists." % repo_name)
+        return 1
+    
+    
+    init_repository(repo_path, username)
 
     tools.writeln("\nCreated Subversion repository to " +
                   config.rwurl + repo_name)
 
 
+
+
 @tools.no_user
 @tools.parse_cmd
 def handle_svn(username, cmd, args):
+    # Subversion can handle itself permissions and virtual root
     
     return subprocess.call(['/usr/bin/svnserve', 
                             '--tunnel-user=' + username,

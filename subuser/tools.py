@@ -11,7 +11,7 @@ import re
 
 
 
-safe_chars = r"a-z_A-Z\-\."
+safe_chars = r"a-zA-Z_\-\."
 
 safe_chars_only_pat = re.compile(r"^[%s]+$" % safe_chars )
 
@@ -34,9 +34,9 @@ def no_user(f):
 
 def parse_cmd(f):
     def parse(username, ssh_original_command): 
-        parts = ssh_original_command.split()
+        parts = [part.strip("'\" ") for part in ssh_original_command.split()]
         cmd = parts[0]
-        args = [arg.strip('"').strip("'") for arg in parts[1:]]
+        args = parts[1:]
         return f(username, cmd, args)
     parse.__dict__ = f.__dict__
     parse.__doc__ = f.__doc__
@@ -47,11 +47,13 @@ def parse_cmd(f):
     return parse
 
 
-def writeln(msg, out=sys.stdout):
-    out.write("%s\n"  % msg)
+def writeln(msg, out=sys.stdout, log=None):
+    if log:
+        log(msg)
+    out.write("Subuser: %s\n"  % msg)
 
-def errln(msg):
-    writeln(msg, out=sys.stderr)
+def errln(msg, log=None):
+    writeln(msg, out=sys.stderr, log=log)
     
 
 
