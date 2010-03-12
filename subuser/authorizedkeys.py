@@ -61,6 +61,7 @@ class Subuser(object):
                   "no-X11-forwarding"
                   )
     
+    # sys.executable
     subuser_cmd = "PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subuser"
     
     

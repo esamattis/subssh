@@ -36,8 +36,12 @@ from subuser import tools
 from general import VCS, set_default_permissions
 
 class config:
-    repositories = os.path.join( os.environ["HOME"], "repos", "svn" )
+    svnserve_bin = "svnserve"
+    svn_bin = "svn"
+    svnadmin_bin = "svnadmin"
     
+    repositories = os.path.join( os.environ["HOME"], "repos", "svn" )
+
     webview = os.path.join( os.environ["HOME"], "repos", "webgit" )
     
     rwurl = "svn+ssh://vcs.linkkijkl.fi/"
@@ -46,6 +50,8 @@ class Subversion(VCS):
 
     required_by_valid_repo = ("conf/svnserve.conf",)
     permdb_name= "conf/" + VCS.permdb_name
+    
+    # For svnserve, "/" stands for whole repository
     _permissions_section = "/"
     
 
@@ -67,9 +73,9 @@ def init_repository(path, owner):
         os.makedirs(path)
     path = os.path.abspath(path)
     
-    tools.check_call(("svnadmin", "create", path))
+    tools.check_call((config.svnadmin_bin, "create", path))
     tools.check_call((
-                      "svn", "-m", "created automatically project base", 
+                      config.svn_bin, "-m", "created automatically project base", 
                       "mkdir", "file://%s" % os.path.join(path, "trunk"),
                                "file://%s" % os.path.join(path, "tags"),
                       ))
@@ -90,7 +96,8 @@ def handle_init_repo(username, cmd, args):
     repo_name = " ".join(args).strip()
      
     if not tools.safe_chars_only_pat.match(repo_name):
-        tools.errln("Bad repository name. Allowed characters: %s (regexp)" % tools.safe_chars)
+        tools.errln("Bad repository name. Allowed characters: %s (regexp)" 
+                    % tools.safe_chars)
         return 1
      
 
@@ -111,9 +118,10 @@ def handle_init_repo(username, cmd, args):
 @tools.no_user
 @tools.parse_cmd
 def handle_svn(username, cmd, args):
-    # Subversion can handle itself permissions and virtual root
-    
-    return subprocess.call(['/usr/bin/svnserve', 
+    # Subversion can handle itself permissions and virtual root.
+    # So there's no need to manually check permissions here or
+    # transform the virtual root.
+    return subprocess.call([config.svnserve_bin, 
                             '--tunnel-user=' + username,
                             '-t', '-r',  
                             config.repositories])
