@@ -119,10 +119,8 @@ class AuthorizedKeysException(Exception):
 class AuthorizedKeysDB(object):
     
     
-    def __init__(self, ssh_home=None):
+    def __init__(self, ssh_home=os.path.join( os.environ["HOME"], ".ssh" )):
         
-        if not ssh_home:
-            ssh_home = config.SSH_HOME
         
         self.keypath = os.path.join( ssh_home, "authorized_keys" )
             

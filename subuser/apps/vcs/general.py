@@ -10,6 +10,8 @@ import os
 from ConfigParser import SafeConfigParser, NoOptionError
 
 
+from subuser import tools
+
 class InvalidRepository(IOError):
     pass
 
@@ -33,6 +35,21 @@ def set_default_permissions(path, owner, vcs_class):
 
 
 
+def set_permissions(username, repo, target_username, set_permissions):
+    """
+    usage git-set-permission username <permissions>
+    
+    eg git-set-permission essuuron +w
+    """
+    
+    if not repo.is_owner(username):
+        raise InvalidPermissions("%s  is now the owner of %s" % 
+                                 (username, repo))
+    
+    
+    
+
+
 
 class VCS(object):
     """
@@ -47,7 +64,7 @@ class VCS(object):
     
     permdb_name="subuser_permissions"
     
-    owner_filename="subuser_owner"
+    owner_filename="subuser_owners"
     
     _owner_changed = False
     
@@ -59,19 +76,21 @@ class VCS(object):
         for path in self.required_by_valid_repo:
             if not os.path.exists(os.path.join(repo_path, path)):
                 raise InvalidRepository("%s does not seem to be "
-                                        "valid %s repository" % (
-                                    path, self.__class__.__name__))
+                                        "valid %s repository" % 
+                                    (path, self.__class__.__name__))
                                 
         
         self.permdb_filepath = os.path.join(repo_path, self.permdb_name)
         self.owner_filepath = os.path.join(repo_path, self.owner_filename)
         
+        self._owners = set()
+        
         if os.path.exists(self.owner_filepath):
             f = open(self.owner_filepath, "r")
-            self.owner = f.read(50).strip()
+            for owner in f:
+                self._owners.add(owner.strip())
             f.close()
-        else:
-            self.owner = None
+
         
         self.permdb = SafeConfigParser()
         self.permdb.read(self.permdb_filepath)
@@ -79,10 +98,18 @@ class VCS(object):
         if not self.permdb.has_section(self._permissions_section):
             self.permdb.add_section(self._permissions_section)
     
-    def set_owner(self, username):
-        self.owner = username
+    def add_owner(self, username):
+        self._owners.add(username)
         self._owner_changed = True
 
+    def is_owner(self, username):
+        return username in self._owners
+
+    def remove_owner(self, username):
+        if len(self._owners) == 1 and self.is_owner(username):
+            raise InvalidPermissions("Cannot remove last owner %s" % username)
+        self._owners.remove(username)
+        self._owner_changed = True
 
     def set_permissions(self, username, permissions):
         self.permdb.set(self._permissions_section, username, permissions)
@@ -125,7 +152,8 @@ class VCS(object):
         
         if self._owner_changed:
             f = open(self.owner_filepath, "w")
-            f.write(self.owner)
+            for owner in self._owners:
+                f.write(owner + "\n")
             f.close()        
         
         

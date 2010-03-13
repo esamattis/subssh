@@ -11,9 +11,9 @@ import os
 import shutil
 
 from subuser.apps.vcs import git, svn
+from subuser.apps.vcs.general import InvalidPermissions
 
-
-class TestVCS(object):
+class VCSTestBase(object):
     username = "tester"
     vcs = None
     vcs_class = None
@@ -72,6 +72,36 @@ class TestVCS(object):
         self.assertFalse(repo.has_permissions("new", "w"))
         self.assertFalse(repo.has_permissions("new", "rw"))        
         
+
+    def test_add_owner(self):
+        repo = self.vcs_class(self.dir)
+        repo.add_owner("new")
+        repo.save()
+        
+        repo = self.vcs_class(self.dir)
+        self.assert_(repo.is_owner("new"))
+        
+        
+    def test_remove_owner(self):
+        self.test_add_owner()
+        repo = self.vcs_class(self.dir)
+        repo.remove_owner("new")
+        repo.save()
+                
+        repo = self.vcs_class(self.dir)
+        self.assertFalse(repo.is_owner("new"))
+        
+
+    def test_cannot_remove_last_owner(self):
+        repo = self.vcs_class(self.dir)
+        exception = False
+        try:
+            repo.remove_owner(self.username)
+        except InvalidPermissions:
+            exception = True
+        
+        self.assert_(exception)
+        
         
     def tearDown(self):
         shutil.rmtree(self.dir, ignore_errors=True)
@@ -80,13 +110,13 @@ class TestVCS(object):
         
 
 
-class TestSvn(TestVCS, unittest.TestCase):
+class TestSvn(VCSTestBase, unittest.TestCase):
     vcs = svn
     vcs_class = svn.Subversion 
     
         
         
-class TestGit(TestVCS, unittest.TestCase):
+class TestGit(VCSTestBase, unittest.TestCase):
     vcs = git
     vcs_class = git.Git         
         
