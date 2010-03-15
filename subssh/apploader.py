@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from subuser import config
+from subssh import config
+
+cmds = {}
 
 class UnknownCmd(Exception):
     pass
@@ -16,6 +18,7 @@ def import_subuser_app(module_path, options):
     imported = __import__(module_path, fromlist=[last])
 
     
+    # Subuser apps must have cmds-attribute
     if hasattr(imported, "cmds"):
         # config attribute is optional
         if hasattr(imported, "config"):
@@ -24,7 +27,6 @@ def import_subuser_app(module_path, options):
                 setattr(imported.config, option, value)
     
     else:
-        # Subuser apps must have cmds-attribute
         raise ImportError("%s is not valid Subuser app" % module_path)
     
     return imported    
@@ -32,7 +34,6 @@ def import_subuser_app(module_path, options):
     
 
 def get_all_apps():
-    cmds = {}
     for module_path, options in config.yield_enabled_apps():
         imported = import_subuser_app(module_path, options)
         
@@ -46,9 +47,15 @@ def load(cmd):
     """
     Load requested app.
     """
+    
+    try:
+        return cmds[cmd]
+    except KeyError:
+        pass
+    
     for module_path, options in config.yield_enabled_apps():
         imported = import_subuser_app(module_path, options)
-                    
+        cmds.update(imported.cmds)            
         try:
             return imported.cmds[cmd]
         except KeyError:

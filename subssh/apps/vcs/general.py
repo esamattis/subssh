@@ -10,7 +10,7 @@ import os
 from ConfigParser import SafeConfigParser, NoOptionError
 
 
-from subuser import tools
+from subssh import tools
 
 class InvalidRepository(IOError):
     pass
@@ -27,7 +27,7 @@ def set_default_permissions(path, owner, vcs_class):
     f.close()        
     
     
-    repo = vcs_class(path)
+    repo = vcs_class(path, owner)
     repo.set_permissions("*", "r")
     repo.set_permissions(owner, "rw")
     repo.save()
@@ -35,19 +35,7 @@ def set_default_permissions(path, owner, vcs_class):
 
 
 
-def set_permissions(username, repo, target_username, set_permissions):
-    """
-    usage git-set-permission username <permissions>
-    
-    eg git-set-permission essuuron +w
-    """
-    
-    if not repo.is_owner(username):
-        raise InvalidPermissions("%s  is now the owner of %s" % 
-                                 (username, repo))
-    
-    
-    
+
 
 
 
@@ -62,14 +50,15 @@ class VCS(object):
     
     _permissions_section = "permissions"
     
-    permdb_name="subuser_permissions"
+    permdb_name="subssh_permissions"
     
-    owner_filename="subuser_owners"
+    owner_filename="subssh_owners"
     
-    _owner_changed = False
+    known_permissions = "rw"
     
-    def __init__(self, repo_path):
-        
+    
+    def __init__(self, repo_path, requester):
+        self.requester = requester
         self.repo_path = repo_path
         self.repo_name = self.repo_path.split("/")[-1]
         
@@ -92,15 +81,27 @@ class VCS(object):
             f.close()
 
         
+        if self.requester != "admin" and not self.is_owner(self.requester):
+            raise InvalidPermissions("%s has no permissions to %s" %
+                                     (self.requester, self))
+
+        
         self.permdb = SafeConfigParser()
         self.permdb.read(self.permdb_filepath)
         
         if not self.permdb.has_section(self._permissions_section):
             self.permdb.add_section(self._permissions_section)
     
+    def __repr__(self):
+        return "<%s %s>" % (self.__class__.__name__, self.repo_name)
+    
+    def assert_permissions(self, permissions):
+        for p in permissions:
+            if p not in self.known_permissions:
+                raise InvalidPermissions("Unknown permission %s" % p)
+    
     def add_owner(self, username):
         self._owners.add(username)
-        self._owner_changed = True
 
     def is_owner(self, username):
         return username in self._owners
@@ -109,23 +110,32 @@ class VCS(object):
         if len(self._owners) == 1 and self.is_owner(username):
             raise InvalidPermissions("Cannot remove last owner %s" % username)
         self._owners.remove(username)
-        self._owner_changed = True
+
 
     def set_permissions(self, username, permissions):
-        self.permdb.set(self._permissions_section, username, permissions)
+        """Overrides previous permissions"""
+        self.assert_permissions(permissions)
+        if not permissions:
+            self.remove_all_permissions(username)
+            return
+        
+        perm_set = set(permissions)
+        self.permdb.set(self._permissions_section, username, "".join(perm_set))
+    
     
     def has_permissions(self, username, permissions):
-
-        permissions_got = ""
+        self.assert_permissions(permissions)
+        permissions_got = set()
         
         try: # First get general permissions
-            permissions_got += self.permdb.get(self._permissions_section, "*")
+            for p in self.permdb.get(self._permissions_section, "*"):
+                permissions_got.add(p)
         except NoOptionError:
             pass
         
         try: # and user specific permissions
-            permissions_got += self.permdb.get(self._permissions_section, 
-                                               username)
+            for p in self.permdb.get(self._permissions_section, username):
+                permissions_got.add(p)            
         except NoOptionError:
             pass
         
@@ -135,7 +145,7 @@ class VCS(object):
             if perm not in permissions_got:
                 return False
             
-        # If everything was found, authorize the user
+        # Everything was found
         return True
         
     def get_permissions(self, username):
@@ -143,18 +153,20 @@ class VCS(object):
                                username)
     
     def remove_all_permissions(self, username):
-        self.permdb.remove_option(self._permissions_section, username)
+        try:
+            self.permdb.remove_option(self._permissions_section, username)
+        except NoOptionError:
+            pass
     
     def save(self):
         f = open(self.permdb_filepath, "w")
         self.permdb.write(f)
         f.close()
         
-        if self._owner_changed:
-            f = open(self.owner_filepath, "w")
-            for owner in self._owners:
-                f.write(owner + "\n")
-            f.close()        
+        f = open(self.owner_filepath, "w")
+        for owner in self._owners:
+            f.write(owner + "\n")
+        f.close()        
         
         
         

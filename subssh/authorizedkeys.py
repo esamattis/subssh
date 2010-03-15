@@ -18,13 +18,13 @@ import os
 import re
 import time
 
-from subuser import config
+from subssh import config
 
 
 class PubKeyException(Exception):
     pass
 
-options_pattern = re.compile(r"^command=\"[^\"]*subuser ([a-z]+)\"[^ ]* ")  
+options_pattern = re.compile(r"^command=\"[^\"]*subssh ([a-z]+)\"[^ ]* ")  
 def parse_subuser_key(line):
     """
     Detects if public key line is created by SubUser and extracts username 
@@ -62,7 +62,7 @@ class Subuser(object):
                   )
     
     # sys.executable
-    subuser_cmd = "PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subuser"
+    subssh_cmd = "PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subuser"
     
     
     def __init__(self, username):
@@ -97,12 +97,12 @@ class Subuser(object):
             
     def as_authorized_keys_format(self, key):
         type, comment = self.pubkeys[key]
-        return ("command=\"%(subuser_cmd)s %(username)s\","
+        return ("command=\"%(subssh_cmd)s %(username)s\","
                 "%(ssh_options)s "
                 "%(type)s %(key)s "
                 "%(comment)s" % {
                                                       
-                'subuser_cmd': self.subuser_cmd,
+                'subssh_cmd': self.subssh_cmd,
                 'ssh_options':  self.ssh_options,
                 'type': type,
                 'key': key,

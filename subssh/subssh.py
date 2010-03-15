@@ -15,7 +15,6 @@ logging.basicConfig(filename=config.log ,level=logging.DEBUG,
                     format="%(asctime)s %(levelname)s: %(message)s")
 logger = logging.getLogger("main")
 
-
 import apploader
 
 

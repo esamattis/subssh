@@ -10,8 +10,8 @@ import tempfile
 import os
 import shutil
 
-from subuser.apps.vcs import git, svn
-from subuser.apps.vcs.general import InvalidPermissions
+from subssh.apps.vcs import git, svn
+from subssh.apps.vcs.general import InvalidPermissions
 
 class VCSTestBase(object):
     username = "tester"
@@ -28,13 +28,13 @@ class VCSTestBase(object):
     
     
     def test_unknown_users_has_read_only_permissions(self):
-        repo = self.vcs_class(self.dir)
+        repo = self.vcs_class(self.dir, self.username)
         self.assert_(repo.has_permissions("nonexistent", "r"))
         self.assertFalse(repo.has_permissions("nonexistent", "rw"))
         self.assertFalse(repo.has_permissions("nonexistent", "w"))
     
     def test_default_permissions(self):
-        repo = self.vcs_class(self.dir)
+        repo = self.vcs_class(self.dir, self.username)
         self.assertEquals(repo.get_permissions(self.username),
                           "rw")
         self.assertEquals(repo.get_permissions("*"),
@@ -50,50 +50,50 @@ class VCSTestBase(object):
     
     
     def test_add_permissions(self):
-        repo = self.vcs_class(self.dir)
+        repo = self.vcs_class(self.dir, self.username)
         repo.set_permissions("new", "rw")
         repo.save()
         
-        repo = self.vcs_class(self.dir)
+        repo = self.vcs_class(self.dir, self.username)
         self.assert_(repo.has_permissions("new", "rw"))
         self.assert_(repo.has_permissions("new", "w"))
         self.assert_(repo.has_permissions("new", "r"))    
     
     def test_remove_permissions(self):
-        repo = self.vcs_class(self.dir)
+        repo = self.vcs_class(self.dir, self.username)
         repo.set_permissions("new", "rw")
         repo.save()
         
-        repo = self.vcs_class(self.dir)     
+        repo = self.vcs_class(self.dir, self.username)     
         repo.remove_all_permissions("new")
         repo.save()
         
-        repo = self.vcs_class(self.dir)
+        repo = self.vcs_class(self.dir, self.username)
         self.assertFalse(repo.has_permissions("new", "w"))
         self.assertFalse(repo.has_permissions("new", "rw"))        
         
 
     def test_add_owner(self):
-        repo = self.vcs_class(self.dir)
+        repo = self.vcs_class(self.dir, self.username)
         repo.add_owner("new")
         repo.save()
         
-        repo = self.vcs_class(self.dir)
+        repo = self.vcs_class(self.dir, self.username)
         self.assert_(repo.is_owner("new"))
         
         
     def test_remove_owner(self):
         self.test_add_owner()
-        repo = self.vcs_class(self.dir)
+        repo = self.vcs_class(self.dir, self.username)
         repo.remove_owner("new")
         repo.save()
                 
-        repo = self.vcs_class(self.dir)
+        repo = self.vcs_class(self.dir, self.username)
         self.assertFalse(repo.is_owner("new"))
         
 
     def test_cannot_remove_last_owner(self):
-        repo = self.vcs_class(self.dir)
+        repo = self.vcs_class(self.dir, self.username)
         exception = False
         try:
             repo.remove_owner(self.username)

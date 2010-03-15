@@ -12,16 +12,16 @@ import sys
 import os
 
 
-from subuser.authorizedkeys import AuthorizedKeysDB
-from subuser.authorizedkeys import parse_subuser_key
-from subuser.authorizedkeys import AuthorizedKeysException
+from subssh.authorizedkeys import AuthorizedKeysDB
+from subssh.authorizedkeys import parse_subuser_key
+from subssh.authorizedkeys import AuthorizedKeysException
 
 THIS_DIR = os.path.dirname(__file__) 
 
 class TestParseSubuserKey(unittest.TestCase):
     
     def test_parse(self):
-        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subuser foobar" ssh-rsa avain== kommentti'
+        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subssh foobar" ssh-rsa avain== kommentti'
         username, type, key, comment = parse_subuser_key(line)
         self.assertEquals(username, "foobar")
         self.assertEquals(type, "ssh-rsa")
@@ -29,18 +29,18 @@ class TestParseSubuserKey(unittest.TestCase):
         self.assertEquals(comment, "kommentti")
         
     def test_parse_multiple_comment_words(self):
-        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subuser foobar" ssh-rsa avain== monisanainen kommentti'
+        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subssh foobar" ssh-rsa avain== monisanainen kommentti'
         username, type, key, comment = parse_subuser_key(line)
         self.assertEquals(comment, "monisanainen kommentti")        
         
     
     def test_no_comment(self):
-        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subuser foobar" ssh-rsa avain=='
+        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subssh foobar" ssh-rsa avain=='
         username, type, key, comment = parse_subuser_key(line)
         self.assertEquals(comment, "")        
 
     def test_simple_cmd(self):
-        line = 'command="subuser foobar" ssh-rsa avain== kommentti'
+        line = 'command="subssh foobar" ssh-rsa avain== kommentti'
         username, type, key, comment = parse_subuser_key(line)
         self.assertEquals(username, "foobar")
         self.assertEquals(type, "ssh-rsa")

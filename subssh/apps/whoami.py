@@ -5,8 +5,8 @@ Created on Mar 9, 2010
 @author: epeli
 '''
 
-from subuser import tools
-from subuser import config
+from subssh import tools
+from subssh import config
 
 
 def whoami(username, ssh_original_command):

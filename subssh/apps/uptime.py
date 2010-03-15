@@ -8,7 +8,7 @@ Created on Mar 5, 2010
 
 import subprocess
 
-from subuser import tools
+from subssh import tools
 
 class config:
     hello = "default hello"

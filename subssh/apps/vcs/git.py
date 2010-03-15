@@ -16,7 +16,7 @@ import subprocess
 import logging
 import re
 
-from subuser import tools
+from subssh import tools
 
 from general import VCS, set_default_permissions, InvalidPermissions
 
@@ -107,8 +107,7 @@ def handle_init_repo(username, cmd, args):
                     % tools.safe_chars)
         return 1
      
-    if not repo_name.endswith(".git"):
-        repo_name += ".git" 
+    repo_name += ".git" 
     
     repo_path = os.path.join(config.repositories, repo_name)
     if os.path.exists(repo_path):
@@ -125,9 +124,26 @@ def handle_init_repo(username, cmd, args):
 
 
             
+@tools.parse_cmd            
+def hanle_set_permissions(username,  cmd, args):
+    """
+    usage: git-set-permissions <username> <permissions> <repo_name>
+    
+    eg. git-set-permissions essuuron rw myrepository
+    """
+    
+    target_username = args[0]
+    new_permissions = args[1]
+    repo_name = args[2] + ".git"
+    
+    repo = Git(os.path.join(config.repositories, repo_name), username)
+    
+    repo.set_permissions(target_username, new_permissions)
+            
+            
+            
     
 valid_repo = re.compile(r"^/[%s]+\.git$" % tools.safe_chars)
-
 @tools.no_user
 @tools.parse_cmd
 def handle_git(username,  cmd, args):
@@ -158,4 +174,5 @@ cmds = {
         "git-receive-pack": handle_git,
         "git-upload-archive": handle_git,
         "git-init": handle_init_repo,
+        "git-set-permissions": hanle_set_permissions,
         }

@@ -31,7 +31,7 @@ import os
 import subprocess
 from ConfigParser import SafeConfigParser
 
-from subuser import tools
+from subssh import tools
 
 from general import VCS, set_default_permissions
 
@@ -128,11 +128,30 @@ def handle_svn(username, cmd, args):
     
     
     
+@tools.parse_cmd            
+def hanle_set_permissions(username,  cmd, args):
+    """
+    usage: svn-set-permissions <username> <permissions> <repo_name>
+    
+    eg. svn-set-permissions essuuron rw myrepository
+    """
+    
+    target_username = args[0]
+    new_permissions = args[1]
+    repo_name = args[2]
+    
+    repo = Subversion(os.path.join(config.repositories, repo_name), username)
+    
+    repo.set_permissions(target_username, new_permissions)
+            
+                
+    
 
 
 cmds = {
         "svnserve": handle_svn,
         "svn-init": handle_init_repo,
+        "svn-set-permissions": hanle_set_permissions,
         }
 
 
