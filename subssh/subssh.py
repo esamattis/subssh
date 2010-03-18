@@ -32,7 +32,7 @@ def main():
         sys.stderr.write( "cmds: %s\n" % 
                           ", ".join([name for name, app in apploader.get_all_apps()
                                      if not hasattr(app, "no_user")]).strip(",") )
-        return 0
+        return 1
     
         
     cmd = ssh_original_command.split()[0]
