@@ -32,7 +32,7 @@ def parse_subuser_key(line):
     """
     match = options_pattern.search(line)
     if not match:
-        raise PubKeyException("Not created by SubUser")
+        raise PubKeyException("Not created by Subssh")
     
     username = match.group(1)
     
