@@ -18,14 +18,15 @@ import os
 import re
 import time
 
-from subssh import config
+
+pubkey_pattern = re.compile(r".* +(ssh-(?:rsa|dsa)) +([^ ]+) +(.*)")
 
 
 class PubKeyException(Exception):
     pass
 
 options_pattern = re.compile(r"^command=\"[^\"]*subssh ([a-z]+)\"[^ ]* ")  
-def parse_subuser_key(line):
+def parse_subssh_key(line):
     """
     Detects if public key line is created by SubUser and extracts username 
     from it
@@ -137,7 +138,7 @@ class AuthorizedKeysDB(object):
         for line in keyfile:
             line = line.strip()
             try:
-                username, type, key, comment = parse_subuser_key(line)
+                username, type, key, comment = parse_subssh_key(line)
             except PubKeyException:
                 self.custom_key_lines.append(line)
             else:
