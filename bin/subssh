@@ -2,9 +2,9 @@
 
 import sys
 
-from subssh import subssh
+from subssh import dispatcher
 
 import time
 
 if __name__ == "__main__":
-    sys.exit(subuser.main())
+    sys.exit(dispatcher.main())

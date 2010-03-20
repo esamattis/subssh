@@ -10,7 +10,6 @@ import os
 from ConfigParser import SafeConfigParser, NoOptionError
 
 
-from subssh import tools
 
 class InvalidRepository(IOError):
     pass
@@ -31,8 +30,6 @@ def set_default_permissions(path, owner, vcs_class):
     repo.set_permissions("*", "r")
     repo.set_permissions(owner, "rw")
     repo.save()
-
-
 
 
 
@@ -81,7 +78,7 @@ class VCS(object):
             f.close()
 
         
-        if self.requester != "admin" and not self.is_owner(self.requester):
+        if self.requester != os.getlogin() and not self.is_owner(self.requester):
             raise InvalidPermissions("%s has no permissions to %s" %
                                      (self.requester, self))
 

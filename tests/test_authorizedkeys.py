@@ -29,7 +29,7 @@ class TestAuthorizedKeysDB(unittest.TestCase):
     
     def test_lock(self):
         # Lock the file
-        AuthorizedKeysDB._locktime_out = 10
+        AuthorizedKeysDB._lock_timeout = 10
         db = AuthorizedKeysDB(self.dir)
         
         # Try opening another

@@ -8,12 +8,13 @@ Created on Mar 5, 2010
 
 
 import os.path
+import socket
 from ConfigParser import SafeConfigParser
 
 
 # Defaults
 log = os.path.join( os.environ["HOME"], ".subuser", "log", "cmds.log" )
-
+prompt_host = socket.gethostname() 
 
 
 this = os.path.abspath(os.path.dirname(__file__))

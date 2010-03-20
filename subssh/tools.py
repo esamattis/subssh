@@ -27,8 +27,28 @@ def to_safe_chars(string):
             
 
 def no_user(f):
-    f.no_user = False
+    f.no_user = True
     return f
+    
+
+def to_cmd_args(input):
+    if isinstance(input, str):
+        parts = input.split()
+    else:
+        parts = input
+    
+    try:
+        cmd = parts[0]
+    except IndexError:
+        cmd = ""
+    
+    try:
+        args = parts[1:]
+    except IndexError:
+        args = []        
+        
+    return cmd, args
+    
     
     
 
@@ -50,7 +70,7 @@ def parse_cmd(f):
 def writeln(msg, out=sys.stdout, log=None):
     if log:
         log(msg)
-    out.write("Subuser: %s\n"  % msg)
+    out.write(" %s\n"  % msg)
 
 def errln(msg, log=None):
     writeln(msg, out=sys.stderr, log=log)
@@ -69,11 +89,4 @@ def check_call(cmd, *args, **kw):
                                  % str(cmd))    
 
 
-if __name__ == "__main__":
-    
-    @parse_cmd
-    def test(cmd, args):
-        print cmd, args
-        
-        
-    test("customcmd arg1 arg2")
+

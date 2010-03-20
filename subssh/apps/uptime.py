@@ -15,7 +15,7 @@ class config:
 
 
 
-def uptime(username, ssh_original_command):
+def uptime(username, cmd, args):
     tools.writeln(config.hello)
     return subprocess.call(["uptime"])
     

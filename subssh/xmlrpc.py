@@ -4,18 +4,23 @@ Created on Mar 19, 2010
 @author: epeli
 '''
 
+import os
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 
-
 from authorizedkeys import AuthorizedKeysDB
-from keyparsers import parse_public_key, PubKeyException
+import tools
+
+class Unauthorized(Exception): pass
 
 
 def add_key(username, pubkey):
+    if username == os.getlogin():
+        raise Unauthorized("Cannot set admin's key over xmlrpc!")
+    
+    
     db = AuthorizedKeysDB()
-    type, key, comment = parse_public_key(pubkey)
-    db.add_key(username, type, key, comment)
+    db.add_key_from_str(username, pubkey)
     db.commit()
     db.close()
     return True
@@ -36,6 +41,8 @@ def standalone_xmlrpc_server(listen, port):
     
     server.register_function(ping)
     server.register_function(add_key)
+    tools.errln("Starting XML-RPC server on http://%s:%s%s" % 
+                (listen, port, RequestHandler.rpc_paths[0]))
     server.serve_forever()
 
 if __name__ == "__main__":

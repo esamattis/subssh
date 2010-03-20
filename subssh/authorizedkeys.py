@@ -6,12 +6,6 @@ Created on Mar 9, 2010
 @author: epeli
 '''
 
-"""
-
-re.sub(r"command=\".+\",", "", key)
-re.sub(r"\s{1}\w+@subuser$", "", key)
-
-"""
 
 
 import os
@@ -76,7 +70,7 @@ class Subuser(object):
             
     def as_authorized_keys_format(self, key):
         type, comment = self.pubkeys[key]
-        return ("command=\"%(subssh_cmd)s %(username)s\","
+        return ("command=\"%(subssh_cmd)s --ssh %(username)s\","
                 "%(ssh_options)s "
                 "%(type)s %(key)s "
                 "%(comment)s" % {
@@ -96,14 +90,14 @@ class AuthorizedKeysException(Exception):
     pass
     
 class AuthorizedKeysDB(object):
-    _locktime_out = 500
+    _lock_timeout = 500
     
     def __init__(self, ssh_home=os.path.join( os.environ["HOME"], ".ssh" )):
         
         
         self.keypath = os.path.join( ssh_home, "authorized_keys" )
             
-        self.lockpath = os.path.join(ssh_home, "subuser_lock")
+        self.lockpath = os.path.join(ssh_home, "subssh_lock")
         
         self._acquire_lock()
         
@@ -117,6 +111,9 @@ class AuthorizedKeysDB(object):
         
 
     def load_keys(self):
+        """
+        (re)load keys from authorized_keys -file
+        """
         self.custom_key_lines = []
         self.subusers = {}
         
@@ -137,7 +134,7 @@ class AuthorizedKeysDB(object):
 
 
     def _acquire_lock(self):
-        timeout = self._locktime_out
+        timeout = self._lock_timeout
         while os.path.exists(self.lockpath):
             time.sleep(0.01)
             timeout -= 1

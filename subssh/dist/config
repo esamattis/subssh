@@ -1,22 +1,21 @@
 [general]
 
-#log = "~/.subuser/main.log"
+#log = "~/.subssh/main.log"
+
+## host on showed prompt. Defaults to system hostname.
+# prompt_host = vcs.linkkijkl.fi
+
+[app:subssh.apps.vcs.svn]
+#repositories = ~/.subssh/repos/svn
+#webview = ~/.subssh/repos/websvn
+
+[app:subssh.apps.vcs.git]
+#repositories = ~/.subssh/repos/svn
+#webview = ~/.subssh/repos/websvn
 
 
-
-
-
-[app:subuser.apps.vcs.svn]
-#repositories = ~/.subuser/repos/svn
-#webview = ~/.subuser/repos/websvn
-
-[app:subuser.apps.vcs.git]
-#repositories = ~/.subuser/repos/svn
-#webview = ~/.subuser/repos/websvn
-
-
-[app:subuser.apps.uptime]
+[app:subssh.apps.uptime]
 hello = config hello
 
 
-[app:subuser.apps.whoami]
+[app:subssh.apps.whoami]

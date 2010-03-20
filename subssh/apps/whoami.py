@@ -9,7 +9,7 @@ from subssh import tools
 from subssh import config
 
 
-def whoami(username, ssh_original_command):
+def whoami(username, cmd, args):
     tools.writeln(username)
 
 cmds = {

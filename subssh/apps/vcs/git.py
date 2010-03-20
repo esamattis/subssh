@@ -97,7 +97,6 @@ exec git-update-server-info
 
 
 
-@tools.parse_cmd
 def handle_init_repo(username, cmd, args):
     
     repo_name = " ".join(args).strip()
@@ -124,7 +123,6 @@ def handle_init_repo(username, cmd, args):
 
 
             
-@tools.parse_cmd            
 def hanle_set_permissions(username,  cmd, args):
     """
     usage: git-set-permissions <username> <permissions> <repo_name>
@@ -145,7 +143,6 @@ def hanle_set_permissions(username,  cmd, args):
     
 valid_repo = re.compile(r"^/[%s]+\.git$" % tools.safe_chars)
 @tools.no_user
-@tools.parse_cmd
 def handle_git(username,  cmd, args):
     
     request_repo = args[0]

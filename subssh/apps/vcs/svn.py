@@ -90,7 +90,6 @@ def init_repository(path, owner):
 
     
 
-@tools.parse_cmd
 def handle_init_repo(username, cmd, args):
     
     repo_name = " ".join(args).strip()
@@ -116,7 +115,6 @@ def handle_init_repo(username, cmd, args):
 
 
 @tools.no_user
-@tools.parse_cmd
 def handle_svn(username, cmd, args):
     # Subversion can handle itself permissions and virtual root.
     # So there's no need to manually check permissions here or
@@ -128,7 +126,6 @@ def handle_svn(username, cmd, args):
     
     
     
-@tools.parse_cmd            
 def hanle_set_permissions(username,  cmd, args):
     """
     usage: svn-set-permissions <username> <permissions> <repo_name>
