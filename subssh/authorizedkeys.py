@@ -15,42 +15,12 @@ re.sub(r"\s{1}\w+@subuser$", "", key)
 
 
 import os
-import re
 import time
 
+from keyparsers import parse_subssh_key
+from keyparsers import parse_public_key
+from keyparsers import PubKeyException
 
-pubkey_pattern = re.compile(r".* +(ssh-(?:rsa|dsa)) +([^ ]+) +(.*)")
-
-
-class PubKeyException(Exception):
-    pass
-
-options_pattern = re.compile(r"^command=\"[^\"]*subssh ([a-z]+)\"[^ ]* ")  
-def parse_subssh_key(line):
-    """
-    Detects if public key line is created by SubUser and extracts username 
-    from it
-    """
-    match = options_pattern.search(line)
-    if not match:
-        raise PubKeyException("Not created by Subssh")
-    
-    username = match.group(1)
-    
-    fields = options_pattern.sub("", line).split(None, 2)
-    
-    type, key = fields[0:2] # Type and key are always there
-    
-    try: # Comment is optional
-        comment = fields[2]
-    except IndexError:
-        comment = ''
-    
-    
-    return username, type, key, comment
-
-    
-    
     
     
 class Subuser(object):
@@ -63,7 +33,7 @@ class Subuser(object):
                   )
     
     # sys.executable
-    subssh_cmd = "PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subuser"
+    subssh_cmd = "PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subssh"
     
     
     def __init__(self, username):
@@ -85,7 +55,15 @@ class Subuser(object):
             self.pubkeys[key] = orig_type, comment
         except KeyError:
             self.pubkeys[key] = type, comment
-        
+    
+
+
+    def has_key_str(self, key):
+        type, key, comment = parse_public_key(key)
+        return self.pubkeys.has_key(key)
+
+    def has_key(self, key):
+        return self.pubkeys.has_key(key)
 
     def iter_in_authorized_keys_format(self):
         for key in self.pubkeys.keys():
@@ -118,7 +96,7 @@ class AuthorizedKeysException(Exception):
     pass
     
 class AuthorizedKeysDB(object):
-    
+    _locktime_out = 500
     
     def __init__(self, ssh_home=os.path.join( os.environ["HOME"], ".ssh" )):
         
@@ -129,27 +107,37 @@ class AuthorizedKeysDB(object):
         
         self._acquire_lock()
         
-        keyfile = open(self.keypath, "r")
             
         self.custom_key_lines = []
         self.subusers = {}
-
-
-        for line in keyfile:
-            line = line.strip()
-            try:
-                username, type, key, comment = parse_subssh_key(line)
-            except PubKeyException:
-                self.custom_key_lines.append(line)
-            else:
-                self.add_key(username, type, key, comment)
         
-        keyfile.close()
+        self.load_keys()
+
+
+        
+
+    def load_keys(self):
+        self.custom_key_lines = []
+        self.subusers = {}
+        
+        if os.path.exists(self.keypath):
+            keyfile = open(self.keypath, "r")
+    
+            for line in keyfile:
+                line = line.strip()
+                try:
+                    username, type, key, comment = parse_subssh_key(line)
+                except PubKeyException:
+                    self.custom_key_lines.append(line)
+                else:
+                    self.add_key(username, type, key, comment)
+            
+            keyfile.close()
                 
 
 
     def _acquire_lock(self):
-        timeout = 100
+        timeout = self._locktime_out
         while os.path.exists(self.lockpath):
             time.sleep(0.01)
             timeout -= 1
@@ -181,6 +169,11 @@ class AuthorizedKeysDB(object):
         user.add_key(type, key, comment)
 
 
+    def add_key_from_str(self, username, key):
+        type, key, comment = parse_public_key(key)
+        self.add_key(username, type, key, comment)
+
+
     def commit(self):
         f = open(self.keypath, "w")
         for line in self.iter_all_keys():
@@ -190,7 +183,8 @@ class AuthorizedKeysDB(object):
         
         
     def _unlock(self):
-        os.remove(self.lockpath)
+        if os.path.exists(self.lockpath):
+            os.remove(self.lockpath)
         
         
     def close(self):
