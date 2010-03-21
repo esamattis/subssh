@@ -36,12 +36,11 @@ SUBSSH_HOME = os.path.join(os.environ['HOME'], ".subssh")
 CONFIG_PATH = os.path.join(SUBSSH_HOME, "config")
 
 
-
 for dir in (SUBSSH_HOME, LOG_USERS, TRACEBACKS):
     if not os.path.exists(dir):
         os.mkdir(dir)
-
-# Copy default config 
+        
+# Copy default config
 if not os.path.exists(CONFIG_PATH):
     shutil.copy(DEFAULT_CONFIG_PATH, CONFIG_PATH)
 
