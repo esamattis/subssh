@@ -76,15 +76,14 @@ class Subuser(object):
         return ("command=\"%(subssh_cmd)s -t %(username)s\","
                 "%(ssh_options)s "
                 "%(type)s %(key)s "
-                "%(comment)s" % {
-                                                      
+                "%(comment)s" 
+                % {
                 'subssh_cmd': self.subssh_cmd,
                 'ssh_options':  self.ssh_options,
                 'type': type,
                 'key': key,
                 'comment': comment, 
-                'username': self.username,
-                 })
+                'username': self.username})
     
     
     
@@ -95,8 +94,11 @@ class AuthorizedKeysException(Exception):
 class AuthorizedKeysDB(object):
     _lock_timeout = 500
     
-    def __init__(self, ssh_home=os.path.join( os.environ["HOME"], ".ssh" )):
+    def __init__(self, ssh_home=os.path.join( os.environ["HOME"], ".ssh" ),
+                 disable_lock=False):
         
+        # Lock can be disabled for read only sessions
+        self.disable_lock = disable_lock
         
         self.keypath = os.path.join( ssh_home, "authorized_keys" )
             
@@ -137,6 +139,9 @@ class AuthorizedKeysDB(object):
 
 
     def _acquire_lock(self):
+        if self.disable_lock:
+            return
+        
         timeout = self._lock_timeout
         if os.path.exists(self.lockpath):
             tools.writeln("authorized_keys is locked!")
@@ -178,6 +183,8 @@ class AuthorizedKeysDB(object):
 
 
     def commit(self):
+        if self.disable_lock:
+            raise AuthorizedKeysException("Cannot commit read only session")
         f = open(self.keypath, "w")
         for line in self.iter_all_keys():
             f.write(line + "\n")
@@ -186,6 +193,8 @@ class AuthorizedKeysDB(object):
         
         
     def _unlock(self):
+        if self.disable_lock:
+            return
         if os.path.exists(self.lockpath):
             os.remove(self.lockpath)
         

@@ -47,7 +47,7 @@ class Git(VCS):
 
     permissions_required = { "git-upload-pack":    "r",
                              "git-upload-archive": "r",
-                             "git-receive-pack":   "w" }    
+                             "git-receive-pack":   "rw" }    
     
     
     def execute(self, username, cmd, git_bin="git"):
@@ -119,6 +119,7 @@ def handle_init_repo(username, cmd, args):
     tools.writeln("\nCreated Git repository to " +
                   config.RWURL + repo_name)
 
+    return 0
 
 
 

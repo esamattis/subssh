@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 
+import os
 import sys
+import traceback
+import time
 
 from subssh import config
-
+import customlogger
 import tools
 
+logger = customlogger.get_logger(__name__)
 
 cmds = {}
 
@@ -76,6 +80,10 @@ def load(cmd):
 
 
 def run(username, cmd, args):
+    # Log all commands that are ran
+    # TODO: preserve history for prompt
+    user_logger = customlogger.get_user_logger(username)
+    user_logger.info("%s %s" % (cmd, args)) 
     
     try:
         app = load(cmd)
@@ -83,8 +91,23 @@ def run(username, cmd, args):
         sys.stderr.write("Unknown command \"%s\"\n" % cmd)
         return 1
     
-    return app(username, cmd, args)
-
+    try:
+        return app(username, cmd, args)
+    except Exception, e:
+        # Show traceback if user is admin
+        if username == tools.admin_name():
+            traceback.print_exc()
+        else:
+            # Log traceback
+            timestamp = str(time.time())
+            logger.error("%s's traceback logged to %s" % (username, timestamp))
+            f = open(os.path.join(config.TRACEBACKS, timestamp), "w")
+            traceback.print_exc(file=f)
+            f.close()
+            tools.errln("System error (%s): %s" % (timestamp, e.args[0]))
+            
+        return 1
+    
 
 # Buildins
 
@@ -115,7 +138,6 @@ def show_doc(username, cmd, args):
     usage: man <another command>
     """
     try:
-        
         doc = cmds[args[0]].__doc__
     except IndexError:
         doc = man.__doc__

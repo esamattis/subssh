@@ -87,7 +87,8 @@ def init_repository(path, owner):
     
     set_default_permissions(path, owner, Subversion)
 
-
+        
+    return 0
 
 
     
@@ -121,10 +122,10 @@ def handle_svn(username, cmd, args):
     # Subversion can handle itself permissions and virtual root.
     # So there's no need to manually check permissions here or
     # transform the virtual root.
-    return subprocess.call([config.SVNSERVE_BIN, 
+    return subprocess.call((config.SVNSERVE_BIN, 
                             '--tunnel-user=' + username,
                             '-t', '-r',  
-                            config.REPOSITORIES])
+                            config.REPOSITORIES))
     
     
     

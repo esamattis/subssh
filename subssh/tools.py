@@ -53,16 +53,6 @@ def no_user(f):
     return f
     
 
-def parse_cmd(f):
-    def parse(username, ssh_original_command): 
-        parts = [part.strip("'\" ") for part in ssh_original_command.split()]
-        cmd = parts[0]
-        args = parts[1:]
-        return f(username, cmd, args)
-    parse.__dict__ = f.__dict__
-    parse.__doc__ = f.__doc__
-    parse.__name__ = f.__name__
-    return parse
 
 
 def default_to_doc(f):
@@ -82,7 +72,7 @@ def default_to_doc(f):
 def writeln(msg, out=sys.stdout, log=None):
     if log:
         log(msg)
-    out.write(" %s\n"  % msg)
+    out.write("%s\n"  % msg)
 
 def errln(msg, log=None):
     writeln(msg, out=sys.stderr, log=log)
@@ -104,7 +94,8 @@ def admin_name():
     try:
         return os.getlogin()
     except OSError:
-        return os.environ['USERNAME']
+        return os.environ['LOGNAME']
         
+
 
 

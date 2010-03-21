@@ -6,7 +6,7 @@ Created on Mar 20, 2010
 
 
 import readline
-import traceback
+
 
 import apploader
 import tools
@@ -24,11 +24,13 @@ def complete(text, state):
                 state -= 1
 
 
+readline.set_completer_delims(' `~!@#$%^&*()=+[{]}\|;:\'",<>/?')
+readline.parse_and_bind("tab: complete")
+readline.set_completer(complete)
+
 def prompt(username):
     
 
-    readline.parse_and_bind("tab: complete")
-    readline.set_completer(complete)
     
     exit_status = 0
     cmd = ""
@@ -42,7 +44,7 @@ def prompt(username):
             print
             continue
         except EOFError:
-            print "logout",
+            print "exit",
             return 0
         
         cmd, args = tools.to_cmd_args(input)
@@ -50,14 +52,8 @@ def prompt(username):
         if not cmd:
             continue
         
-        try:
-            exit_status = apploader.run(username, cmd, args)
-        except Exception, e:
-            if username == tools.admin_name():
-                traceback.print_exc()
-            else:
-                tools.errln(e.args[0])
-    
+        exit_status = apploader.run(username, cmd, args)
+        
     return exit_status
 
     

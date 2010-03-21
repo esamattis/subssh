@@ -34,8 +34,9 @@ def parse_public_key(key):
         tmp = tempfile.NamedTemporaryFile(prefix="subssh_tmp_")
         tmp.write(key)
         tmp.flush()
-        p  = subprocess.Popen( ("ssh-keygen", "-i", "-f", tmp.name), 
-                               stdout=subprocess.PIPE)
+        p  = subprocess.Popen(("ssh-keygen", "-i", "-f", tmp.name), 
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
         p.wait()
         tmp.close()
         if p.returncode == 0:

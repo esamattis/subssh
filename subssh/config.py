@@ -14,7 +14,13 @@ from ConfigParser import SafeConfigParser
 
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 
-LOG = os.path.join( os.environ["HOME"], ".subuser", "log", "cmds.log" )
+LOG_ACCESS = os.path.join( os.environ["HOME"], ".subssh", "access.log" )
+
+LOG_ERROR = os.path.join( os.environ["HOME"], ".subssh", "error.log" )
+
+LOG_USERS = os.path.join( os.environ["HOME"], ".subssh", "users" )
+
+TRACEBACKS = os.path.join( os.environ["HOME"], ".subssh", "tracebacks" )
 
 PROMPT_HOST = socket.gethostname() 
 
@@ -25,16 +31,17 @@ SUBSSH_BIN = os.path.join(PYTHON_PATH, "bin", "subssh")
 
 DEFAULT_CONFIG_PATH = os.path.join(_THIS_DIR, "dist", "config")
 
-CONFIG_DIR = os.path.join(os.environ['HOME'], ".subssh")
+SUBSSH_HOME = os.path.join(os.environ['HOME'], ".subssh")
+
+CONFIG_PATH = os.path.join(SUBSSH_HOME, "config")
 
 
 
+for dir in (SUBSSH_HOME, LOG_USERS, TRACEBACKS):
+    if not os.path.exists(dir):
+        os.mkdir(dir)
 
-if not os.path.exists(CONFIG_DIR):
-    os.mkdir(CONFIG_DIR)
-
-CONFIG_PATH = os.path.join(CONFIG_DIR, "config")
-
+# Copy default config 
 if not os.path.exists(CONFIG_PATH):
     shutil.copy(DEFAULT_CONFIG_PATH, CONFIG_PATH)
 
