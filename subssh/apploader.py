@@ -140,7 +140,7 @@ def show_doc(username, cmd, args):
     try:
         doc = cmds[args[0]].__doc__
     except IndexError:
-        doc = man.__doc__
+        doc = show_doc.__doc__
     
     if doc:
         tools.writeln(doc)
