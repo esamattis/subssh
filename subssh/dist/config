@@ -5,8 +5,9 @@
 ## subssh "binary" location
 #SUBSSH_BIN = /usr/bin/subssh
 
-## host on showed prompt. Defaults to system hostname.
-#PROMPT_HOST = vcs.linkkijkl.fi
+## Hostname display on eg. on promt.
+## Defaults to system hostname.
+#DISPLAY_HOSTNAME = vcs.linkkijkl.fi
 
 [app:subssh.apps.vcs.svn]
 #REPOSITORIES = ~/.subssh/repos/svn

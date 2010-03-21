@@ -23,7 +23,7 @@ from general import VCS, set_default_permissions, InvalidPermissions
 logger = logging.getLogger(__name__)
 
 
-
+from subssh.config import DISPLAY_HOSTNAME
 
 
 
@@ -34,7 +34,7 @@ class config:
     
     WEBVIEW = os.path.join( os.environ["HOME"], "repos", "webgit" )
     
-    RWURL = "ssh://vcs.linkkijkl.fi/"
+    RWURL = "ssh://%s@%s/" % (tools.admin_name(), DISPLAY_HOSTNAME )
 
     
 

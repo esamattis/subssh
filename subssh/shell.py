@@ -35,7 +35,7 @@ def prompt(username):
     exit_status = 0
     cmd = ""
     args = []
-    promt_str = "%s@%s> " % (username, config.PROMPT_HOST)
+    promt_str = "%s@%s> " % (username, config.DISPLAY_HOSTNAME)
     
     while cmd not in ("exit", "logout"):
         try:

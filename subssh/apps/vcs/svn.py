@@ -35,6 +35,9 @@ from subssh import tools
 
 from general import VCS, set_default_permissions
 
+from subssh.config import DISPLAY_HOSTNAME
+
+
 class config:
     SVNSERVE_BIN = "svnserve"
     
@@ -46,7 +49,7 @@ class config:
 
     WEBVIEW = os.path.join( os.environ["HOME"], "repos", "websvn" )
     
-    RWURL = "svn+ssh://vcs.linkkijkl.fi/"
+    RWURL = "svn+ssh://%s@%s/" % (tools.admin_name(), DISPLAY_HOSTNAME )
 
 class Subversion(VCS):
 

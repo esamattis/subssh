@@ -22,7 +22,7 @@ LOG_USERS = os.path.join( os.environ["HOME"], ".subssh", "users" )
 
 TRACEBACKS = os.path.join( os.environ["HOME"], ".subssh", "tracebacks" )
 
-PROMPT_HOST = socket.gethostname() 
+DISPLAY_HOSTNAME = socket.gethostname() 
 
 # HAX
 PYTHON_PATH = "/".join(_THIS_DIR.split("/")[-1:])
