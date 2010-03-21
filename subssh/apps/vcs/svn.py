@@ -36,15 +36,17 @@ from subssh import tools
 from general import VCS, set_default_permissions
 
 class config:
-    svnserve_bin = "svnserve"
-    svn_bin = "svn"
-    svnadmin_bin = "svnadmin"
+    SVNSERVE_BIN = "svnserve"
     
-    repositories = os.path.join( os.environ["HOME"], "repos", "svn" )
+    SVN_BIN = "svn"
+    
+    SVNADMIN_BIN = "svnadmin"
+    
+    REPOSITORIES = os.path.join( os.environ["HOME"], "repos", "svn" )
 
-    webview = os.path.join( os.environ["HOME"], "repos", "webgit" )
+    WEBVIEW = os.path.join( os.environ["HOME"], "repos", "websvn" )
     
-    rwurl = "svn+ssh://vcs.linkkijkl.fi/"
+    RWURL = "svn+ssh://vcs.linkkijkl.fi/"
 
 class Subversion(VCS):
 
@@ -73,9 +75,9 @@ def init_repository(path, owner):
         os.makedirs(path)
     path = os.path.abspath(path)
     
-    tools.check_call((config.svnadmin_bin, "create", path))
+    tools.check_call((config.SVNADMIN_BIN, "create", path))
     tools.check_call((
-                      config.svn_bin, "-m", "created automatically project base", 
+                      config.SVN_BIN, "-m", "created automatically project base", 
                       "mkdir", "file://%s" % os.path.join(path, "trunk"),
                                "file://%s" % os.path.join(path, "tags"),
                       ))
@@ -100,7 +102,7 @@ def handle_init_repo(username, cmd, args):
         return 1
      
 
-    repo_path = os.path.join(config.repositories, repo_name)
+    repo_path = os.path.join(config.REPOSITORIES, repo_name)
     if os.path.exists(repo_path):
         tools.errln("Repository '%s' already exists." % repo_name)
         return 1
@@ -109,7 +111,7 @@ def handle_init_repo(username, cmd, args):
     init_repository(repo_path, username)
 
     tools.writeln("\nCreated Subversion repository to " +
-                  config.rwurl + repo_name)
+                  config.RWURL + repo_name)
 
 
 
@@ -119,10 +121,10 @@ def handle_svn(username, cmd, args):
     # Subversion can handle itself permissions and virtual root.
     # So there's no need to manually check permissions here or
     # transform the virtual root.
-    return subprocess.call([config.svnserve_bin, 
+    return subprocess.call([config.SVNSERVE_BIN, 
                             '--tunnel-user=' + username,
                             '-t', '-r',  
-                            config.repositories])
+                            config.REPOSITORIES])
     
     
     
@@ -137,9 +139,10 @@ def hanle_set_permissions(username,  cmd, args):
     new_permissions = args[1]
     repo_name = args[2]
     
-    repo = Subversion(os.path.join(config.repositories, repo_name), username)
+    repo = Subversion(os.path.join(config.REPOSITORIES, repo_name), username)
     
     repo.set_permissions(target_username, new_permissions)
+    repo.save()
             
                 
     

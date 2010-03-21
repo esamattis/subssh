@@ -11,21 +11,29 @@ import config
 
 from optparse import OptionParser
 import logging
-logging.basicConfig(filename=config.log ,level=logging.DEBUG,
+logging.basicConfig(filename=config.LOG ,level=logging.DEBUG,
                     format="%(asctime)s %(levelname)s: %(message)s")
 logger = logging.getLogger("main")
 
 import apploader
 import shell
 import tools
+import admintools
 
 
 parser = OptionParser()
 
 
-parser.add_option("--ssh", dest="ssh_username",
+parser.add_option("-t", "--ssh-tunnel", dest="ssh_username",
                   help="run subssh as user", metavar="ssh_username")
 
+
+
+parser.add_option("-u", "--update-keys", action="store_true",
+                  help="Rewrite authorized_keys -file")
+
+parser.add_option("--restore-default-config", action="store_true",
+                  help="Restore default config")
 
 
 def from_ssh():
@@ -35,11 +43,10 @@ def from_ssh():
     else:
         from_ip = "localhost"
     
-    msg = "IP:%s" % from_ip
+    # TODO: log ip
     
     try:
         ssh_original_command = os.environ['SSH_ORIGINAL_COMMAND']
-        msg += " cmd: " +  ssh_original_command
     except KeyError:
         return "", []
 
@@ -56,10 +63,15 @@ def from_ssh():
         
 
 
-
-
 def main():
     options, args = parser.parse_args()
+    
+    if options.update_keys:
+        return admintools.rewrite_authorized_keys() 
+    
+    if options.restore_default_config:
+        return admintools.restore_config()
+    
     
     if options.ssh_username:
         username = options.ssh_username

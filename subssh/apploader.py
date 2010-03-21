@@ -91,13 +91,17 @@ def run(username, cmd, args):
 
 def commands(username, cmd, args):
     """list all commands"""
-    tools.writeln(", ".join(user_apps()).strip(", " ))
+    for name in user_apps():
+        tools.writeln(name)
+        
 cmds["commands"] = commands
-    
+cmds["help"] = lambda *args: tools.writeln("type 'commands' to list all available "
+                                     "commands. 'man <app>' will display "
+                                     "the command's doc string")    
     
 def exit(username, cmd, args):
     """
-    exit [exit status]
+    usage: exit [exit status]
     """
     try:
         return int(args[0])
@@ -106,9 +110,9 @@ def exit(username, cmd, args):
 cmds["exit"] = exit
 cmds["logout"] = exit
 
-def man(username, cmd, args):
+def show_doc(username, cmd, args):
     """
-    man <command>
+    usage: man <another command>
     """
     try:
         
@@ -121,7 +125,7 @@ def man(username, cmd, args):
     else:
         tools.writeln("'%s' has no doc string" % args[0])
     
-cmds["man"] = man    
+cmds["man"] = show_doc    
 
     
 

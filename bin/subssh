@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 
 import sys
+import os
+
+try:
+    sys.path.insert(0, os.environ['EXTRAPYTHONPATH'])
+except KeyError:
+    pass
 
 from subssh import dispatcher
 
-import time
 
 if __name__ == "__main__":
     sys.exit(dispatcher.main())

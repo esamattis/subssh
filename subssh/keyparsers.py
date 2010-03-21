@@ -57,7 +57,7 @@ def parse_public_key(key):
 options_pattern = re.compile(
                              # Starts with subssh command. command will 
                              # determine the user
-                             r"^command=\"[^\"]*subssh --ssh ([a-z0-9]+)\"[^ ]* +"
+                             r"^command=\"[^\"]*subssh -t ([a-z0-9]+)\"[^ ]* +"
                              # Key type. Must start with rsa or dsa
                              r"(ssh-(?:rsa|dss)) +"
                              # Key itself. No spaces in it

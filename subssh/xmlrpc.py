@@ -4,7 +4,6 @@ Created on Mar 19, 2010
 @author: epeli
 '''
 
-import os
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 
@@ -15,14 +14,14 @@ class Unauthorized(Exception): pass
 
 
 def add_key(username, pubkey):
-    if username == os.getlogin():
+    if username == tools.admin_name():
         raise Unauthorized("Cannot set admin's key over xmlrpc!")
-    
     
     db = AuthorizedKeysDB()
     db.add_key_from_str(username, pubkey)
     db.commit()
     db.close()
+    
     return True
     
 def ping():

@@ -6,6 +6,7 @@ Created on Mar 8, 2010
 '''
 
 import sys
+import os
 import subprocess
 import re
 
@@ -26,10 +27,7 @@ def to_safe_chars(string):
     return not_safe_char.sub("", string)
             
 
-def no_user(f):
-    f.no_user = True
-    return f
-    
+
 
 def to_cmd_args(input):
     if isinstance(input, str):
@@ -50,6 +48,9 @@ def to_cmd_args(input):
     return cmd, args
     
     
+def no_user(f):
+    f.no_user = True
+    return f
     
 
 def parse_cmd(f):
@@ -61,10 +62,21 @@ def parse_cmd(f):
     parse.__dict__ = f.__dict__
     parse.__doc__ = f.__doc__
     parse.__name__ = f.__name__
-    
-    
-    
     return parse
+
+
+def default_to_doc(f):
+    """Print documentation when app is run without any arguments"""
+    def args_checker(username, cmd, args):
+        if not args:
+            errln(f.__doc__)
+            return 1
+        else:
+            return f(username, cmd, args)
+    args_checker.__dict__ = f.__dict__
+    args_checker.__doc__ = f.__doc__
+    args_checker.__name__ = f.__name__
+    return args_checker    
 
 
 def writeln(msg, out=sys.stdout, log=None):
@@ -88,5 +100,11 @@ def check_call(cmd, *args, **kw):
         raise CalledProcessError("Command '%s' returned non-zero exit status 1" 
                                  % str(cmd))    
 
+def admin_name():
+    try:
+        return os.getlogin()
+    except OSError:
+        return os.environ['USERNAME']
+        
 
 

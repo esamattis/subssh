@@ -28,13 +28,13 @@ logger = logging.getLogger(__name__)
 
 
 class config:
-    git_bin = "git"
+    GIT_BIN = "git"
     
-    repositories = os.path.join( os.environ["HOME"], "repos", "git" )
+    REPOSITORIES = os.path.join( os.environ["HOME"], "repos", "git" )
     
-    webview = os.path.join( os.environ["HOME"], "repos", "webgit" )
+    WEBVIEW = os.path.join( os.environ["HOME"], "repos", "webgit" )
     
-    rwurl = "ssh://vcs.linkkijkl.fi/"
+    RWURL = "ssh://vcs.linkkijkl.fi/"
 
     
 
@@ -70,7 +70,7 @@ def init_repository(path, owner):
     
     os.chdir(path)
     
-    tools.check_call((config.git_bin, "init", "--bare"))
+    tools.check_call((config.GIT_BIN, "init", "--bare"))
     
     f = open("hooks/post-update", "w")
     f.write("""#!/bin/sh
@@ -108,7 +108,7 @@ def handle_init_repo(username, cmd, args):
      
     repo_name += ".git" 
     
-    repo_path = os.path.join(config.repositories, repo_name)
+    repo_path = os.path.join(config.REPOSITORIES, repo_name)
     if os.path.exists(repo_path):
         tools.errln("Repository '%s' already exists." % repo_name)
         return 1
@@ -117,7 +117,7 @@ def handle_init_repo(username, cmd, args):
     init_repository(repo_path, username)
 
     tools.writeln("\nCreated Git repository to " +
-                  config.rwurl + repo_name)
+                  config.RWURL + repo_name)
 
 
 
@@ -134,10 +134,10 @@ def hanle_set_permissions(username,  cmd, args):
     new_permissions = args[1]
     repo_name = args[2] + ".git"
     
-    repo = Git(os.path.join(config.repositories, repo_name), username)
+    repo = Git(os.path.join(config.REPOSITORIES, repo_name), username)
     
     repo.set_permissions(target_username, new_permissions)
-            
+    repo.save()
             
             
     
@@ -154,12 +154,12 @@ def handle_git(username,  cmd, args):
     repo_name = request_repo.lstrip("/")
     
     # Transform virtual root
-    real_repository_path = os.path.join(config.repositories, repo_name)
+    real_repository_path = os.path.join(config.REPOSITORIES, repo_name)
     
     repo = Git(real_repository_path)
     
     try: # run requested command on the repository
-        return repo.execute(username, cmd, git_bin=config.git_bin)
+        return repo.execute(username, cmd, git_bin=config.GIT_BIN)
     except InvalidPermissions, e:
         tools.errln(e.args[0], log=logger.error)
         return 1

@@ -9,7 +9,7 @@ Created on Mar 10, 2010
 import os
 from ConfigParser import SafeConfigParser, NoOptionError
 
-
+from subssh import tools
 
 class InvalidRepository(IOError):
     pass
@@ -30,9 +30,6 @@ def set_default_permissions(path, owner, vcs_class):
     repo.set_permissions("*", "r")
     repo.set_permissions(owner, "rw")
     repo.save()
-
-
-
 
 
 
@@ -78,7 +75,9 @@ class VCS(object):
             f.close()
 
         
-        if self.requester != os.getlogin() and not self.is_owner(self.requester):
+        
+        if self.requester != tools.admin_name() \
+           and not self.is_owner(self.requester):
             raise InvalidPermissions("%s has no permissions to %s" %
                                      (self.requester, self))
 
@@ -92,11 +91,6 @@ class VCS(object):
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__, self.repo_name)
     
-    def assert_permissions(self, permissions):
-        for p in permissions:
-            if p not in self.known_permissions:
-                raise InvalidPermissions("Unknown permission %s" % p)
-    
     def add_owner(self, username):
         self._owners.add(username)
 
@@ -109,6 +103,12 @@ class VCS(object):
         self._owners.remove(username)
 
 
+    def assert_permissions(self, permissions):
+        for p in permissions:
+            if p not in self.known_permissions:
+                raise InvalidPermissions("Unknown permission %s" % p)
+    
+
     def set_permissions(self, username, permissions):
         """Overrides previous permissions"""
         self.assert_permissions(permissions)
@@ -116,8 +116,9 @@ class VCS(object):
             self.remove_all_permissions(username)
             return
         
-        perm_set = set(permissions)
-        self.permdb.set(self._permissions_section, username, "".join(perm_set))
+        self.permdb.set(self._permissions_section, 
+                        username, 
+                        "".join(set(permissions)))
     
     
     def has_permissions(self, username, permissions):

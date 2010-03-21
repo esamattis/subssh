@@ -14,7 +14,7 @@ from subssh.apps.vcs import git, svn
 from subssh.apps.vcs.general import InvalidPermissions
 
 class VCSTestBase(object):
-    username = os.getlogin()
+    username = "tester"
     vcs = None
     vcs_class = None
 

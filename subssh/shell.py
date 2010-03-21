@@ -4,11 +4,15 @@ Created on Mar 20, 2010
 @author: epeli
 '''
 
+
 import readline
+import traceback
 
 import apploader
 import tools
 import config
+
+
 
 
 def complete(text, state):
@@ -26,9 +30,10 @@ def prompt(username):
     readline.parse_and_bind("tab: complete")
     readline.set_completer(complete)
     
+    exit_status = 0
     cmd = ""
     args = []
-    promt_str = "%s@%s> " % (username, config.prompt_host)
+    promt_str = "%s@%s> " % (username, config.PROMPT_HOST)
     
     while cmd not in ("exit", "logout"):
         try:
@@ -41,6 +46,18 @@ def prompt(username):
             return 0
         
         cmd, args = tools.to_cmd_args(input)
-        exit_status = apploader.run(username, cmd, args)
+        
+        if not cmd:
+            continue
+        
+        try:
+            exit_status = apploader.run(username, cmd, args)
+        except Exception, e:
+            if username == tools.admin_name():
+                traceback.print_exc()
+            else:
+                tools.errln(e.args[0])
     
     return exit_status
+
+    

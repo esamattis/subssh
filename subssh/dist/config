@@ -1,21 +1,26 @@
 [general]
 
-#log = "~/.subssh/main.log"
+#LOG = "~/.subssh/main.log"
+
+## subssh "binary" location
+#SUBSSH_BIN = /usr/bin/subssh
 
 ## host on showed prompt. Defaults to system hostname.
-# prompt_host = vcs.linkkijkl.fi
+#PROMPT_HOST = vcs.linkkijkl.fi
 
 [app:subssh.apps.vcs.svn]
-#repositories = ~/.subssh/repos/svn
-#webview = ~/.subssh/repos/websvn
+#REPOSITORIES = ~/.subssh/repos/svn
+#WEBVIEW = ~/.subssh/repos/websvn
 
 [app:subssh.apps.vcs.git]
-#repositories = ~/.subssh/repos/svn
-#webview = ~/.subssh/repos/websvn
+#REPOSITORIES = ~/.subssh/repos/svn
+#WEBVIEW = ~/.subssh/repos/websvn
 
 
 [app:subssh.apps.uptime]
-hello = config hello
+HELLO = config hello
 
 
 [app:subssh.apps.whoami]
+
+[app:subssh.apps.pubkeymanager]

@@ -16,7 +16,7 @@ class config:
 
 
 def uptime(username, cmd, args):
-    tools.writeln(config.hello)
+    tools.writeln(__file__)
     return subprocess.call(["uptime"])
     
     

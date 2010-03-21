@@ -76,7 +76,7 @@ sY29ouezv4Xz2PuMch5VGPP+CDqzCM4loWgV
 class TestParseSubuserKey(unittest.TestCase):
     
     def test_parse(self):
-        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subssh --ssh foobar" ssh-rsa avain== kommentti'
+        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subssh -t foobar" ssh-rsa avain== kommentti'
         username, type, key, comment = parse_subssh_key(line)
         self.assertEquals(username, "foobar")
         self.assertEquals(type, "ssh-rsa")
@@ -84,18 +84,18 @@ class TestParseSubuserKey(unittest.TestCase):
         self.assertEquals(comment, "kommentti")
         
     def test_parse_multiple_comment_words(self):
-        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subssh --ssh foobar" ssh-rsa avain== monisanainen kommentti'
+        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subssh -t foobar" ssh-rsa avain== monisanainen kommentti'
         username, type, key, comment = parse_subssh_key(line)
         self.assertEquals(comment, "monisanainen kommentti")        
         
     
     def test_no_comment(self):
-        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subssh --ssh foobar" ssh-rsa avain=='
+        line = 'command="PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subssh -t foobar" ssh-rsa avain=='
         username, type, key, comment = parse_subssh_key(line)
         self.assertEquals(comment, "")        
 
     def test_simple_cmd(self):
-        line = 'command="subssh --ssh foobar" ssh-rsa avain== kommentti'
+        line = 'command="subssh -t foobar" ssh-rsa avain== kommentti'
         username, type, key, comment = parse_subssh_key(line)
         self.assertEquals(username, "foobar")
         self.assertEquals(type, "ssh-rsa")

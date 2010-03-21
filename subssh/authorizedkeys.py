@@ -11,23 +11,26 @@ Created on Mar 9, 2010
 import os
 import time
 
+import tools
 from keyparsers import parse_subssh_key
 from keyparsers import parse_public_key
 from keyparsers import PubKeyException
 
-    
+
+import config
     
 class Subuser(object):
     
     ssh_options = (
+#                  "no-pty,"
                   "no-port-forwarding,"
-                  "no-pty,"
                   "no-agent-forwarding,"
                   "no-X11-forwarding"
                   )
     
     # sys.executable
-    subssh_cmd = "PYTHONPATH=/home/epeli/SubUser/ SubUser/bin/subssh"
+    subssh_cmd = "EXTRAPYTHONPATH=%s %s" % (config.PYTHON_PATH, 
+                                            config.SUBSSH_BIN)
     
     
     def __init__(self, username):
@@ -70,7 +73,7 @@ class Subuser(object):
             
     def as_authorized_keys_format(self, key):
         type, comment = self.pubkeys[key]
-        return ("command=\"%(subssh_cmd)s --ssh %(username)s\","
+        return ("command=\"%(subssh_cmd)s -t %(username)s\","
                 "%(ssh_options)s "
                 "%(type)s %(key)s "
                 "%(comment)s" % {
@@ -135,11 +138,14 @@ class AuthorizedKeysDB(object):
 
     def _acquire_lock(self):
         timeout = self._lock_timeout
+        if os.path.exists(self.lockpath):
+            tools.writeln("authorized_keys is locked!")
         while os.path.exists(self.lockpath):
             time.sleep(0.01)
             timeout -= 1
             if timeout <= 0:
-                raise AuthorizedKeysException("authorized_keys lock file timeout")
+                tools.writeln("Force removing authorized_keys lock")
+                os.remove(self.lockpath)
             
             
         open(self.lockpath, "w").close()        
