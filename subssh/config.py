@@ -49,9 +49,8 @@ if not os.path.exists(CONFIG_PATH):
 _config = SafeConfigParser()
 _config.read(CONFIG_PATH)
 
-
 for option, value in _config.items("general"):
-    globals()[option] = value
+    globals()[option.upper()] = value
 
 def yield_enabled_apps():
     for sec in _config.sections():
@@ -59,6 +58,4 @@ def yield_enabled_apps():
             yield (sec.replace("app:", "").strip(),
                    _config.items(sec) )
             
-        
-        
         
