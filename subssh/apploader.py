@@ -104,7 +104,9 @@ def run(username, cmd, args):
             f = open(os.path.join(config.TRACEBACKS, timestamp), "w")
             traceback.print_exc(file=f)
             f.close()
-            tools.errln("System error (%s): %s" % (timestamp, e.args[0]))
+            tools.errln("System error (%s): %s: %s" % (timestamp, 
+                                                   e.__class__.__name__,
+                                                   e.args[0]))
             
         return 1
     
@@ -141,6 +143,9 @@ def show_doc(username, cmd, args):
         doc = cmds[args[0]].__doc__
     except IndexError:
         doc = show_doc.__doc__
+    except KeyError:
+        tools.errln("Unkown command '%s'" % args[0])
+        return 1
     
     if doc:
         tools.writeln(doc)
