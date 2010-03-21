@@ -27,6 +27,7 @@ def restore_config():
 
 def add_key(username, args):
     
+    # 4096 is enough for everybody? :)
     max_key_size = 4096
     
     if args[0].startswith("http"):
@@ -65,7 +66,8 @@ def list_keys(username):
         tools.writeln("%s has no keys" % username)
     else:
         for i, (key, (type, comment)) in enumerate(subuser.pubkeys.items()):
-            tools.writeln("%s. %s %s key: %s..." % (i+1, type, comment, key[:20]))
+            tools.writeln("%s. %s %s key: %s..." % 
+                          (i+1, type, comment, key[:20]))
     
     db.close()
     

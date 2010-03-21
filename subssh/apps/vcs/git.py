@@ -98,6 +98,10 @@ exec git-update-server-info
 
 
 def handle_init_repo(username, cmd, args):
+    """
+    usage: git-init <repository name without .git extensions>
+    """
+
     
     repo_name = " ".join(args).strip()
      

@@ -94,7 +94,9 @@ def init_repository(path, owner):
     
 
 def handle_init_repo(username, cmd, args):
-    
+    """
+    usage: svn-init <repository name>
+    """
     repo_name = " ".join(args).strip()
      
     if not tools.safe_chars_only_pat.match(repo_name):

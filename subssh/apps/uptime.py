@@ -16,7 +16,7 @@ class config:
 
 
 def uptime(username, cmd, args):
-    1 / 0
+    """Example application for integrating uptime of the host system"""
     return subprocess.call(["uptime"])
     
     
