@@ -25,16 +25,6 @@ class TestAuthorizedKeysDB(unittest.TestCase):
         self.dir = tempfile.mkdtemp(suffix="subssh_tmp")
         shutil.copy(os.path.join(THIS_DIR, "authorized_keys"), self.dir)
         
-        
-    
-    def test_lock(self):
-        # Lock the file
-        AuthorizedKeysDB._lock_timeout = 10
-        db = AuthorizedKeysDB(self.dir)
-        
-        # Try opening another
-        self.assertRaises(AuthorizedKeysException, 
-                          AuthorizedKeysDB, self.dir)
     
     def test_test(self):
         pass
@@ -83,26 +73,23 @@ class TestAuthorizedKeysDB(unittest.TestCase):
         
         
         
-    def test_different_users_can_have_same_keys(self):
+    def test_different_users_cant_have_same_keys(self):
         """
         This is stupid thing to do on clients part...
         """
+        
+        duplicate_key = "tester ssh-rsa duplicatekey comment foobar" 
 
         db = AuthorizedKeysDB(self.dir)
-        db.add_key_from_str("user1", "tester ssh-rsa duplicatekey comment foobar")
-        db.add_key_from_str("user2", "tester ssh-rsa duplicatekey comment foobar")
+        db.add_key_from_str("user1", duplicate_key)
         db.commit()
         db.close() 
         
-        
-        db = AuthorizedKeysDB(self.dir)
-        
-        user1 = db.subusers["user1"]
-        self.assert_(user1.has_key("duplicatekey"))
-        
-        user2 = db.subusers["user2"]
-        self.assert_(user2.has_key("duplicatekey"))        
        
+        db = AuthorizedKeysDB(self.dir)       
+        self.assertRaises(AuthorizedKeysException, db.add_key_from_str, 
+                          "user2", duplicate_key)
+        db.close()        
     
 
     def test_read_usernames(self):

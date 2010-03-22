@@ -27,6 +27,12 @@ def to_safe_chars(string):
     return not_safe_char.sub("", string)
             
 
+class SoftException(Exception):
+    """Exception class that will not get logged as system error when uncaught
+    """
+
+def to_bool(value):
+        return str(value).lower() in ("true", "1",  "enabled")
 
 
 def to_cmd_args(input):

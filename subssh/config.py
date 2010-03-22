@@ -51,10 +51,15 @@ _config.read(CONFIG_PATH)
 for option, value in _config.items("general"):
     globals()[option.upper()] = value
 
+
+def first_to_upper(pair_list):
+    return [(first.upper(), second) for first, second in pair_list]
+        
+
 def yield_enabled_apps():
     for sec in _config.sections():
         if sec.startswith("app:"):
             yield (sec.replace("app:", "").strip(),
-                   _config.items(sec) )
+                   first_to_upper(_config.items(sec)))
             
         

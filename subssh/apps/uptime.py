@@ -11,12 +11,13 @@ import subprocess
 from subssh import tools
 
 class config:
-    hello = "default hello"
+    HELLO = "default hello"
 
 
 
 def uptime(username, cmd, args):
     """Example application for integrating uptime of the host system"""
+    tools.writeln(config.HELLO)
     return subprocess.call(["uptime"])
     
     

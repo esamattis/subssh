@@ -3,7 +3,6 @@
 import os
 import sys
 import traceback
-import time
 
 from subssh import config
 import customlogger
@@ -27,6 +26,7 @@ def import_subuser_app(module_path, options):
     last = module_path.split(".")[-1]
     imported = __import__(module_path, fromlist=[last])
 
+    
     
     # Subuser apps must have cmds-attribute
     if hasattr(imported, "cmds"):
@@ -82,6 +82,7 @@ def load(cmd):
 def run(username, cmd, args):
     # Log all commands that are ran
     # TODO: preserve history for prompt
+    
     user_logger = customlogger.get_user_logger(username)
     user_logger.info("%s %s" % (cmd, args)) 
     
@@ -93,15 +94,22 @@ def run(username, cmd, args):
     
     try:
         return app(username, cmd, args)
+    except tools.SoftException, e:
+        tools.errln("%s: %s" % (e.__class__.__name__, e.args[0]))
     except Exception, e:
         # Show traceback if user is admin
         if username == tools.admin_name():
             traceback.print_exc()
         else:
             # Log traceback
-            timestamp = str(time.time())
-            logger.error("%s's traceback logged to %s" % (username, timestamp))
-            f = open(os.path.join(config.TRACEBACKS, timestamp), "w")
+            import time
+            timestamp = time.time()
+            
+            f = open(os.path.join(config.TRACEBACKS, 
+                                  "%s-%s" % (timestamp, username)), 
+                    "w")
+            
+            f.write("%s %s\n" %(cmd, args))
             traceback.print_exc(file=f)
             f.close()
             tools.errln("System error (%s): %s: %s" % (timestamp, 

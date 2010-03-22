@@ -57,7 +57,9 @@ class VCSTestBase(object):
         repo = self.vcs_class(self.dir, self.username)
         self.assert_(repo.has_permissions("new", "rw"))
         self.assert_(repo.has_permissions("new", "w"))
-        self.assert_(repo.has_permissions("new", "r"))    
+        self.assert_(repo.has_permissions("new", "r"))
+        
+    
     
     def test_remove_permissions(self):
         repo = self.vcs_class(self.dir, self.username)

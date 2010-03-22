@@ -7,29 +7,18 @@ Created on Mar 10, 2010
 '''
 
 import os
+import shutil
 from ConfigParser import SafeConfigParser, NoOptionError
 
 from subssh import tools
 
-class InvalidRepository(IOError):
+class InvalidRepository(IOError, tools.SoftException):
     pass
 
 
-class InvalidPermissions(Exception):
+class InvalidPermissions(tools.SoftException):
     pass
 
-
-def set_default_permissions(path, owner, vcs_class):
-    
-    f = open(os.path.join(path, vcs_class.owner_filename), "w")
-    f.write(owner)
-    f.close()        
-    
-    
-    repo = vcs_class(path, owner)
-    repo.set_permissions("*", "r")
-    repo.set_permissions(owner, "rw")
-    repo.save()
 
 
 
@@ -54,13 +43,12 @@ class VCS(object):
     def __init__(self, repo_path, requester):
         self.requester = requester
         self.repo_path = repo_path
-        self.repo_name = self.repo_path.split("/")[-1]
         
         for path in self.required_by_valid_repo:
             if not os.path.exists(os.path.join(repo_path, path)):
-                raise InvalidRepository("%s does not seem to be "
+                raise InvalidRepository("'%s' does not seem to be "
                                         "valid %s repository" % 
-                                    (path, self.__class__.__name__))
+                                    (self.repo_name, self.__class__.__name__))
                                 
         
         self.permdb_filepath = os.path.join(repo_path, self.permdb_name)
@@ -91,11 +79,41 @@ class VCS(object):
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__, self.repo_name)
     
+    
+    @property
+    def repo_name(self):
+        return os.path.basename(self.repo_path)
+    
+    
+    
     def add_owner(self, username):
         self._owners.add(username)
+        self.set_permissions(username, "rw")
 
     def is_owner(self, username):
         return username in self._owners
+
+
+    def set_default_permissions(self):
+        self.set_permissions("*", "r")
+        for owner in self._owners:
+            self.set_permissions(owner, "rw")        
+        
+    def delete(self):
+        """Deletes hole repository
+        Cannot be undone!
+        """
+        shutil.rmtree(self.repo_path)
+
+
+    def rename(self, new_repo_name):
+        repo_dir = os.path.dirname(self.repo_path)
+        new_path = os.path.join(repo_dir, new_repo_name.strip("/ "))
+        
+        shutil.move(self.repo_path, new_path)
+        
+        self.repo_path = new_path
+
 
     def remove_owner(self, username):
         if len(self._owners) == 1 and self.is_owner(username):
@@ -165,7 +183,4 @@ class VCS(object):
         for owner in self._owners:
             f.write(owner + "\n")
         f.close()        
-        
-        
-        
         
