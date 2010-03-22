@@ -85,7 +85,7 @@ class GitManager(RepoManager):
 
 exec git-update-server-info
 
-    """)
+""")
         f.close()
         
         os.chmod("hooks/post-update", 0700)

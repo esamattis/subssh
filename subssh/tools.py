@@ -11,7 +11,6 @@ import subprocess
 import re
 
 
-
 safe_chars = r"a-zA-Z_\-\."
 
 safe_chars_only_pat = re.compile(r"^[%s]+$" % safe_chars )
@@ -60,10 +59,6 @@ def no_user(f):
     
 
 
-
-
-
-
 def writeln(msg, out=sys.stdout, log=None):
     if log:
         log(msg)
@@ -93,18 +88,18 @@ def admin_name():
 
 class InvalidArguments(SoftException): pass
 
+
+is_inactive = lambda req: not req and req != 0
 def require_args(exactly=None, at_least=None, at_most=None):
     """Raise  InvalidArguments exception with doc string of the command if it 
     is not supplied with required amount of arguments
     """
-    
+     
     requirements = (
-                  # Return Falsy when ok 
-                  lambda count: exactly and count != exactly,
-                  lambda count: at_least and count < at_least, 
-                  lambda count: at_most and count > at_most,
+                  lambda count: is_inactive(exactly) or count == exactly,
+                  lambda count: is_inactive(at_least) or count >= at_least, 
+                  lambda count: is_inactive(at_most) or count <= at_most,
                   )
-    
     
     def decorator(f):
         def args_wrapper(*function_args):
@@ -114,11 +109,20 @@ def require_args(exactly=None, at_least=None, at_most=None):
             # Method decorator
             elif len(function_args) == 4:
                 obj, username, cmd, args = function_args
+            else:
+                raise TypeError("require_args-decorator takes 3-4 arguments")
             
             for requirement in requirements:
-                if requirement(len(args)):
-                    # Raise SoftException with doc string
-                    raise InvalidArguments("\n\n" + f.__doc__ % dict(name=cmd))
+                if not requirement(len(args)):
+                    msg = "Required arguments "
+                    if exactly:
+                        msg += "exactly %s. " % exactly 
+                    if at_least:
+                        msg += "at least %s. " % at_least 
+                    if at_most:
+                        msg += "at most %s. " % at_most                                                 
+                        
+                    raise InvalidArguments(msg)
                 
             return f(*function_args)
         args_wrapper.__name__ = f.__name__

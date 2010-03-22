@@ -14,7 +14,8 @@ from subssh import customlogger
 logger = customlogger.get_logger(__name__)
 
 def public_cmd(public_name=""):
-    """Decorator for marking methos as public"""
+    """Methods decorated with this will be usable on subssh prompt
+    """
     def decorator(f):
         if public_name:
             f.public_name = public_name
@@ -80,7 +81,7 @@ class RepoManager(object):
     @tools.require_args(exactly=1)
     def delete_repo(self, username, cmd, args):
         """
-        %(name)s <repo name>
+        usage: %(name)s <repo name>
         """
         repo = self.get_repo_object(username, args[0])
         repo.delete()
@@ -89,7 +90,7 @@ class RepoManager(object):
     @tools.require_args(exactly=2)    
     def rename_repo(self, username, cmd, args):
         """
-        %(name)s <repo name> <new repo name>
+        usage: %(name)s <repo name> <new repo name>
         """
         repo = self.get_repo_object(username, args[0])
         repo.rename(args[1])        
@@ -99,7 +100,7 @@ class RepoManager(object):
     @tools.require_args(exactly=3)
     def set_permissions(self, username, cmd, args):
         """
-        %(name)s <username> <permissions> <repo name>
+        usage: %(name)s <username> <permissions> <repo name>
         """
         repo = self.get_repo_object(username, args[2])
         repo.set_permissions(args[0], args[1])
@@ -124,7 +125,7 @@ class RepoManager(object):
     @tools.require_args(at_least=1)
     def init_repo(self, username, cmd, args):
         """
-        %(name)s <repository name>
+        usage: %(name)s <repository name>
         """
         repo_name = " ".join(args).strip()
          

@@ -35,7 +35,7 @@ def import_subuser_app(module_path, options):
             for option, value in options:
                 setattr(imported.config, option, value)
 
-        # Run init is app has one
+        # Run init if app has one
         if hasattr(imported, "__appinit__"):
             imported.__appinit__()
             
@@ -48,11 +48,9 @@ def import_subuser_app(module_path, options):
     
 
 def load_all_apps():
-    # TODO: Ablility to reload
+    # TODO: Ability to reload
     if cmds:
         return cmds.items()
-    
-    logger.info("loading all apps")
     
     for module_path, options in config.yield_enabled_apps():
         imported = import_subuser_app(module_path, options)
@@ -78,14 +76,17 @@ def run(username, cmd, args):
     try:
         app = cmds[cmd]
     except KeyError:
-        sys.stderr.write("Unknown command \"%s\"\n" % cmd)
+        sys.stderr.write("Unknown command '%s'\n" % cmd)
         return 1
     
-    if not args and getattr(app, "default_to_doc", False):
-        return show_doc(username, "man", [cmd])
+        
     
     try:
         return app(username, cmd, args)
+    except tools.InvalidArguments, e:
+        tools.errln("Invalid arguments. %s" % e.args[0])
+        show_doc(username, "man", [cmd])
+        return 1
     except tools.SoftException, e:
         # Expected exception. Print error to user.
         tools.errln("%s: %s" % (e.__class__.__name__, e.args[0]))
@@ -127,9 +128,14 @@ def commands(username, cmd, args):
         tools.writeln(name)
         
 cmds["commands"] = commands
-cmds["help"] = lambda *args: tools.writeln("type 'commands' to list all available "
-                                     "commands. 'man <app>' will display "
-                                     "the command's doc string")    
+cmds["help"] = lambda *args: tools.writeln(
+"""
+    type commands to list all available commands.
+     
+        man <app> 
+    
+    will display the command's doc string
+""")    
     
 def exit(username, cmd, args):
     """
