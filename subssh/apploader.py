@@ -10,11 +10,11 @@ import tools
 
 logger = customlogger.get_logger(__name__)
 
+
+# All known applications are set to this dictionary
 cmds = {}
 
 
-class UnknownCmd(Exception):
-    pass
 
 def import_subuser_app(module_path, options):
     """
@@ -27,14 +27,18 @@ def import_subuser_app(module_path, options):
     imported = __import__(module_path, fromlist=[last])
 
     
-    
     # Subuser apps must have cmds-attribute
     if hasattr(imported, "cmds"):
-        # config attribute is optional
+        
+        # Override default config with the user config
         if hasattr(imported, "config"):
-            # Override default config with the user config
             for option, value in options:
                 setattr(imported.config, option, value)
+
+        # Run init is app has one
+        if hasattr(imported, "__appinit__"):
+            imported.__appinit__()
+            
     
     else:
         raise ImportError("%s is not valid Subuser app" % module_path)
@@ -43,7 +47,13 @@ def import_subuser_app(module_path, options):
     
     
 
-def get_all_apps():
+def load_all_apps():
+    # TODO: Ablility to reload
+    if cmds:
+        return cmds.items()
+    
+    logger.info("loading all apps")
+    
     for module_path, options in config.yield_enabled_apps():
         imported = import_subuser_app(module_path, options)
         
@@ -53,31 +63,10 @@ def get_all_apps():
     
 
 def user_apps():
-    return [ app_name for app_name, app in get_all_apps()
+    return [ app_name for app_name, app in load_all_apps()
              if not getattr(app, "no_user", False) ]
 
     
-def load(cmd):
-    """
-    Load requested app.
-    """
-    
-    try:
-        return cmds[cmd]
-    except KeyError:
-        pass
-    
-    for module_path, options in config.yield_enabled_apps():
-        imported = import_subuser_app(module_path, options)
-        cmds.update(imported.cmds)            
-        try:
-            return imported.cmds[cmd]
-        except KeyError:
-            continue
-        
-    raise UnknownCmd(cmd)
-        
-
 
 def run(username, cmd, args):
     # Log all commands that are ran
@@ -87,16 +76,23 @@ def run(username, cmd, args):
     user_logger.info("%s %s" % (cmd, args)) 
     
     try:
-        app = load(cmd)
-    except UnknownCmd:
+        app = cmds[cmd]
+    except KeyError:
         sys.stderr.write("Unknown command \"%s\"\n" % cmd)
         return 1
+    
+    if not args and getattr(app, "default_to_doc", False):
+        return show_doc(username, "man", [cmd])
     
     try:
         return app(username, cmd, args)
     except tools.SoftException, e:
+        # Expected exception. Print error to user.
         tools.errln("%s: %s" % (e.__class__.__name__, e.args[0]))
+        return 1
     except Exception, e:
+        # Unexpected exception! Log it!
+        
         # Show traceback if user is admin
         if username == tools.admin_name():
             traceback.print_exc()
@@ -119,12 +115,15 @@ def run(username, cmd, args):
         return 1
     
 
+load_all_apps()
+
+
 # Buildins
 
 
 def commands(username, cmd, args):
     """list all commands"""
-    for name in user_apps():
+    for name in sorted(user_apps()):
         tools.writeln(name)
         
 cmds["commands"] = commands
@@ -155,7 +154,11 @@ def show_doc(username, cmd, args):
         tools.errln("Unkown command '%s'" % args[0])
         return 1
     
+    
+    
     if doc:
+        # Set document variables
+        doc = doc % {'name': args[0]}
         tools.writeln(doc)
     else:
         tools.writeln("'%s' has no doc string" % args[0])

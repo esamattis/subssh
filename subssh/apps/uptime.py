@@ -15,6 +15,7 @@ class config:
 
 
 
+@tools.require_args(at_most=4, at_least=2)
 def uptime(username, cmd, args):
     """Example application for integrating uptime of the host system"""
     tools.writeln(config.HELLO)

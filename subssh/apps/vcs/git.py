@@ -50,6 +50,13 @@ class Git(VCS):
                              "git-receive-pack":   "rw" }    
     
     
+    @property
+    def name(self):
+        name = os.path.basename(self.repo_path)    
+        if self.repo_path.endswith(".git"):
+            return name[:-4]
+        return name
+    
     def execute(self, username, cmd, git_bin="git"):
         
         if not self.has_permissions(username, self.permissions_required[cmd]):
@@ -120,6 +127,7 @@ def print_config(*args):
     print cmds
     
 
+
 cmds = {
         "git-upload-pack": handle_git,
         "git-receive-pack": handle_git,
@@ -128,8 +136,9 @@ cmds = {
         }
 
 
-if tools.to_bool(config.MANAGER_TOOLS):
-    manager = GitManager(config.REPOSITORIES, Git, suffix=".git",
-                         cmd_prefix="git-")
-    cmds.update(manager.cmds)
+def __appinit__():
+    if tools.to_bool(config.MANAGER_TOOLS):
+        manager = GitManager(config.REPOSITORIES, Git, suffix=".git",
+                             cmd_prefix="git-")
+        cmds.update(manager.cmds)
 

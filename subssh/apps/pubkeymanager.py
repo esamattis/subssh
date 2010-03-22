@@ -9,7 +9,7 @@ Created on Mar 21, 2010
 from subssh import admintools
 from subssh import tools
 
-@tools.default_to_doc
+@tools.require_args(at_least=1)
 def add_key(username, cmd, args):
     """
     Add new public key.

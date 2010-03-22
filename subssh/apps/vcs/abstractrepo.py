@@ -77,11 +77,11 @@ class VCS(object):
             self.permdb.add_section(self._permissions_section)
     
     def __repr__(self):
-        return "<%s %s>" % (self.__class__.__name__, self.repo_name)
+        return "<%s %s>" % (self.__class__.__name__, self.name)
     
     
     @property
-    def repo_name(self):
+    def name(self):
         return os.path.basename(self.repo_path)
     
     
