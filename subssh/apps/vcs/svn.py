@@ -32,11 +32,8 @@ import subprocess
 from ConfigParser import SafeConfigParser
 
 from subssh import tools
-
 from abstractrepo import VCS
-from abstractrepo import InvalidPermissions
 from repomanager import RepoManager
-
 from subssh.config import DISPLAY_HOSTNAME
 
 
@@ -57,6 +54,8 @@ class config:
 
 class Subversion(VCS):
 
+    
+
     required_by_valid_repo = ("conf/svnserve.conf",)
     permdb_name= "conf/" + VCS.permdb_name
     
@@ -71,7 +70,9 @@ class Subversion(VCS):
 
 class SubversionManager(RepoManager):
     
-
+    klass = Subversion
+    cmd_prefix = "svn-"
+    
     def _enable_svn_perm(self, path, dbfile="authz"):
         """
         Set Subversion repository to use our permission config file
@@ -129,9 +130,8 @@ cmds = {
         "svnserve": handle_svn,
         }
 
-if tools.to_bool(config.MANAGER_TOOLS):
-    manager = SubversionManager(config.REPOSITORIES, Subversion,
-                             cmd_prefix="svn-")
-    cmds.update(manager.cmds)
-
+def __appinit__():
+    if tools.to_bool(config.MANAGER_TOOLS):
+        manager = SubversionManager(config.REPOSITORIES)
+        cmds.update(manager.cmds)
 

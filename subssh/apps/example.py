@@ -23,14 +23,13 @@ class config:
     ENABLE_ANOTHER = "disabled"
 
 
-@tools.require_args(exactly=1)
 def hello_cmd(username, cmd, args):
     """
     This is doc string. It will be used as man page of this command.
     '%(name)s' will be replaced by the name of calling cmd.  
     """
     tools.writeln("%s %s! You said %s" 
-                  % (config.MESSAGE, username, args[0]))
+                  % (config.MESSAGE, username, " ".join(args)))
     
     
     # Return value will be the exit status of the command. Zero means success.
@@ -47,9 +46,40 @@ def another_hello(username, cmd, args):
     return 0
 
 
+class MyError(tools.SoftException): pass
+# @tools.require_args can be used to restrict arguments passed to cmd.
+# If requirement is not met an InvalidArguments(SoftException) is raised and
+# doc string of the cmd is printed
+@tools.require_args(exactly=1)
+def soft_exception_example(username, cmd, args):
+    """
+    This application demonstrates SoftExceptions.
+    
+    usage: %(name)s writethis
+    
+    """
+    
+    
+    if args[0] == "writethis":
+        tools.writeln("ok")
+    else:
+        raise MyError("First argument must be 'writethis'")
+    
+    
+@tools.no_user
+def noninteractive(username, cmd, args):
+    """
+    This cmd won't show up on commads listing
+    """
+    tools.writeln("Used directly")
+
 # cmds is the only required variable in subssh apps.
-# Add default app to it
-cmds = {"hello": hello_cmd}
+# Add default apps to it
+cmds = {
+        "hello": hello_cmd,
+        "do_what_i_say": soft_exception_example,
+        "cant_be_run_from_promt": noninteractive,
+        }
 
 
 

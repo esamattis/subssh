@@ -16,7 +16,6 @@ import subssh.customlogger
 import re
 
 from subssh import tools
-
 from abstractrepo import VCS
 from abstractrepo import InvalidPermissions
 from repomanager import RepoManager
@@ -69,6 +68,10 @@ class Git(VCS):
 
 
 class GitManager(RepoManager):
+    cmd_prefix = "git-"
+    suffix = ".git"
+    klass = Git
+
 
     def create_repository(self, path, owner):
         
@@ -138,7 +141,6 @@ cmds = {
 
 def __appinit__():
     if tools.to_bool(config.MANAGER_TOOLS):
-        manager = GitManager(config.REPOSITORIES, Git, suffix=".git",
-                             cmd_prefix="git-")
+        manager = GitManager(config.REPOSITORIES)
         cmds.update(manager.cmds)
 

@@ -11,17 +11,18 @@ import os
 import shutil
 
 from subssh.apps.vcs import git, svn
-from subssh.apps.vcs.general import InvalidPermissions
+from subssh.apps.vcs.abstractrepo import InvalidPermissions
 
 class VCSTestBase(object):
     username = "tester"
-    vcs = None
     vcs_class = None
+    manager_class = None
 
 
     def setUp(self):
         self.dir = tempfile.mkdtemp(prefix="subuser_test_tmp_")
-        self.vcs.init_repository(self.dir, self.username)
+        manager = self.manager_class(self.dir, self.vcs_class)
+        self.manager(self.dir, self.username)
     
     def test_test(self):
         self.assert_(os.path.exists(self.dir))
@@ -113,13 +114,13 @@ class VCSTestBase(object):
 
 
 class TestSvn(VCSTestBase, unittest.TestCase):
-    vcs = svn
+    manager_class = svn.SubversionManager
     vcs_class = svn.Subversion 
     
         
         
 class TestGit(VCSTestBase, unittest.TestCase):
-    vcs = git
+    manager_class = git.GitManager
     vcs_class = git.Git         
         
         

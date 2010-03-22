@@ -6,7 +6,6 @@ Created on Mar 9, 2010
 '''
 
 from subssh import tools
-from subssh import config
 
 
 

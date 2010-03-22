@@ -29,20 +29,21 @@ def public_cmd(public_name=""):
     return decorator
 
 class RepoManager(object):
-    def __init__(self, path_to_repos, klass, prefix="", suffix="", 
-                 cmd_prefix=""):
-        self.klass = klass
-        self.cmd_prefix = cmd_prefix
+    
+    cmd_prefix = ""
+    suffix = ""
+    prefix = ""
+    klass = None
+    
+    def __init__(self, path_to_repos):
         self.path_to_repos = path_to_repos
-        self.prefix = prefix
-        self.suffix = suffix
         
         
         self.cmds = {}
         for key, method in inspect.getmembers(self):
             public_name = getattr(method, "public_name", None)
             if public_name:
-                self.cmds[cmd_prefix + public_name] = method
+                self.cmds[self.cmd_prefix + public_name] = method
                 
         
     
