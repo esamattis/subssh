@@ -38,6 +38,8 @@ class RepoManager(object):
     def __init__(self, path_to_repos):
         self.path_to_repos = path_to_repos
         
+        if not os.path.exists(self.path_to_repos):
+            os.makedirs(self.path_to_repos)
         
         self.cmds = {}
         for key, method in inspect.getmembers(self):
