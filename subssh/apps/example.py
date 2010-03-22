@@ -67,7 +67,7 @@ def soft_exception_example(username, cmd, args):
     
     
 @tools.no_user
-def noninteractive(username, cmd, args):
+def no_prompt(username, cmd, args):
     """
     This cmd won't show up on commads listing
     """
@@ -78,7 +78,7 @@ def noninteractive(username, cmd, args):
 cmds = {
         "hello": hello_cmd,
         "do_what_i_say": soft_exception_example,
-        "cant_be_run_from_promt": noninteractive,
+        "doesnt_show_on_promt": no_prompt,
         }
 
 
