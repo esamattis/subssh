@@ -112,7 +112,8 @@ class VCS(object):
             self.set_permissions(owner, "rw")        
         
     def delete(self):
-        """Deletes hole repository
+        """
+        Deletes hole repository
         Cannot be undone!
         """
         shutil.rmtree(self.repo_path)

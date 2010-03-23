@@ -177,6 +177,28 @@ class RepoManager(object):
         repo.delete()
     
     @public_cmd()
+    @tools.require_args(exactly=2)
+    def add_owner(self, username, cmd, args):
+        """
+        usage: $cmd <repo name> <username>
+        """
+        repo = self.get_repo_object(username, args[0])
+        repo.add_owner(args[1])
+        repo.save()
+        
+    @public_cmd()
+    @tools.require_args(exactly=2)
+    def remove_owner(self, username, cmd, args):
+        """
+        usage: $cmd <repo name> <username>
+        """
+        repo = self.get_repo_object(username, args[0])
+        repo.remove_owner(args[1])
+        repo.save()    
+    
+    
+    
+    @public_cmd()
     @tools.require_args(exactly=2)    
     def rename(self, username, cmd, args):
         """
@@ -191,6 +213,14 @@ class RepoManager(object):
     def set_permissions(self, username, cmd, args):
         """
         usage: $cmd <username> <permissions> <repo name>
+        
+        Permissions can be 'r', 'w', or 'rw'
+        
+        Eg. $cmd myfriend rw myrepository
+        
+        Only owners can change permissions. Owners can also add and remove
+        other owners. 
+        
         """
         repo = self.get_repo_object(username, args[2])
         repo.set_permissions(args[0], args[1])

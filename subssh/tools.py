@@ -123,17 +123,18 @@ class InvalidArguments(SoftException): pass
 
 is_inactive = lambda req: not req and req != 0
 def require_args(exactly=None, at_least=None, at_most=None):
-    """Raise  InvalidArguments exception with doc string of the command if it 
+    """
+    Decorator for setting constraints for arguments of a command.
+    
+    Raises  InvalidArguments exception if command 
     is not supplied with required amount of arguments
     """
      
-    requirements = (
-                  lambda count: is_inactive(exactly) or count == exactly,
-                  lambda count: is_inactive(at_least) or count >= at_least, 
-                  lambda count: is_inactive(at_most) or count <= at_most,
-                  )
+    requirements = (lambda count: is_inactive(exactly) or count == exactly,
+                    lambda count: is_inactive(at_least) or count >= at_least, 
+                    lambda count: is_inactive(at_most) or count <= at_most)
     
-    def decorator(f):
+    def wrapper(f):
         def args_wrapper(*function_args):
             # Funtion decorator
             if len(function_args) == 3:
@@ -144,8 +145,8 @@ def require_args(exactly=None, at_least=None, at_most=None):
             else:
                 raise TypeError("require_args-decorator takes 3-4 arguments")
             
-            for requirement in requirements:
-                if not requirement(len(args)):
+            for require in requirements:
+                if not require(len(args)):
                     msg = "Required arguments "
                     if exactly:
                         msg += "exactly %s. " % exactly 
@@ -162,18 +163,4 @@ def require_args(exactly=None, at_least=None, at_most=None):
         args_wrapper.__dict__ = f.__dict__
         return args_wrapper
         
-    return decorator
-
-if __name__ == "__main__":
-    
-    @require_args(3)
-    def app(username, cmd, args):
-        """%(name)s lol"""
-        print "hello"
-        
-    print app
-    app("esa", "testingapp", [1, 2])
-        
-
-
-
+    return wrapper
