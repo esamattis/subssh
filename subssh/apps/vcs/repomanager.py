@@ -48,9 +48,13 @@ class RepoManager(object):
     prefix = ""
     klass = None
     
-    def __init__(self, path_to_repos, urls=[]):
+    def __init__(self, path_to_repos, webdir="", urls=[]):
         self.path_to_repos = path_to_repos
         self.urls = urls
+        self.webdir = webdir
+        
+        if self.webdir and not os.path.exists(self.webdir):
+            os.makedirs(self.webdir)
         
         
         if not os.path.exists(self.path_to_repos):
@@ -75,16 +79,52 @@ class RepoManager(object):
         return self.klass(self.real(repo_name), username)
     
     
+
     @public_cmd()
+    @tools.require_args(exactly=2)    
+    def web(self, username, cmd, args):
+        """
+        usage: $cmd <repo name> <enable|disable>
+        """
+        repo = self.get_repo_object(username, args[0])
+        webpath = os.path.join(self.webdir, repo.name_on_fs)
+        
+        if args[1] == "enable":
+            if not os.path.exists(webpath):
+                os.symlink(repo.repo_path, webpath)
+        elif args[1] == "disable":
+            if os.path.exists(webpath):
+                os.remove(webpath)
+        else:
+            raise tools.InvalidArguments("Second argument must be 'enable' "
+                                         "or 'disable'")
+    
+    
+    @public_cmd()
+    @tools.require_args(at_most=1)
     def ls(self, username, cmd, args):
+        """
+        List repositories
+        
+        usage: $cmd [mine|all]
+        """
         repos = []
+        
+        
+        user = username
+        try:
+            if args[0] == 'all':
+                user = config.ADMIN
+        except IndexError:
+            pass
+        
         
         logger.info(self.path_to_repos)
         for repo_in_fs in os.listdir(self.path_to_repos):
             try:
                 repo = self.klass(os.path.join(self.path_to_repos, 
                                                repo_in_fs),
-                                  username)
+                                  user)
             except InvalidPermissions:
                 continue
             else:

@@ -1,6 +1,6 @@
 [general]
 
-#log = "~/.subssh/main.log"
+#log = "~/.subssh/error.log"
 
 ## subssh "binary" location
 #subssh_bin = /usr/bin/subssh

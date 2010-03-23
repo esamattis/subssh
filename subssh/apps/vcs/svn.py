@@ -54,6 +54,7 @@ class config:
     URLS = """Read/Write|svn+ssh://$hostname/$name_on_fs
 Webview|http://$hostname/websvn/$name_on_fs"""
 
+    WEBDIR = os.path.join( os.environ["HOME"], "repos", "websvn" )
 
     MANAGER_TOOLS = "true"
 
@@ -130,7 +131,8 @@ cmds = {
 def __appinit__():
     if tools.to_bool(config.MANAGER_TOOLS):
         manager = SubversionManager(config.REPOSITORIES, 
-                                    urls=parse_url_configs(config.URLS) )
+                                    urls=parse_url_configs(config.URLS),
+                                    webdir=config.WEBDIR )
         cmds.update(manager.cmds)
         logger.info(config.URLS)
 

@@ -40,6 +40,7 @@ class config:
 Read only clone|http://$hostname/repo/$name_on_fs
 Webview|http://$hostname/gitphp/$name_on_fs"""
 
+    WEBDIR = os.path.join( os.environ["HOME"], "repos", "webgit" )
 
 
 class Git(VCS):
@@ -141,6 +142,7 @@ cmds = {
 def __appinit__():
     if tools.to_bool(config.MANAGER_TOOLS):
         manager = GitManager(config.REPOSITORIES, 
-                             urls=parse_url_configs(config.URLS) )
+                             urls=parse_url_configs(config.URLS),
+                             webdir=config.WEBDIR )
         cmds.update(manager.cmds)
 
