@@ -12,13 +12,13 @@
 [app:subssh.apps.vcs.svn]
 #repositories = ~/.subssh/repos/svn
 #webview = ~/.subssh/repos/websvn
-urls = Read/Write|svn+ssh://$hostname/$name_on_fs
-       Webview|http://$hostname/websvn/$name_on_fs
+urls = Read/Write|svn+ssh://$hostusername@$hostname/$name_on_fs
+       Webview|http://$hostname/websvn/listing.php?repname=$name_on_fs
 
 [app:subssh.apps.vcs.git]
 #repositories = ~/.subssh/repos/svn
 #webview = ~/.subssh/repos/websvn
-urls = Read/Write|ssh://$hostname/$name_on_fs
+urls = Read/Write|ssh://$hostusername@$hostname/$name_on_fs
        Read only clone|http://$hostname/repo/$name_on_fs
        Webview|http://$hostname/gitphp/$name_on_fs
 

@@ -150,7 +150,8 @@ class RepoManager(object):
         for url_name, url_tmpl in self.urls:
             url = Template(url_tmpl).substitute(name=repo.name, 
                                                 name_on_fs=repo.name_on_fs,
-                                                hostname=config.DISPLAY_HOSTNAME)
+                                                hostname=config.DISPLAY_HOSTNAME,
+                                                hostusername=tools.hostusername(),)
             tools.writeln("    %s: %s" %(url_name, url) )
         
         
