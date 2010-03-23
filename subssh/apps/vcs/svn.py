@@ -34,7 +34,10 @@ from ConfigParser import SafeConfigParser
 from subssh import tools
 from abstractrepo import VCS
 from repomanager import RepoManager
+from repomanager import parse_url_configs
 from subssh.config import DISPLAY_HOSTNAME
+import subssh.customlogger
+logger = subssh.customlogger.get_logger(__name__)
 
 
 class config:
@@ -48,23 +51,17 @@ class config:
 
     WEBVIEW = os.path.join( os.environ["HOME"], "repos", "websvn" )
     
-    RWURL = "svn+ssh://%s@%s/" % (tools.admin_name(), DISPLAY_HOSTNAME )
+    URLS = """Read/Write|svn+ssh://$hostname/$name_on_fs
+Webview|http://$hostname/websvn/$name_on_fs"""
+
 
     MANAGER_TOOLS = "true"
 
 class Subversion(VCS):
-
-    
-
     required_by_valid_repo = ("conf/svnserve.conf",)
     permdb_name= "conf/" + VCS.permdb_name
-    
     # For svnserve, "/" stands for whole repository
     _permissions_section = "/"
-    
-
-        
-    
     
 
 
@@ -132,6 +129,8 @@ cmds = {
 
 def __appinit__():
     if tools.to_bool(config.MANAGER_TOOLS):
-        manager = SubversionManager(config.REPOSITORIES)
+        manager = SubversionManager(config.REPOSITORIES, 
+                                    urls=parse_url_configs(config.URLS) )
         cmds.update(manager.cmds)
+        logger.info(config.URLS)
 

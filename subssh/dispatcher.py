@@ -45,7 +45,7 @@ parser.add_option("--restore-default-config", action="store_true",
                   help="Restore default config")
 
 
-def from_ssh(username=tools.admin_name()):
+def from_ssh(username):
     
     if os.environ.has_key('SSH_CONNECTION'):
         from_ip = os.environ.get('SSH_CONNECTION', '').split()[0]
@@ -94,6 +94,9 @@ def dispatch():
     
     if options.ssh_username:
         username = options.ssh_username
+        if username == config.ADMIN:
+            tools.errln("Cannot login as admin '%s' over SSH!" % username)
+            return 1
         cmd, args = from_ssh(username)
     else:
         username = os.getlogin()

@@ -10,7 +10,8 @@ import os
 import shutil
 from ConfigParser import SafeConfigParser, NoOptionError
 
-from subssh import tools
+from subssh import tools, config
+
 
 class InvalidRepository(IOError, tools.SoftException):
     pass
@@ -44,11 +45,16 @@ class VCS(object):
         self.requester = requester
         self.repo_path = repo_path
         
+        
+        if not os.path.exists(self.repo_path):
+            raise InvalidRepository("Repository '%s' does not exists!" 
+                                    %  self.name )
+        
         for path in self.required_by_valid_repo:
             if not os.path.exists(os.path.join(repo_path, path)):
                 raise InvalidRepository("'%s' does not seem to be "
                                         "valid %s repository" % 
-                                    (self.repo_name, self.__class__.__name__))
+                                    (self.name, self.__class__.__name__))
                                 
         
         self.permdb_filepath = os.path.join(repo_path, self.permdb_name)
@@ -64,7 +70,7 @@ class VCS(object):
 
         
         
-        if self.requester != tools.admin_name() \
+        if self.requester != config.ADMIN \
            and not self.is_owner(self.requester):
             raise InvalidPermissions("%s has no permissions to %s" %
                                      (self.requester, self))
@@ -84,11 +90,17 @@ class VCS(object):
     def name(self):
         return os.path.basename(self.repo_path)
     
+    @property
+    def name_on_fs(self):
+        return os.path.basename(self.repo_path)    
     
     
     def add_owner(self, username):
         self._owners.add(username)
         self.set_permissions(username, "rw")
+        
+    def get_owners(self):
+        return sorted(list(self._owners))
 
     def is_owner(self, username):
         return username in self._owners
@@ -137,6 +149,11 @@ class VCS(object):
         self.permdb.set(self._permissions_section, 
                         username, 
                         "".join(set(permissions)))
+    
+    
+    
+    def get_all_permissions(self):
+        return self.permdb.items(self._permissions_section)
     
     
     def has_permissions(self, username, permissions):

@@ -6,15 +6,18 @@ Created on Mar 22, 2010
 
 import os
 import inspect
+from string import Template
 
 from subssh import tools
 from abstractrepo import InvalidPermissions
 from subssh import customlogger
+from subssh import config
 
 logger = customlogger.get_logger(__name__)
 
 def public_cmd(public_name=""):
-    """Methods decorated with this will be usable on subssh prompt
+    """
+    Methods decorated with this will be usable on subssh prompt
     """
     def decorator(f):
         if public_name:
@@ -28,6 +31,16 @@ def public_cmd(public_name=""):
     
     return decorator
 
+
+def parse_url_configs(url_configs):
+    urls = []
+    for url_config in url_configs.split("\n"):
+        urls.append( tuple(url_config.split("|")) )
+    return urls
+        
+        
+
+
 class RepoManager(object):
     
     cmd_prefix = ""
@@ -35,8 +48,10 @@ class RepoManager(object):
     prefix = ""
     klass = None
     
-    def __init__(self, path_to_repos):
+    def __init__(self, path_to_repos, urls=[]):
         self.path_to_repos = path_to_repos
+        self.urls = urls
+        
         
         if not os.path.exists(self.path_to_repos):
             os.makedirs(self.path_to_repos)
@@ -50,7 +65,9 @@ class RepoManager(object):
         
     
     def real(self, repo_name):
-        """Return real path of the repository"""
+        """
+        Return real path of the repository
+        """
         return os.path.join(self.path_to_repos, 
                             self.prefix + repo_name + self.suffix)
     
@@ -59,7 +76,7 @@ class RepoManager(object):
     
     
     @public_cmd()
-    def ls_repos(self, username, cmd, args):
+    def ls(self, username, cmd, args):
         repos = []
         
         logger.info(self.path_to_repos)
@@ -76,24 +93,53 @@ class RepoManager(object):
         for name in sorted(repos):
             tools.writeln(name)
             
-                
+            
+    @public_cmd()
+    @tools.require_args(exactly=1)      
+    def info(self, username, cmd, args):
+        """
+        Print repository owner and permissions
         
+        usage: $cmd <repo name>
+        """
+        repo = self.get_repo_object(config.ADMIN, args[0])
+        
+        
+        tools.writeln()
+        tools.writeln("Access:")
+        for url_name, url_tmpl in self.urls:
+            url = Template(url_tmpl).substitute(name=repo.name, 
+                                                name_on_fs=repo.name_on_fs,
+                                                hostname=config.DISPLAY_HOSTNAME)
+            tools.writeln("    %s: %s" %(url_name, url) )
+        
+        
+        tools.writeln()
+        tools.writeln("Owners: %s" % ", ".join(repo.get_owners()).strip(", "))
+        tools.writeln()
+        
+        tools.writeln("Permissions:")
+        for username, perm in repo.get_all_permissions():
+            tools.writeln("    %s = %s" %(username, perm) )
+        
+        
+    
     
     
     @public_cmd()
     @tools.require_args(exactly=1)
-    def delete_repo(self, username, cmd, args):
+    def delete(self, username, cmd, args):
         """
-        usage: %(name)s <repo name>
+        usage: $cmd <repo name>
         """
         repo = self.get_repo_object(username, args[0])
         repo.delete()
     
     @public_cmd()
     @tools.require_args(exactly=2)    
-    def rename_repo(self, username, cmd, args):
+    def rename(self, username, cmd, args):
         """
-        usage: %(name)s <repo name> <new repo name>
+        usage: $cmd <repo name> <new repo name>
         """
         repo = self.get_repo_object(username, args[0])
         repo.rename(args[1])        
@@ -103,7 +149,7 @@ class RepoManager(object):
     @tools.require_args(exactly=3)
     def set_permissions(self, username, cmd, args):
         """
-        usage: %(name)s <username> <permissions> <repo name>
+        usage: $cmd <username> <permissions> <repo name>
         """
         repo = self.get_repo_object(username, args[2])
         repo.set_permissions(args[0], args[1])
@@ -111,9 +157,11 @@ class RepoManager(object):
         
         
     def _set_default_permissions(self, repo_path, owner):
-        """Set default permission to a repository.
+        """
+        Set default permission to a repository.
         
-        Overrides previous permissions if any"""
+        Overrides previous permissions if any
+        """
         
         f = open(os.path.join(repo_path, self.klass.owner_filename), "w")
         f.write(owner)
@@ -126,9 +174,9 @@ class RepoManager(object):
         
     @public_cmd()
     @tools.require_args(at_least=1)
-    def init_repo(self, username, cmd, args):
+    def init(self, username, cmd, args):
         """
-        usage: %(name)s <repository name>
+        usage: $cmd <repository name>
         """
         repo_name = " ".join(args).strip()
          
@@ -150,9 +198,6 @@ class RepoManager(object):
         self._set_default_permissions(repo_path, username)
     
 
-        
-    
-    
     def create_repository(self, repo_path, username):
         raise NotImplementedError
     

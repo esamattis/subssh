@@ -17,13 +17,13 @@ def add_key(username, cmd, args):
     usage:
     
     from web:
-        addkey http://example.com/id_rsa.pub
+        $cmd http://example.com/id_rsa.pub
         
     from stdin:
-        addkey -
+        $cmd -
     
     from args_
-        addkey ssh-rsa AAAkeyitself... 
+        $cmd ssh-rsa AAAkeyitself... 
     
     """
     

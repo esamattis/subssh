@@ -26,7 +26,7 @@ class config:
 def hello_cmd(username, cmd, args):
     """
     This is doc string. It will be used as man page of this command.
-    '%(name)s' will be replaced by the name of calling cmd.  
+    '$cmd' will be replaced by the name of calling cmd.  
     """
     tools.writeln("%s %s! You said %s" 
                   % (config.MESSAGE, username, " ".join(args)))
@@ -55,7 +55,7 @@ def soft_exception_example(username, cmd, args):
     """
     This application demonstrates SoftExceptions.
     
-    usage: %(name)s writethis
+    usage: $cmd writethis
     
     """
     

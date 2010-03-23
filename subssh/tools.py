@@ -11,6 +11,7 @@ import subprocess
 import re
 
 
+
 safe_chars = r"a-zA-Z_\-\."
 
 safe_chars_only_pat = re.compile(r"^[%s]+$" % safe_chars )
@@ -59,9 +60,10 @@ def no_user(f):
     
 
 
-def writeln(msg, out=sys.stdout, log=None):
-    if log:
+def writeln(msg="", out=sys.stdout, log=None):
+    if log and msg:
         log(msg)
+        
     out.write("%s\n"  % msg)
 
 def errln(msg, log=None):
@@ -69,18 +71,48 @@ def errln(msg, log=None):
     
 
 
-class CalledProcessError(OSError):
-    pass
+class CalledProcessError(Exception):
+    """This exception is raised when a process run by check_call() returns
+    a non-zero exit status.  The exit status will be stored in the
+    returncode attribute."""
+    def __init__(self, returncode, cmd):
+        self.returncode = returncode
+        self.cmd = cmd
+    def __str__(self):
+        return ("Command '%s' returned non-zero exit status %d" 
+                % (self.cmd, self.returncode))
+
 
 def check_call(cmd, *args, **kw):
     """
-    subprocess.check_call is new in Python 2.5.
-    """
+    subprocess.check_call is new in Python 2.5. This is copied from 2.6 for
+    2.4.
+    
+    Run command with arguments.  Wait for command to complete.  If
+    the exit code was zero then return, otherwise raise
+    CalledProcessError.  The CalledProcessError object will have the
+    return code in the returncode attribute.
+
+    The arguments are the same as for the Popen constructor.  Example:
+
+    check_call(["ls", "-l"])
+    """    
     if subprocess.call(cmd, *args, **kw) != 0:
         raise CalledProcessError("Command '%s' returned non-zero exit status 1" 
                                  % str(cmd))    
+# For  convenience   
+def call(*args, **kw):
+    """Run command with arguments.  Wait for command to complete, then
+    return the returncode attribute.
 
-def admin_name():
+    The arguments are the same as for the Popen constructor.  Example:
+
+    retcode = call(["ls", "-l"])
+    """
+    return subprocess.call(*args, **kw)
+
+
+def hostusername():
     try:
         return os.getlogin()
     except OSError:

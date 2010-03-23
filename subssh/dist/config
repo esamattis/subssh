@@ -1,25 +1,30 @@
 [general]
 
-#LOG = "~/.subssh/main.log"
+#log = "~/.subssh/main.log"
 
 ## subssh "binary" location
-#SUBSSH_BIN = /usr/bin/subssh
+#subssh_bin = /usr/bin/subssh
 
 ## Hostname display on eg. on promt.
 ## Defaults to system hostname.
-#DISPLAY_HOSTNAME = vcs.linkkijkl.fi
+#display_hostname = vcs.linkkijkl.fi
 
 [app:subssh.apps.vcs.svn]
-#REPOSITORIES = ~/.subssh/repos/svn
-#WEBVIEW = ~/.subssh/repos/websvn
+#repositories = ~/.subssh/repos/svn
+#webview = ~/.subssh/repos/websvn
+urls = Read/Write|svn+ssh://$hostname/$name_on_fs
+       Webview|http://$hostname/websvn/$name_on_fs
 
 [app:subssh.apps.vcs.git]
-#REPOSITORIES = ~/.subssh/repos/svn
-#WEBVIEW = ~/.subssh/repos/websvn
+#repositories = ~/.subssh/repos/svn
+#webview = ~/.subssh/repos/websvn
+urls = Read/Write|ssh://$hostname/$name_on_fs
+       Read only clone|http://$hostname/repo/$name_on_fs
+       Webview|http://$hostname/gitphp/$name_on_fs
 
 
 [app:subssh.apps.uptime]
-HELLO = config hello
+hello = config hello
 
 
 [app:subssh.apps.whoami]

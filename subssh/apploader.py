@@ -3,6 +3,7 @@
 import os
 import sys
 import traceback
+from string import Template
 
 from subssh import config
 import customlogger
@@ -27,7 +28,7 @@ def import_subuser_app(module_path, options):
     imported = __import__(module_path, fromlist=[last])
 
     
-    # Subuser apps must have cmds-attribute
+    # Subssh apps must have cmds-attribute
     if hasattr(imported, "cmds"):
         
         # Override default config with the user config
@@ -94,8 +95,8 @@ def run(username, cmd, args):
     except Exception, e:
         # Unexpected exception! Log it!
         
-        # Show traceback if user is admin
-        if username == tools.admin_name():
+        #  We can just print the traceback if user is admin
+        if username == config.ADMIN:
             traceback.print_exc()
         else:
             # Log traceback
@@ -112,14 +113,17 @@ def run(username, cmd, args):
             tools.errln("System error (%s): %s: %s" % (timestamp, 
                                                    e.__class__.__name__,
                                                    e.args[0]))
+            tools.errln("Please report to admin.")
             
         return 1
     
 
+
+
 load_all_apps()
 
 
-# Buildins
+# Buildin commands
 
 
 def commands(username, cmd, args):
@@ -128,7 +132,13 @@ def commands(username, cmd, args):
         tools.writeln(name)
         
 cmds["commands"] = commands
-cmds["help"] = lambda *args: tools.writeln(
+
+
+
+
+def help(username, cmd, args):
+    """Prints help"""
+    tools.writeln(
 """
     type commands to list all available commands.
      
@@ -136,6 +146,15 @@ cmds["help"] = lambda *args: tools.writeln(
     
     will display the command's doc string
 """)    
+    
+cmds["help"] = help
+    
+    
+    
+    
+    
+    
+    
     
 def exit(username, cmd, args):
     """
@@ -145,26 +164,30 @@ def exit(username, cmd, args):
         return int(args[0])
     except (ValueError, IndexError):
         return 0
+    
 cmds["exit"] = exit
 cmds["logout"] = exit
+
+
+
+
+
 
 def show_doc(username, cmd, args):
     """
     usage: man <another command>
     """
     try:
-        doc = cmds[args[0]].__doc__
+        doc_tmpl = cmds[args[0]].__doc__
     except IndexError:
-        doc = show_doc.__doc__
+        doc_tmpl = show_doc.__doc__
     except KeyError:
         tools.errln("Unkown command '%s'" % args[0])
         return 1
     
-    
-    
-    if doc:
+    if doc_tmpl:
         # Set document variables
-        doc = doc % {'name': args[0]}
+        doc = Template(doc_tmpl).substitute(cmd=args[0])
         tools.writeln(doc)
     else:
         tools.writeln("'%s' has no doc string" % args[0])

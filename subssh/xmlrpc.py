@@ -9,12 +9,13 @@ from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 
 from authorizedkeys import AuthorizedKeysDB
 import tools
+import config
 
 class Unauthorized(Exception): pass
 
 
 def add_key(username, pubkey):
-    if username == tools.admin_name():
+    if username == config.ADMIN:
         raise Unauthorized("Cannot set admin's key over xmlrpc!")
     
     db = AuthorizedKeysDB()

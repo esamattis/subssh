@@ -12,13 +12,14 @@ git config --global user.name "Oma Nimi" && git config --global user.email oma.n
 
 import os
 import subprocess
-import subssh.customlogger
 import re
 
 from subssh import tools
 from abstractrepo import VCS
 from abstractrepo import InvalidPermissions
 from repomanager import RepoManager
+from repomanager import parse_url_configs
+import subssh.customlogger
 
 logger = subssh.customlogger.get_logger(__name__)
 
@@ -32,10 +33,13 @@ class config:
     REPOSITORIES = os.path.join( os.environ["HOME"], "repos", "git" )
     
     WEBVIEW = os.path.join( os.environ["HOME"], "repos", "webgit" )
-    
-    RWURL = "ssh://%s@%s/" % (tools.admin_name(), DISPLAY_HOSTNAME )
 
     MANAGER_TOOLS = "true"
+    
+    URLS = """Read/Write|ssh://$hostname/$name_on_fs
+Read only clone|http://$hostname/repo/$name_on_fs
+Webview|http://$hostname/gitphp/$name_on_fs"""
+
 
 
 class Git(VCS):
@@ -126,21 +130,17 @@ def handle_git(username,  cmd, args):
         return 1
     
 
-def print_config(*args):
-    print cmds
-    
-
 
 cmds = {
         "git-upload-pack": handle_git,
         "git-receive-pack": handle_git,
         "git-upload-archive": handle_git,
-        "config": print_config
         }
 
 
 def __appinit__():
     if tools.to_bool(config.MANAGER_TOOLS):
-        manager = GitManager(config.REPOSITORIES)
+        manager = GitManager(config.REPOSITORIES, 
+                             urls=parse_url_configs(config.URLS) )
         cmds.update(manager.cmds)
 
