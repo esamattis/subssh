@@ -31,7 +31,7 @@ def add_key(username, cmd, args):
 
     
 def list_keys(username, cmd, args):    
-    """List key you've uploaded"""
+    """List keys you've uploaded"""
     return admintools.list_keys(username)
     
     

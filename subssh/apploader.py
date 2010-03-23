@@ -62,7 +62,7 @@ def load_all_apps():
     
 
 def user_apps():
-    return [ app_name for app_name, app in load_all_apps()
+    return [ (app_name, app) for app_name, app in load_all_apps()
              if not getattr(app, "no_user", False) ]
 
     
@@ -127,9 +127,13 @@ load_all_apps()
 
 
 def commands(username, cmd, args):
-    """list all commands"""
-    for name in sorted(user_apps()):
-        tools.writeln(name)
+    """List all commands."""
+    
+    for name, app in sorted(user_apps()):
+        first_line = [line.strip() 
+                 for line  in app.__doc__.split("\n") 
+                 if line.strip()][0]
+        tools.writeln("%s - %s" % ( name, first_line ))
         
 cmds["commands"] = commands
 
@@ -137,7 +141,7 @@ cmds["commands"] = commands
 
 
 def help(username, cmd, args):
-    """Prints help"""
+    """Show help."""
     tools.writeln(
 """
     type commands to list all available commands.
@@ -158,6 +162,8 @@ cmds["help"] = help
     
 def exit(username, cmd, args):
     """
+    Logout from subssh.
+    
     usage: exit [exit status]
     """
     try:
@@ -175,6 +181,8 @@ cmds["logout"] = exit
 @tools.require_args(exactly=1)
 def show_doc(username, cmd, args):
     """
+    Show man page of a command.
+    
     usage: man <another command>
     """
     try:

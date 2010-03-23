@@ -84,6 +84,8 @@ class RepoManager(object):
     @tools.require_args(exactly=2)    
     def web(self, username, cmd, args):
         """
+        Enable anonymous webview.
+        
         usage: $cmd <repo name> <enable|disable>
         """
         repo = self.get_repo_object(username, args[0])
@@ -104,7 +106,7 @@ class RepoManager(object):
     @tools.require_args(at_most=1)
     def ls(self, username, cmd, args):
         """
-        List repositories
+        List repositories.
         
         usage: $cmd [mine|all]
         """
@@ -138,7 +140,9 @@ class RepoManager(object):
     @tools.require_args(exactly=1)      
     def info(self, username, cmd, args):
         """
-        Print repository owner and permissions
+        Show information about repository.
+        
+        Shows repository paths, owner and permissions.
         
         usage: $cmd <repo name>
         """
@@ -171,6 +175,8 @@ class RepoManager(object):
     @tools.require_args(exactly=1)
     def delete(self, username, cmd, args):
         """
+        Delete repository.
+        
         usage: $cmd <repo name>
         """
         repo = self.get_repo_object(username, args[0])
@@ -180,6 +186,8 @@ class RepoManager(object):
     @tools.require_args(exactly=2)
     def add_owner(self, username, cmd, args):
         """
+        Add owner to repository.
+        
         usage: $cmd <repo name> <username>
         """
         repo = self.get_repo_object(username, args[0])
@@ -190,6 +198,8 @@ class RepoManager(object):
     @tools.require_args(exactly=2)
     def remove_owner(self, username, cmd, args):
         """
+        Remove owner from repository.
+        
         usage: $cmd <repo name> <username>
         """
         repo = self.get_repo_object(username, args[0])
@@ -202,6 +212,8 @@ class RepoManager(object):
     @tools.require_args(exactly=2)    
     def rename(self, username, cmd, args):
         """
+        Rename repository.
+        
         usage: $cmd <repo name> <new repo name>
         """
         repo = self.get_repo_object(username, args[0])
@@ -212,6 +224,8 @@ class RepoManager(object):
     @tools.require_args(exactly=3)
     def set_permissions(self, username, cmd, args):
         """
+        Set read/write permissions to repository.
+        
         usage: $cmd <username> <permissions> <repo name>
         
         Permissions can be 'r', 'w', or 'rw'
@@ -247,6 +261,8 @@ class RepoManager(object):
     @tools.require_args(at_least=1)
     def init(self, username, cmd, args):
         """
+        Create new repository.
+        
         usage: $cmd <repository name>
         """
         repo_name = " ".join(args).strip()

@@ -54,7 +54,7 @@ class TestRequireArgumens(unittest.TestCase):
         self.assertRaises(InvalidArguments, f, "user", "cmd", [1,2,3])
         
         
-    def test_require_2_to__4(self):
+    def test_require_2_to_4(self):
         @require_args(at_least=2, at_most=4)
         def f(username, cmd, args):
             pass

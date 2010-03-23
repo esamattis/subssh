@@ -16,7 +16,7 @@ import config
 
 
 def complete(text, state):
-    for cmd in apploader.user_apps():
+    for cmd, app in apploader.user_apps():
         if cmd.startswith(text):
             if not state:
                 return cmd
