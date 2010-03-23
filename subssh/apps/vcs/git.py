@@ -122,7 +122,7 @@ def handle_git(username,  cmd, args):
     # Transform virtual root
     real_repository_path = os.path.join(config.REPOSITORIES, repo_name)
     
-    repo = Git(real_repository_path)
+    repo = Git(real_repository_path, username)
     
     try: # run requested command on the repository
         return repo.execute(username, cmd, git_bin=config.GIT_BIN)
