@@ -20,7 +20,7 @@ urls = Read/Write|svn+ssh://$hostusername@$hostname/$name_on_fs
 #webview = ~/.subssh/repos/websvn
 urls = Read/Write|ssh://$hostusername@$hostname/$name_on_fs
        Read only clone|http://$hostname/repo/$name_on_fs
-       Webview|http://$hostname/gitphp/index.php?p=$name_on_fs
+       Webview|http://$hostname/gitphp/index.php?p=$name_on_fs&a=tree
 
 
 [app:subssh.apps.uptime]

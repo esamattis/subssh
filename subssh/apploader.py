@@ -172,7 +172,7 @@ cmds["logout"] = exit
 
 
 
-
+@tools.require_args(exactly=1)
 def show_doc(username, cmd, args):
     """
     usage: man <another command>
