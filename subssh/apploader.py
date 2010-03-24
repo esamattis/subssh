@@ -165,6 +165,8 @@ def exit(username, cmd, args):
     Logout from subssh.
     
     usage: exit [exit status]
+    
+    Pro tip: Hit Ctrl+d to logout.
     """
     try:
         return int(args[0])
@@ -195,7 +197,9 @@ def show_doc(username, cmd, args):
     
     if doc_tmpl:
         # Set document variables
-        doc = Template(doc_tmpl).substitute(cmd=args[0])
+        doc = Template(doc_tmpl).substitute(cmd=args[0],
+                                            hostname=config.DISPLAY_HOSTNAME,
+                                            hostusername=tools.hostusername())
         tools.writeln(doc)
     else:
         tools.writeln("'%s' has no doc string" % args[0])

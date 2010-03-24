@@ -9,9 +9,9 @@ import inspect
 from string import Template
 
 from subssh import tools
-from abstractrepo import InvalidPermissions
 from subssh import customlogger
 from subssh import config
+from abstractrepo import InvalidPermissions
 
 logger = customlogger.get_logger(__name__)
 
