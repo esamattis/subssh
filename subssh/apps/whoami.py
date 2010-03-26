@@ -8,13 +8,10 @@ Created on Mar 9, 2010
 from subssh import tools
 
 
-
-def whoami(username, cmd, args):
+@tools.expose_as()
+def whoami(username, cmd, jotain):
     """Tells who you are
     """
     tools.writeln(username)
 
-cmds = {
-        "whoami": whoami,
-        }
 

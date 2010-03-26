@@ -15,12 +15,17 @@ class config:
 
 
 
+@tools.expose_as("expose", "alt")
+def foo(username, cmd, args):
+    """foo doc"""
+    print "works!"
+
+@tools.expose_as("uptime")
 def uptime(username, cmd, args):
     """Example application for integrating uptime of the host system"""
     tools.writeln(config.HELLO)
     return subprocess.call(("uptime"))
-    
+
     
 
-cmds = {"uptime": uptime}
 

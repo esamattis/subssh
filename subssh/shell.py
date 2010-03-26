@@ -11,12 +11,13 @@ import readline
 import apploader
 import tools
 import config
+import active
 
 
 
 
 def complete(text, state):
-    for cmd, app in apploader.user_apps():
+    for cmd, app in active.user_apps():
         if cmd.startswith(text):
             if not state:
                 return cmd
