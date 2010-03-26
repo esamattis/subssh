@@ -14,8 +14,8 @@ import config
 
 
 
-
-def commands(username, cmd, args):
+@tools.expose_as()
+def commands(user):
     """List all commands."""
     
     for name, app in sorted(active.user_apps()):
@@ -24,12 +24,11 @@ def commands(username, cmd, args):
                  if line.strip()][0]
         tools.writeln("%s - %s" % ( name, first_line ))
         
-active.cmds["commands"] = commands
 
 
 
-
-def help(username, cmd, args):
+@tools.expose_as()
+def help(user):
     """Show help."""
     tools.writeln(
 """
@@ -40,7 +39,6 @@ def help(username, cmd, args):
     will display the command's doc string
 """)    
     
-active.cmds["help"] = help
     
     
     
@@ -48,8 +46,8 @@ active.cmds["help"] = help
     
     
     
-    
-def exit(username, cmd, args):
+@tools.expose_as("exit", "logout")    
+def exit(user, exitstatus=0):
     """
     Logout from subssh.
     
@@ -58,39 +56,34 @@ def exit(username, cmd, args):
     Pro tip: Hit Ctrl+d to logout.
     """
     try:
-        return int(args[0])
-    except (ValueError, IndexError):
-        return 0
+        return int(exitstatus)
+    except ValueError:
+        raise tools.SoftException("Bad exits status %s" % exitstatus)
     
-active.cmds["exit"] = exit
-active.cmds["logout"] = exit
 
 
 
 
-
-@tools.require_args(exactly=1)
-def show_doc(username, cmd, args):
+@tools.expose_as("man")
+def show_doc(user, command="man"):
     """
     Show man page of a command.
     
     usage: man <another command>
     """
     try:
-        doc_tmpl = active.cmds[args[0]].__doc__
-    except IndexError:
-        doc_tmpl = show_doc.__doc__
+        doc_tmpl = active.cmds[command].__doc__
     except KeyError:
-        tools.errln("Unkown command '%s'" % args[0])
+        tools.errln("Unkown command '%s'" % command)
         return 1
     
     if doc_tmpl:
         # Set document variables
-        doc = Template(doc_tmpl).substitute(cmd=args[0],
+        doc = Template(doc_tmpl).substitute(cmd=command,
                                             hostname=config.DISPLAY_HOSTNAME,
                                             hostusername=tools.hostusername())
         tools.writeln(doc)
     else:
-        tools.writeln("'%s' has no doc string" % args[0])
+        tools.writeln("'%s' has no doc string" % command)
     
 active.cmds["man"] = show_doc    

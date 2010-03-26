@@ -29,14 +29,14 @@ readline.set_completer_delims(' `~!@#$%^&*()=+[{]}\|;:\'",<>/?')
 readline.parse_and_bind("tab: complete")
 readline.set_completer(complete)
 
-def prompt(username):
+def prompt(user):
     
 
     
     exit_status = 0
     cmd = ""
     args = []
-    promt_str = "%s@%s> " % (username, config.DISPLAY_HOSTNAME)
+    promt_str = "%s@%s> " % (user.username, config.DISPLAY_HOSTNAME)
     
     while cmd not in ("exit", "logout"):
         try:
@@ -53,7 +53,8 @@ def prompt(username):
         if not cmd:
             continue
         
-        exit_status = apploader.run(username, cmd, args)
+        user.cmd = cmd
+        exit_status = apploader.run(user, args)
         
     return exit_status
 

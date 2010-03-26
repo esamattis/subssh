@@ -10,6 +10,7 @@ import os
 import subprocess
 import re
 import traceback
+import inspect
 
 import active
 import customlogger
@@ -126,48 +127,81 @@ class InvalidArguments(SoftException): pass
 
 
 
-def expose_as(cmd_name="", *alternatives):
+def assert_args(f, function_args, ignore=0):
+    
+    (args,
+     varargs,
+     keywords,
+     defaults) = inspect.getargspec(f)
+    
+    
+    supplied_arg_count = len(function_args)
+    
+    # Methods of objects automatically get +1 arg for the object itself
+    # We can ignore that.
+    if hasattr(f, 'im_self'):
+        ignore += 1
+    
+    # How many  arguments with default values we have
+    if defaults:
+        default_count = len(defaults)
+    else:
+        default_count = 0
+    
+    
+    # Compute how many arguments we really need
+    required_args_count = len(args) - default_count - ignore
+    
+    
+    max_str = ""
+    if varargs:
+        max_str = "-n"
+    if default_count > 0:
+        max_str = "-%s" % (required_args_count + default_count)
+     
+    required = "Required %s%s arguments" % (required_args_count,
+                                            max_str) 
+        
+    if supplied_arg_count == required_args_count:
+        return
+    
+    # More than required is ok, if function has *args arg
+    if varargs and supplied_arg_count > required_args_count:
+        return
+    
+    if default_count:
+        redundant_arg_count = supplied_arg_count - required_args_count
+        
+        # Negative redundant_arg_count means that we have to few
+        # arguments.
+        if redundant_arg_count > 0 and redundant_arg_count <= default_count:
+            return
+        
+    
+    
+    raise InvalidArguments("Invalid argument count %s. %s." 
+                           % (supplied_arg_count, required))
+    
+        
+
+def _default_name(f):
+    return f.__name__.replace("_", "-")
+
+
+def expose(f, *cmd_names):
+    if not cmd_names:
+        # Use name of the function if no name is supplied
+        active.cmds[_default_name(f)] = f
+    else:
+        for name in cmd_names:
+            active.cmds[name] = f    
+    
+
+def expose_as(*cmd_names):
     """Decorator for exposing functions as subssh commands"""
     
     def expose_function(f):
-        def check_args_wrapper(*function_args):
-            """
-            Check that input f gets called with right amount of 
-            arguments. Makes it raise InvalidArguments instead of TypeError when 
-            it is supplied invalid amount of arguments.
-            
-            This is used to distinguish user error from internal app error.  
-            """
-            if len(function_args) != f.func_code.co_argcount:
-                if len(function_args) < f.func_code.co_argcount:
-                    raise InvalidArguments("Too few arguments")
-                
-                # If last arguments does not start with *args
-                if f.func_code.co_nlocals - f.func_code.co_argcount != 1: 
-                    raise InvalidArguments("Too many arguments")
-            # Correct arguments. Execute the original function.
-            # This should not ever raise TypeError.
-            return f(*function_args)
-
-        # Make check_args_wrapper to look like the original function.
-        check_args_wrapper.__name__ = f.__name__
-        check_args_wrapper.__doc__ = f.__doc__
-        check_args_wrapper.__dict__ = f.__dict__
-        
-
-        if not cmd_name:
-            # Use name of the function if no name is supplied
-            name = f.__name__.replace("_", "-")
-        else:
-            name = cmd_name
-        
-        # When f is run from apploader, wrap it with arguments
-        # checker function which 
-        active.cmds[name] = check_args_wrapper
-        for alt_name in alternatives:
-            active.cmds[alt_name] = check_args_wrapper
-        
-        # Calling code gets the real function.
+        expose(f, *cmd_names)
         return f
         
     return expose_function
@@ -175,19 +209,40 @@ def expose_as(cmd_name="", *alternatives):
 
 
 
+def exposable_as(*cmd_names):
+    """
+    Methods decorated with this will marked as exposable.
+    Methods can be exposed with expose_instance.
+    """
+    def set_exposed_name(f):
+        if cmd_names:
+            f.exposed_names = cmd_names
+        else:
+            f.exposed_names = _default_name(f),
+        return f
+    
+    return set_exposed_name
 
 
 
-
-
-
-
+def expose_instance(obj):
+    for key, method in inspect.getmembers(obj):
+        if hasattr(method, "exposed_names"):
+            
+            prefix = getattr(obj, "cmd_prefix", "")
+            suffix = getattr(obj, "cmd_suffix", "")
+            
+            wrapped_names = [prefix + name + suffix
+                              for name in method.exposed_names]
+            
+            expose(method, *wrapped_names)
+            
 
 
 
 
 is_inactive = lambda req: not req and req != 0
-def require_args(exactly=None, at_least=None, at_most=None):
+def require_args_deprecated(exactly=None, at_least=None, at_most=None):
     """
     Decorator for setting constraints for arguments of a command.
     

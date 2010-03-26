@@ -109,9 +109,9 @@ exec git-update-server-info
     
 valid_repo = re.compile(r"^/[%s]+\.git$" % tools.safe_chars)
 @tools.no_user
-def handle_git(username,  cmd, args):
+@tools.expose_as("git-upload-pack", "git-receive-pack", "git-upload-archive")
+def handle_git(user, request_repo):
     
-    request_repo = args[0]
     
     if not valid_repo.match(request_repo):
         tools.errln("Illegal repository path '%s'" % request_repo)
@@ -122,21 +122,17 @@ def handle_git(username,  cmd, args):
     # Transform virtual root
     real_repository_path = os.path.join(config.REPOSITORIES, repo_name)
     
-    repo = Git(real_repository_path, username)
+    repo = Git(real_repository_path, user.username)
     
     try: # run requested command on the repository
-        return repo.execute(username, cmd, git_bin=config.GIT_BIN)
+        return repo.execute(user.username, user.cmd, git_bin=config.GIT_BIN)
     except InvalidPermissions, e:
         tools.errln(e.args[0], log=logger.warning)
         return 1
     
 
 
-cmds = {
-        "git-upload-pack": handle_git,
-        "git-receive-pack": handle_git,
-        "git-upload-archive": handle_git,
-        }
+
 
 
 def __appinit__():
@@ -144,5 +140,6 @@ def __appinit__():
         manager = GitManager(config.REPOSITORIES, 
                              urls=parse_url_configs(config.URLS),
                              webdir=config.WEBDIR )
-        cmds.update(manager.cmds)
+        
+        tools.expose_instance(manager)
 

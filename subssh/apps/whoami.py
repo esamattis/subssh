@@ -9,9 +9,9 @@ from subssh import tools
 
 
 @tools.expose_as()
-def whoami(username, cmd, jotain):
+def whoami(user):
     """Tells who you are
     """
-    tools.writeln(username)
+    tools.writeln(user.username)
 
 

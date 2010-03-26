@@ -133,6 +133,5 @@ def __appinit__():
         manager = SubversionManager(config.REPOSITORIES, 
                                     urls=parse_url_configs(config.URLS),
                                     webdir=config.WEBDIR )
-        cmds.update(manager.cmds)
-        logger.info(config.URLS)
+        tools.expose_instance(manager)
 

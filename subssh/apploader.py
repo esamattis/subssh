@@ -58,25 +58,29 @@ def load_all_apps():
 
     
 
-def run(username, cmd, args):
+def run(user, args):
     # Log all commands that are ran
     # TODO: preserve history for prompt
     
-    user_logger = customlogger.get_user_logger(username)
-    user_logger.info("%s %s" % (cmd, args)) 
+    user_logger = customlogger.get_user_logger(user.username)
+    user_logger.info("%s %s" % (user.cmd, args)) 
     
     try:
-        app = active.cmds[cmd]
+        app = active.cmds[user.cmd]
     except KeyError:
-        sys.stderr.write("Unknown command '%s'\n" % cmd)
+        sys.stderr.write("Unknown command '%s'\n" % user.cmd)
         return 1
     
-        
+    
+    
     try:
-        return app(username, cmd, *args)
+        # Ignore "user" which is always supplied.
+        tools.assert_args(app, args, ignore=1)
+        # Execute the app
+        return app(user, *args)
     except tools.InvalidArguments, e:
         tools.errln("Invalid arguments. %s" % e.args[0])
-        buildins.show_doc(username, "man", [cmd])
+        buildins.show_doc(user, user.cmd)
         return 1
     except tools.SoftException, e:
         # Expected exception. Print error to user.
@@ -86,7 +90,7 @@ def run(username, cmd, args):
         # Unexpected exception! Log it!
         
         #  We can just print the traceback if user is admin
-        if username == config.ADMIN:
+        if user.username == config.ADMIN:
             traceback.print_exc()
         else:
             # Log traceback
@@ -94,10 +98,10 @@ def run(username, cmd, args):
             timestamp = time.time()
             
             f = open(os.path.join(config.TRACEBACKS, 
-                                  "%s-%s" % (timestamp, username)), 
+                                  "%s-%s" % (timestamp, user.username)), 
                     "w")
             
-            f.write("%s %s\n" %(cmd, args))
+            f.write("%s %s\n" %(user.cmd, args))
             traceback.print_exc(file=f)
             f.close()
             tools.errln("System error (%s): %s: %s" % (timestamp, 

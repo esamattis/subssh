@@ -6,10 +6,14 @@ Created on Mar 21, 2010
 '''
 
 
+
+import subssh
 from subssh import admintools
 from subssh import tools
 
-@tools.require_args(at_least=1)
+
+
+@subssh.expose_as("addkey")
 def add_key(username, cmd, args):
     """
     Add new public key.

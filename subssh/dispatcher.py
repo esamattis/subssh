@@ -74,7 +74,11 @@ def from_ssh(username):
     args = parts[1:]
     return cmd, args
     
-     
+
+
+class UserRequest(object):
+    def __init__(self, **kwargs):
+        self.__dict__ = kwargs
     
 def dispatch():
 
@@ -102,10 +106,13 @@ def dispatch():
         username = os.getlogin()
         cmd, args = tools.to_cmd_args(sys.argv[1:])
         
+    user = UserRequest(username=username, cmd=cmd, 
+                       from_ssh=bool(options.ssh_username))
+        
     if cmd:
-        return apploader.run(username, cmd, args)
+        return apploader.run(user, args)
     else:
-        return shell.prompt(username)
+        return shell.prompt(user)
         
 def main():
     

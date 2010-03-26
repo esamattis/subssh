@@ -15,21 +15,7 @@ from abstractrepo import InvalidPermissions
 
 logger = customlogger.get_logger(__name__)
 
-def public_cmd(public_name=""):
-    """
-    Methods decorated with this will be usable on subssh prompt
-    """
-    def decorator(f):
-        if public_name:
-            f.public_name = public_name
-        else:
-            f.public_name = f.__name__.replace("_", "-")
-        decorator.__name__ = f.__name__
-        decorator.__doc__ = f.__doc__
-        decorator.__dict__ = f.__dict__    
-        return f
-    
-    return decorator
+
 
 
 def parse_url_configs(url_configs):
@@ -44,6 +30,7 @@ def parse_url_configs(url_configs):
 class RepoManager(object):
     
     cmd_prefix = ""
+    cmd_suffix = ""
     suffix = ""
     prefix = ""
     klass = None
@@ -60,11 +47,7 @@ class RepoManager(object):
         if not os.path.exists(self.path_to_repos):
             os.makedirs(self.path_to_repos)
         
-        self.cmds = {}
-        for key, method in inspect.getmembers(self):
-            public_name = getattr(method, "public_name", None)
-            if public_name:
-                self.cmds[self.cmd_prefix + public_name] = method
+
                 
         
     
@@ -80,21 +63,20 @@ class RepoManager(object):
     
     
 
-    @public_cmd()
-    @tools.require_args(exactly=2)    
-    def web(self, username, cmd, args):
+    @tools.exposable_as()
+    def web(self, user, repo_name, action=""):
         """
         Enable anonymous webview.
         
         usage: $cmd <repo name> <enable|disable>
         """
-        repo = self.get_repo_object(username, args[0])
+        repo = self.get_repo_object(user.username, repo_name)
         webpath = os.path.join(self.webdir, repo.name_on_fs)
         
-        if args[1] == "enable":
+        if action == "enable":
             if not os.path.exists(webpath):
                 os.symlink(repo.repo_path, webpath)
-        elif args[1] == "disable":
+        elif action == "disable":
             if os.path.exists(webpath):
                 os.remove(webpath)
         else:
@@ -102,9 +84,8 @@ class RepoManager(object):
                                          "or 'disable'")
     
     
-    @public_cmd()
-    @tools.require_args(at_most=1)
-    def ls(self, username, cmd, args):
+    @tools.exposable_as()
+    def ls(self, user, action=""):
         """
         List repositories.
         
@@ -113,10 +94,10 @@ class RepoManager(object):
         repos = []
         
         
-        user = username
+        request_user = user.username
         try:
-            if args[0] == 'all':
-                user = config.ADMIN
+            if action == 'all':
+                request_user = config.ADMIN
         except IndexError:
             pass
         
@@ -126,7 +107,7 @@ class RepoManager(object):
             try:
                 repo = self.klass(os.path.join(self.path_to_repos, 
                                                repo_in_fs),
-                                  user)
+                                  request_user)
             except InvalidPermissions:
                 continue
             else:
@@ -136,9 +117,8 @@ class RepoManager(object):
             tools.writeln(name)
             
             
-    @public_cmd()
-    @tools.require_args(exactly=1)      
-    def info(self, username, cmd, args):
+    @tools.exposable_as()
+    def info(self, user, repo_name):
         """
         Show information about repository.
         
@@ -146,7 +126,7 @@ class RepoManager(object):
         
         usage: $cmd <repo name>
         """
-        repo = self.get_repo_object(config.ADMIN, args[0])
+        repo = self.get_repo_object(config.ADMIN, repo_name)
         
         
         tools.writeln()
@@ -171,58 +151,54 @@ class RepoManager(object):
     
     
     
-    @public_cmd()
-    @tools.require_args(exactly=1)
-    def delete(self, username, cmd, args):
+    @tools.exposable_as()
+    def delete(self, user, repo_name):
         """
         Delete repository.
         
         usage: $cmd <repo name>
         """
-        repo = self.get_repo_object(username, args[0])
+        repo = self.get_repo_object(user.username, repo_name)
         repo.delete()
     
-    @public_cmd()
-    @tools.require_args(exactly=2)
-    def add_owner(self, username, cmd, args):
+    @tools.exposable_as()
+    def add_owner(self, user, repo_name, username):
         """
         Add owner to repository.
         
         usage: $cmd <repo name> <username>
         """
-        repo = self.get_repo_object(username, args[0])
-        repo.add_owner(args[1])
+        repo = self.get_repo_object(user.username, repo_name)
+        repo.add_owner(username)
         repo.save()
         
-    @public_cmd()
-    @tools.require_args(exactly=2)
-    def remove_owner(self, username, cmd, args):
+        
+    @tools.exposable_as()
+    def remove_owner(self, user, repo_name, username):
         """
         Remove owner from repository.
         
         usage: $cmd <repo name> <username>
         """
-        repo = self.get_repo_object(username, args[0])
-        repo.remove_owner(args[1])
+        repo = self.get_repo_object(user.username, repo_name)
+        repo.remove_owner(username)
         repo.save()    
     
     
     
-    @public_cmd()
-    @tools.require_args(exactly=2)    
-    def rename(self, username, cmd, args):
+    @tools.exposable_as()
+    def rename(self, user, repo_name, new_name):
         """
         Rename repository.
         
         usage: $cmd <repo name> <new repo name>
         """
-        repo = self.get_repo_object(username, args[0])
-        repo.rename(args[1])        
+        repo = self.get_repo_object(user.username, repo_name)
+        repo.rename(new_name)        
         
 
-    @public_cmd()
-    @tools.require_args(exactly=3)
-    def set_permissions(self, username, cmd, args):
+    @tools.exposable_as()
+    def set_permissions(self, user, username, permissions, repo_name):
         """
         Set read/write permissions to repository.
         
@@ -236,8 +212,8 @@ class RepoManager(object):
         other owners. 
         
         """
-        repo = self.get_repo_object(username, args[2])
-        repo.set_permissions(args[0], args[1])
+        repo = self.get_repo_object(user.username, repo_name)
+        repo.set_permissions(username, permissions)
         repo.save()
         
         
@@ -257,15 +233,13 @@ class RepoManager(object):
         repo.save()        
         
         
-    @public_cmd()
-    @tools.require_args(at_least=1)
-    def init(self, username, cmd, args):
+    @tools.exposable_as()
+    def init(self, user, repo_name):
         """
         Create new repository.
         
         usage: $cmd <repository name>
         """
-        repo_name = " ".join(args).strip()
          
         if not tools.safe_chars_only_pat.match(repo_name):
             tools.errln("Bad repository name. Allowed characters: %s (regexp)" 
@@ -280,9 +254,9 @@ class RepoManager(object):
         if not os.path.exists(repo_path):
             os.makedirs(repo_path)
             
-        self.create_repository(repo_path, username)
+        self.create_repository(repo_path, user.username)
         
-        self._set_default_permissions(repo_path, username)
+        self._set_default_permissions(repo_path, user.username)
     
 
     def create_repository(self, repo_path, username):
