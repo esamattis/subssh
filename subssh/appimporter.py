@@ -15,7 +15,7 @@ def import_subssh_app(module_path, options):
     """
     last = module_path.split(".")[-1]
     
-    imported =  __import__(module_path, globals(), locals(), [last], -1)
+    imported =  __import__(module_path, globals(), locals(), [last])
     
     # Override default config with the user config
     if hasattr(imported, "config"):
