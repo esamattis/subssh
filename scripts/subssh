@@ -4,7 +4,7 @@ import sys
 import os
 
 try:
-    sys.path.insert(0, os.environ['EXTRAPYTHONPATH'])
+    sys.path.insert(0, os.environ['SUBSSHPYTHONPATH'])
 except KeyError:
     pass
 

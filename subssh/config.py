@@ -25,9 +25,6 @@ TRACEBACKS = os.path.join( os.environ["HOME"], ".subssh", "tracebacks" )
 
 DISPLAY_HOSTNAME = socket.gethostname() 
 
-# HAX
-PYTHON_PATH = "/".join(_THIS_DIR.split("/")[-1:])
-
 SUBSSH_BIN = os.path.join(sys.prefix, "bin", "subssh")
 
 DEFAULT_CONFIG_PATH = os.path.join(_THIS_DIR, "default", "config")
@@ -38,6 +35,8 @@ CONFIG_PATH = os.path.join(SUBSSH_HOME, "config")
 
 ADMIN = "admin"
 
+# Used to determine where subssh is installed.
+SUBSSH_PYTHONPATH = ""
 
 for dir in (SUBSSH_HOME, LOG_USERS, TRACEBACKS):
     if not os.path.exists(dir):

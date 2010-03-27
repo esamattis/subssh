@@ -5,23 +5,26 @@ Created on Mar 26, 2010
 '''
 
 import config
-import sys
-import pprint
+import tools
+import customlogger
+logger = customlogger.get_logger(__name__)
 
-def import_subssh_app(module_path):
+def import_subssh_app(module_path, options):
     """
     Import Subssh app 
-    
-    
     """
     last = module_path.split(".")[-1]
     
-    parent = ".".join(module_path.split(".")[:-1])
-
-    imported =  __import__(parent, globals(), locals(), [last], -1)
+    imported =  __import__(module_path, globals(), locals(), [last], -1)
     
-        
-#    imported = __import__(module_path, fromlist=[last])
+    # Override default config with the user config
+    if hasattr(imported, "config"):
+        for option, value in options:
+            setattr(imported.config, option, value)
+    
+    # Run init if app has one
+    if hasattr(imported, "__appinit__"):
+        imported.__appinit__()        
 
     return imported    
     
@@ -35,18 +38,15 @@ def import_all_apps_from_config():
     
     for module_path, options in config.yield_enabled_apps():
         
-        imported = import_subssh_app(module_path)
-        
-        # Override default config with the user config
-        if hasattr(imported, "config"):
-            for option, value in options:
-                setattr(imported.config, option, value)
-        
-        # Run init if app has one
-        if hasattr(imported, "__appinit__"):
-            imported.__appinit__()
-            
-            
+        try:
+            import_subssh_app(module_path, options)
+        except ImportError, e:
+            tools.errln("Warning: Could not import app %s" % module_path)
+            logger.error("Could not import app %s reason: %s" 
+                         % (module_path, e) )
+
+                
+                
     
 
 

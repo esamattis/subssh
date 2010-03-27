@@ -9,13 +9,13 @@
 ## Defaults to system hostname.
 #display_hostname = vcs.linkkijkl.fi
 
-[app:subssh.apps.vcs.svn]
+[app:subssh.app.vcs.svn]
 #repositories = ~/.subssh/repos/svn
 #webview = ~/.subssh/repos/websvn
 urls = Read/Write|svn+ssh://$hostusername@$hostname/$name_on_fs
        Webview|http://$hostname/websvn/listing.php?repname=$name_on_fs
 
-[app:subssh.apps.vcs.git]
+[app:subssh.app.vcs.git]
 #repositories = ~/.subssh/repos/svn
 #webview = ~/.subssh/repos/websvn
 urls = Read/Write|ssh://$hostusername@$hostname/$name_on_fs
@@ -23,10 +23,10 @@ urls = Read/Write|ssh://$hostusername@$hostname/$name_on_fs
        Webview|http://$hostname/gitphp/index.php?p=$name_on_fs&a=tree
 
 
-[app:subssh.apps.uptime]
+[app:subssh.app.uptime]
 hello = config hello
 
 
-[app:subssh.apps.whoami]
+[app:subssh.app.whoami]
 
-[app:subssh.apps.pubkeymanager]
+[app:subssh.app.pubkeymanager]

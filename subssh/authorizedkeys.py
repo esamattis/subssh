@@ -29,8 +29,10 @@ class Subuser(object):
                   "no-X11-forwarding"
                   )
     
-    subssh_cmd = "EXTRAPYTHONPATH=%s %s" % (config.PYTHON_PATH, 
-                                               config.SUBSSH_BIN)
+    
+    _extra = (config.SUBSSH_PYTHONPATH and "SUBSSHPYTHONPATH=%s " 
+                                    % config.SUBSSH_PYTHONPATH)
+    subssh_cmd = "%s%s" % (_extra,  config.SUBSSH_BIN)
     
     
     def __init__(self, username):
