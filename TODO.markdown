@@ -1,3 +1,3 @@
 
 - Mercurial support
-
+- Debian package
