@@ -98,9 +98,11 @@ def check_call(cmd, *args, **kw):
     The arguments are the same as for the Popen constructor.  Example:
 
     check_call(["ls", "-l"])
-    """    
-    if subprocess.call(cmd, *args, **kw) != 0:
-        raise CalledProcessError("Command '%s' returned non-zero exit status 1" 
+    """
+    exitstatus = subprocess.call(cmd, *args, **kw)
+    if exitstatus != 0:
+        raise CalledProcessError(exitstatus, 
+                                 "Command '%s' returned non-zero exit status 1" 
                                  % str(cmd))    
 # For  convenience   
 def call(*args, **kw):
