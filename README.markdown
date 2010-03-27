@@ -18,12 +18,13 @@ untrusted users. Eg. if you want to share  svn- or git-repositories.
    - Keys can be managed from the shell.
  - Easily extendable. [Example](http://github.com/epeli/subssh/blob/master/subssh/app/example.py).
 
-Subssh is inspired by [GitHub][1], [Gitosis][2] and [CherryPy][3] (for the
-extension system).
+Subssh is inspired by [GitHub][h], [Gitosis][s], [YouSource (Verso)][y] and 
+[CherryPy][c] (for the extension system).
 
-[1]: http://github.com/
-[2]: http://eagain.net/gitweb/?p=gitosis.git
-[3]: http://cherrypy.org/
+[h]: http://github.com/
+[s]: http://eagain.net/gitweb/?p=gitosis.git
+[y]: http://sovellusprojektit.it.jyu.fi/verso/
+[c]: http://cherrypy.org/
 
 ## Installing ##
 

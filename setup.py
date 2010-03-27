@@ -18,7 +18,7 @@ setup(
       author='Esa-Matti Suuronen',
       author_email='esa-matti@suuronen.org',
       url='http://github.com/epeli/subssh',
-      license='GPL',
+      license='AGPL',
       packages=['subssh', 'subssh.app', 'subssh.app.vcs'],
       package_dir={'subssh': 'subssh'},
       package_data={'subssh': ['default/*']},
