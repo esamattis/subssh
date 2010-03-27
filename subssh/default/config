@@ -23,10 +23,11 @@ urls = Read/Write|ssh://$hostusername@$hostname/$name_on_fs
        Webview|http://$hostname/gitphp/index.php?p=$name_on_fs&a=tree
 
 
-[app:subssh.app.uptime]
-hello = config hello
 
 
 [app:subssh.app.whoami]
 
 [app:subssh.app.pubkeymanager]
+
+
+# [app:subssh.app.example]
