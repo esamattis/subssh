@@ -7,6 +7,7 @@ Created on Mar 21, 2010
 import sys
 import shutil
 import urllib2
+from optparse import OptionParser
 
 
 import tools
@@ -74,5 +75,40 @@ def list_keys(username):
     
     
     
+def handle_cmdline():
+    parser = OptionParser()
     
+    parser.add_option("--add-key", dest="add_key_username",
+                      metavar="<username> <input>",
+                      help="Add public key to user. Input may be an url, - for " 
+                           "stdin or the key itself")
+    
+    
+    parser.add_option("-u", "--update-keys", action="store_true",
+                      help="Rewrite authorized_keys file")
+    
+    parser.add_option("--restore-default-config", action="store_true",
+                      help="Restore default config")
+        
+    options, args = parser.parse_args()
+
+    if options.update_keys:
+        return rewrite_authorized_keys() 
+    
+    if options.restore_default_config:
+        return restore_config()
+    
+    if options.add_key_username:
+        return add_key(options.add_key_username, args)
+
+    return 1
+
+
+
+
+
+
+
+
+
     

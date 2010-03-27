@@ -20,7 +20,6 @@ access_logger = customlogger.get_logger("access", filepath=config.LOG_ACCESS)
 import apprunner
 import shell
 import tools
-import admintools
 import appimporter
 appimporter.import_all_apps_from_config()
 
@@ -33,18 +32,6 @@ parser.add_option("-t", "--ssh-tunnel", dest="ssh_username",
                   "SSH_ORIGINAL_COMMAND enviroment variable.", 
                   metavar="<username>")
 
-
-parser.add_option("--add-key", dest="add_key_username",
-                  metavar="<username> <input>",
-                  help="Add public key to user. Input may be an url, - for " 
-                       "stdin or the key itself")
-
-
-parser.add_option("-u", "--update-keys", action="store_true",
-                  help="Rewrite authorized_keys file")
-
-parser.add_option("--restore-default-config", action="store_true",
-                  help="Restore default config")
 
 
 def from_ssh(username):
@@ -86,17 +73,6 @@ def dispatch():
 
     options, args = parser.parse_args()
     
-    if options.update_keys:
-        return admintools.rewrite_authorized_keys() 
-    
-    if options.restore_default_config:
-        return admintools.restore_config()
-    
-    if options.add_key_username:
-        return admintools.add_key(options.add_key_username, args)
-    
-    
-    
     
     if options.ssh_username:
         username = options.ssh_username
@@ -105,7 +81,7 @@ def dispatch():
             return 1
         cmd, args = from_ssh(username)
     else:
-        username = os.getlogin()
+        username = tools.hostusername()
         cmd, args = tools.to_cmd_args(sys.argv[1:])
         
     user = UserRequest(username=username, 
@@ -120,13 +96,6 @@ def dispatch():
         user.interactive = True
         return shell.prompt(user)
         
-def main():
     
-    exit_status = dispatch()
-    if exit_status == None:
-        return 0
-    return exit_status
-        
 
-if __name__ == "__main__":
-    main()
+

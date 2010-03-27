@@ -5,6 +5,8 @@ Created on Mar 26, 2010
 '''
 
 import config
+import sys
+import pprint
 
 def import_subssh_app(module_path):
     """
@@ -13,7 +15,13 @@ def import_subssh_app(module_path):
     
     """
     last = module_path.split(".")[-1]
-    imported = __import__(module_path, fromlist=[last])
+    
+    parent = ".".join(module_path.split(".")[:-1])
+
+    imported =  __import__(module_path, globals(), locals(), [last], -1)
+    
+        
+#    imported = __import__(module_path, fromlist=[last])
 
     return imported    
     

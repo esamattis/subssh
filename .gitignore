@@ -1,5 +1,9 @@
+*.pyc
+*.swp
 .project
 .pydevproject
-*.pyc
 .settings/
-
+build/
+dist/
+MANIFEST
+install_test/

@@ -104,6 +104,7 @@ class SubversionManager(RepoManager):
 
 
 
+@subssh.no_interactive
 @subssh.expose_as("svnserve")
 def handle_svn(user, *args):
     # Subversion can handle itself permissions and virtual root.

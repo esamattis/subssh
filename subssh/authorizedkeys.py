@@ -9,6 +9,7 @@ Created on Mar 9, 2010
 
 
 import os
+import sys
 import time
 
 import tools
@@ -28,9 +29,8 @@ class Subuser(object):
                   "no-X11-forwarding"
                   )
     
-    # sys.executable
     subssh_cmd = "EXTRAPYTHONPATH=%s %s" % (config.PYTHON_PATH, 
-                                            config.SUBSSH_BIN)
+                                               config.SUBSSH_BIN)
     
     
     def __init__(self, username):

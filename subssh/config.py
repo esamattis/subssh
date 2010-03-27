@@ -8,6 +8,7 @@ Created on Mar 5, 2010
 
 
 import os
+import sys
 import socket
 import shutil
 from ConfigParser import SafeConfigParser
@@ -27,9 +28,9 @@ DISPLAY_HOSTNAME = socket.gethostname()
 # HAX
 PYTHON_PATH = "/".join(_THIS_DIR.split("/")[-1:])
 
-SUBSSH_BIN = os.path.join(PYTHON_PATH, "bin", "subssh")
+SUBSSH_BIN = os.path.join(sys.prefix, "bin", "subssh")
 
-DEFAULT_CONFIG_PATH = os.path.join(_THIS_DIR, "dist", "config")
+DEFAULT_CONFIG_PATH = os.path.join(_THIS_DIR, "default", "config")
 
 SUBSSH_HOME = os.path.join(os.environ['HOME'], ".subssh")
 

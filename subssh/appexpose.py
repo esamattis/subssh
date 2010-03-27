@@ -19,11 +19,6 @@ def expose(f, *cmd_names):
     for name in names:
         active.cmds[name] = f
         
-        if not getattr(f, "disable_interactive", False):
-            active.complete.add(name)
-        
-
-
 
 
 def expose_instance(obj, prefix="", suffix=""):

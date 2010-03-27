@@ -101,7 +101,7 @@ exec git-update-server-info
     
 valid_repo = re.compile(r"^/[%s]+\.git$" % subssh.safe_chars)
 
-
+@subssh.no_interactive
 @subssh.expose_as("git-upload-pack", "git-receive-pack", "git-upload-archive")
 def handle_git(user, request_repo):
     """Used internally by Git"""

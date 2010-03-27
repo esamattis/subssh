@@ -8,11 +8,6 @@ Created on Mar 25, 2010
 #This dictionary holds all active application in subssh
 cmds = {}
 
-# For interactive shell
-complete = set()
-
-
-
 def user_apps():
     return [ (app_name, app) for app_name, app in cmds.items()
              if not getattr(app, "disable_interactive", False) ]

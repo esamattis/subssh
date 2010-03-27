@@ -12,4 +12,4 @@ from subssh import dispatcher
 
 
 if __name__ == "__main__":
-    sys.exit(dispatcher.main())
+    sys.exit(dispatcher.dispatch() or 0)

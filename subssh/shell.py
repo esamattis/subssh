@@ -17,7 +17,7 @@ import active
 
 
 def complete(text, state):
-    for cmd in active.complete:
+    for cmd, app in active.user_apps():
         if cmd.startswith(text):
             if not state:
                 return cmd
