@@ -8,15 +8,15 @@ untrusted users. Eg. if you want to share  svn- or git-repositories.
 
 ## Features ##
 
- - Interactive shell
- - Git and Subversion support with repository managers
+ - Interactive shell.
+ - Git and Subversion support with repository managers.
    - Users can add, delete and rename repositories. 
    - Permissions management. Users can set who can read/write to their 
-     repositories
- - Multiple users can use single account
-   - Users are distinguished by public SSH-keys in ~/.ssh/authorized_keys file
-   - Keys can be managed from the shell
- - Easily extendable
+     repositories.
+ - Multiple users can use single account.
+   - Users are distinguished by public SSH-keys in ~/.ssh/authorized_keys file.
+   - Keys can be managed from the shell.
+ - Easily extendable. [Example](http://github.com/epeli/subssh/blob/master/subssh/app/example.py).
 
 Subssh is ispired by [GitHub][1], [Gitosis][2] and [CherryPy][3] (for the
 extension system).
