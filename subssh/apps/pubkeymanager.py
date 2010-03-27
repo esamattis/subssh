@@ -9,12 +9,11 @@ Created on Mar 21, 2010
 
 import subssh
 from subssh import admintools
-from subssh import tools
 
 
 
 @subssh.expose_as("addkey")
-def add_key(username, cmd, args):
+def add_key(user, *args):
     """
     Add new public key.
     
@@ -30,16 +29,15 @@ def add_key(username, cmd, args):
         you@home:~$$ cat mykey.pub | ssh $hostusername@$hostname $cmd -
     
     """
+    if not args:
+        raise subssh.InvalidArguments("At least one argument is required")
     
-    return admintools.add_key(username, args)
+    return admintools.add_key(user.username, args)
 
-    
-def list_keys(username, cmd, args):    
+
+@subssh.expose_as("listkeys")    
+def list_keys(user):    
     """List keys you've uploaded"""
-    return admintools.list_keys(username)
+    return admintools.list_keys(user.username)
     
     
-cmds = {
-        "addkey": add_key,
-        "listkeys": list_keys,
-        }

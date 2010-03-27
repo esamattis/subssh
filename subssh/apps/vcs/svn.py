@@ -28,16 +28,12 @@ authz-db = authz
 
 
 import os
-import subprocess
 from ConfigParser import SafeConfigParser
 
-from subssh import tools
+import subssh
 from abstractrepo import VCS
 from repomanager import RepoManager
 from repomanager import parse_url_configs
-from subssh.config import DISPLAY_HOSTNAME
-import subssh.customlogger
-logger = subssh.customlogger.get_logger(__name__)
 
 
 class config:
@@ -69,7 +65,6 @@ class Subversion(VCS):
 class SubversionManager(RepoManager):
     
     klass = Subversion
-    cmd_prefix = "svn-"
     
     def _enable_svn_perm(self, path, dbfile="authz"):
         """
@@ -90,8 +85,8 @@ class SubversionManager(RepoManager):
             os.makedirs(path)
         path = os.path.abspath(path)
         
-        tools.check_call((config.SVNADMIN_BIN, "create", path))
-        tools.check_call((
+        subssh.check_call((config.SVNADMIN_BIN, "create", path))
+        subssh.check_call((
                           config.SVN_BIN, "-m", "created automatically project base", 
                           "mkdir", "file://%s" % os.path.join(path, "trunk"),
                                    "file://%s" % os.path.join(path, "tags"),
@@ -109,13 +104,13 @@ class SubversionManager(RepoManager):
 
 
 
-@tools.no_user
-def handle_svn(username, cmd, args):
+@subssh.expose_as("svnserve")
+def handle_svn(user, *args):
     # Subversion can handle itself permissions and virtual root.
     # So there's no need to manually check permissions here or
     # transform the virtual root.
-    return subprocess.call((config.SVNSERVE_BIN, 
-                            '--tunnel-user=' + username,
+    return subssh.call((config.SVNSERVE_BIN, 
+                            '--tunnel-user=' + user.username,
                             '-t', '-r',  
                             config.REPOSITORIES))
     
@@ -124,14 +119,12 @@ def handle_svn(username, cmd, args):
     
 
 
-cmds = {
-        "svnserve": handle_svn,
-        }
 
 def __appinit__():
-    if tools.to_bool(config.MANAGER_TOOLS):
+    if subssh.to_bool(config.MANAGER_TOOLS):
         manager = SubversionManager(config.REPOSITORIES, 
                                     urls=parse_url_configs(config.URLS),
                                     webdir=config.WEBDIR )
-        tools.expose_instance(manager)
+        
+        subssh.expose_instance(manager, prefix="svn-")
 

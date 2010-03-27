@@ -11,20 +11,15 @@ git config --global user.name "Oma Nimi" && git config --global user.email oma.n
 '''
 
 import os
-import subprocess
 import re
 
-from subssh import tools
+
+import subssh
+
 from abstractrepo import VCS
 from abstractrepo import InvalidPermissions
 from repomanager import RepoManager
 from repomanager import parse_url_configs
-import subssh.customlogger
-
-logger = subssh.customlogger.get_logger(__name__)
-
-from subssh.config import DISPLAY_HOSTNAME
-
 
 
 class config:
@@ -69,20 +64,18 @@ class Git(VCS):
         
         shell_cmd = cmd + " '%s'" %  self.repo_path
 
-        return subprocess.call((git_bin, "shell", "-c", shell_cmd))
+        return subssh.call((git_bin, "shell", "-c", shell_cmd))
 
 
 class GitManager(RepoManager):
-    cmd_prefix = "git-"
-    suffix = ".git"
     klass = Git
-
+    suffix = ".git"
 
     def create_repository(self, path, owner):
         
         os.chdir(path)
         
-        tools.check_call((config.GIT_BIN, "init", "--bare"))
+        subssh.check_call((config.GIT_BIN, "init", "--bare"))
         
         f = open("hooks/post-update", "w")
         f.write("""#!/bin/sh
@@ -105,16 +98,17 @@ exec git-update-server-info
 
             
 
-            
     
-valid_repo = re.compile(r"^/[%s]+\.git$" % tools.safe_chars)
-@tools.no_user
-@tools.expose_as("git-upload-pack", "git-receive-pack", "git-upload-archive")
+valid_repo = re.compile(r"^/[%s]+\.git$" % subssh.safe_chars)
+
+
+@subssh.expose_as("git-upload-pack", "git-receive-pack", "git-upload-archive")
 def handle_git(user, request_repo):
+    """Used internally by Git"""
     
     
     if not valid_repo.match(request_repo):
-        tools.errln("Illegal repository path '%s'" % request_repo)
+        subssh.errln("Illegal repository path '%s'" % request_repo)
         return 1    
     
     repo_name = request_repo.lstrip("/")
@@ -124,22 +118,18 @@ def handle_git(user, request_repo):
     
     repo = Git(real_repository_path, user.username)
     
-    try: # run requested command on the repository
-        return repo.execute(user.username, user.cmd, git_bin=config.GIT_BIN)
-    except InvalidPermissions, e:
-        tools.errln(e.args[0], log=logger.warning)
-        return 1
+    # run requested command on the repository
+    return repo.execute(user.username, user.cmd, git_bin=config.GIT_BIN)
     
 
 
 
 
-
 def __appinit__():
-    if tools.to_bool(config.MANAGER_TOOLS):
+    if subssh.to_bool(config.MANAGER_TOOLS):
         manager = GitManager(config.REPOSITORIES, 
                              urls=parse_url_configs(config.URLS),
                              webdir=config.WEBDIR )
         
-        tools.expose_instance(manager)
+        subssh.expose_instance(manager, prefix="git-")
 

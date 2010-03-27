@@ -5,13 +5,12 @@ Created on Mar 9, 2010
 @author: epeli
 '''
 
-from subssh import tools
+import subssh
 
-
-@tools.expose_as()
+@subssh.expose_as()
 def whoami(user):
     """Tells who you are
     """
-    tools.writeln(user.username)
+    subssh.writeln(user.username)
 
 

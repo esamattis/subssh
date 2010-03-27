@@ -6,35 +6,38 @@ Created on Mar 25, 2010
 from string import Template
 
 
-import tools
+import subssh
 import active
 import config
+import tools
 
 
-
-
-
-@tools.expose_as()
+@subssh.expose_as()
 def commands(user):
     """List all commands."""
     
+    
     for name, app in sorted(active.user_apps()):
-        first_line = [line.strip() 
-                 for line  in app.__doc__.split("\n") 
-                 if line.strip()][0]
-        tools.writeln("%s - %s" % ( name, first_line ))
+        if app.__doc__:
+            doc = [line.strip() # Get first line with content 
+                   for line  in app.__doc__.split("\n") 
+                   if line.strip()][0]
+        else:
+            doc = "%s has no doc string" % name
+            
+        tools.writeln("%s - %s" % ( name, doc ))
         
 
 
 
-@tools.expose_as()
+@subssh.expose_as()
 def help(user):
     """Show help."""
     tools.writeln(
 """
     type commands to list all available commands.
      
-        man <app> 
+        man <command> 
     
     will display the command's doc string
 """)    
@@ -45,8 +48,7 @@ def help(user):
     
     
     
-    
-@tools.expose_as("exit", "logout")    
+@subssh.expose_as("exit", "logout")    
 def exit(user, exitstatus=0):
     """
     Logout from subssh.
@@ -58,32 +60,31 @@ def exit(user, exitstatus=0):
     try:
         return int(exitstatus)
     except ValueError:
-        raise tools.SoftException("Bad exits status %s" % exitstatus)
+        raise subssh.UserException("Bad exits status %s" % exitstatus)
     
 
 
 
 
-@tools.expose_as("man")
-def show_doc(user, command="man"):
+@subssh.expose_as("man")
+def show_doc(user, command):
     """
     Show man page of a command.
     
-    usage: man <another command>
+    usage: man <command>
     """
     try:
         doc_tmpl = active.cmds[command].__doc__
     except KeyError:
-        tools.errln("Unkown command '%s'" % command)
+        subssh.errln("Unkown command '%s'" % command)
         return 1
     
     if doc_tmpl:
         # Set document variables
         doc = Template(doc_tmpl).substitute(cmd=command,
                                             hostname=config.DISPLAY_HOSTNAME,
-                                            hostusername=tools.hostusername())
-        tools.writeln(doc)
+                                            hostusername=subssh.hostusername())
+        subssh.writeln(doc)
     else:
-        tools.writeln("'%s' has no doc string" % command)
+        subssh.writeln("'%s' has no doc string" % command)
     
-active.cmds["man"] = show_doc    

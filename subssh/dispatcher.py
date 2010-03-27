@@ -17,10 +17,12 @@ logger = customlogger.get_logger(__name__)
 access_logger = customlogger.get_logger("access", filepath=config.LOG_ACCESS)
 
 
-import apploader
+import apprunner
 import shell
 import tools
 import admintools
+import appimporter
+appimporter.import_all_apps_from_config()
 
 
 parser = OptionParser()
@@ -106,12 +108,16 @@ def dispatch():
         username = os.getlogin()
         cmd, args = tools.to_cmd_args(sys.argv[1:])
         
-    user = UserRequest(username=username, cmd=cmd, 
-                       from_ssh=bool(options.ssh_username))
-        
+    user = UserRequest(username=username, 
+                       cmd=cmd, 
+                       from_ssh=bool(options.ssh_username),
+                       logger=customlogger.get_user_logger(username))
+    
     if cmd:
-        return apploader.run(user, args)
+        user.interactive = False
+        return apprunner.run(user, args)
     else:
+        user.interactive = True
         return shell.prompt(user)
         
 def main():

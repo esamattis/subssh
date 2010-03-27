@@ -10,14 +10,15 @@ import os
 import shutil
 from ConfigParser import SafeConfigParser, NoOptionError
 
-from subssh import tools, config
+import subssh
+from subssh import config
 
 
-class InvalidRepository(IOError, tools.SoftException):
+class InvalidRepository(IOError, subssh.UserException):
     pass
 
 
-class InvalidPermissions(tools.SoftException):
+class InvalidPermissions(subssh.UserException):
     pass
 
 

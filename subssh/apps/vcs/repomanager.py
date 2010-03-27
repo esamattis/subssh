@@ -5,15 +5,15 @@ Created on Mar 22, 2010
 '''
 
 import os
-import inspect
 from string import Template
 
-from subssh import tools
-from subssh import customlogger
+
+import subssh
+
+
 from subssh import config
 from abstractrepo import InvalidPermissions
 
-logger = customlogger.get_logger(__name__)
 
 
 
@@ -29,8 +29,6 @@ def parse_url_configs(url_configs):
 
 class RepoManager(object):
     
-    cmd_prefix = ""
-    cmd_suffix = ""
     suffix = ""
     prefix = ""
     klass = None
@@ -63,7 +61,7 @@ class RepoManager(object):
     
     
 
-    @tools.exposable_as()
+    @subssh.exposable_as()
     def web(self, user, repo_name, action=""):
         """
         Enable anonymous webview.
@@ -80,11 +78,11 @@ class RepoManager(object):
             if os.path.exists(webpath):
                 os.remove(webpath)
         else:
-            raise tools.InvalidArguments("Second argument must be 'enable' "
+            raise subssh.InvalidArguments("Second argument must be 'enable' "
                                          "or 'disable'")
     
     
-    @tools.exposable_as()
+    @subssh.exposable_as()
     def ls(self, user, action=""):
         """
         List repositories.
@@ -102,7 +100,6 @@ class RepoManager(object):
             pass
         
         
-        logger.info(self.path_to_repos)
         for repo_in_fs in os.listdir(self.path_to_repos):
             try:
                 repo = self.klass(os.path.join(self.path_to_repos, 
@@ -114,10 +111,10 @@ class RepoManager(object):
                 repos.append(repo.name)
         
         for name in sorted(repos):
-            tools.writeln(name)
+            subssh.writeln(name)
             
             
-    @tools.exposable_as()
+    @subssh.exposable_as()
     def info(self, user, repo_name):
         """
         Show information about repository.
@@ -129,29 +126,29 @@ class RepoManager(object):
         repo = self.get_repo_object(config.ADMIN, repo_name)
         
         
-        tools.writeln()
-        tools.writeln("Access:")
+        subssh.writeln()
+        subssh.writeln("Access:")
         for url_name, url_tmpl in self.urls:
             url = Template(url_tmpl).substitute(name=repo.name, 
                                                 name_on_fs=repo.name_on_fs,
                                                 hostname=config.DISPLAY_HOSTNAME,
-                                                hostusername=tools.hostusername(),)
-            tools.writeln("    %s: %s" %(url_name, url) )
+                                                hostusername=subssh.hostusername(),)
+            subssh.writeln("    %s: %s" %(url_name, url) )
         
         
-        tools.writeln()
-        tools.writeln("Owners: %s" % ", ".join(repo.get_owners()).strip(", "))
-        tools.writeln()
+        subssh.writeln()
+        subssh.writeln("Owners: %s" % ", ".join(repo.get_owners()).strip(", "))
+        subssh.writeln()
         
-        tools.writeln("Permissions:")
+        subssh.writeln("Permissions:")
         for username, perm in repo.get_all_permissions():
-            tools.writeln("    %s = %s" %(username, perm) )
+            subssh.writeln("    %s = %s" %(username, perm) )
         
         
     
     
     
-    @tools.exposable_as()
+    @subssh.exposable_as()
     def delete(self, user, repo_name):
         """
         Delete repository.
@@ -161,7 +158,7 @@ class RepoManager(object):
         repo = self.get_repo_object(user.username, repo_name)
         repo.delete()
     
-    @tools.exposable_as()
+    @subssh.exposable_as()
     def add_owner(self, user, repo_name, username):
         """
         Add owner to repository.
@@ -173,7 +170,7 @@ class RepoManager(object):
         repo.save()
         
         
-    @tools.exposable_as()
+    @subssh.exposable_as()
     def remove_owner(self, user, repo_name, username):
         """
         Remove owner from repository.
@@ -186,7 +183,7 @@ class RepoManager(object):
     
     
     
-    @tools.exposable_as()
+    @subssh.exposable_as()
     def rename(self, user, repo_name, new_name):
         """
         Rename repository.
@@ -197,7 +194,7 @@ class RepoManager(object):
         repo.rename(new_name)        
         
 
-    @tools.exposable_as()
+    @subssh.exposable_as()
     def set_permissions(self, user, username, permissions, repo_name):
         """
         Set read/write permissions to repository.
@@ -233,7 +230,7 @@ class RepoManager(object):
         repo.save()        
         
         
-    @tools.exposable_as()
+    @subssh.exposable_as()
     def init(self, user, repo_name):
         """
         Create new repository.
@@ -241,14 +238,14 @@ class RepoManager(object):
         usage: $cmd <repository name>
         """
          
-        if not tools.safe_chars_only_pat.match(repo_name):
-            tools.errln("Bad repository name. Allowed characters: %s (regexp)" 
-                        % tools.safe_chars)
+        if not subssh.safe_chars_only_pat.match(repo_name):
+            subssh.errln("Bad repository name. Allowed characters: %s (regexp)" 
+                        % subssh.safe_chars)
             return 1                
         
         repo_path = self.real(repo_name)
         if os.path.exists(repo_path):
-            tools.errln("Repository '%s' already exists." % repo_name)
+            subssh.errln("Repository '%s' already exists." % repo_name)
             return 1
     
         if not os.path.exists(repo_path):

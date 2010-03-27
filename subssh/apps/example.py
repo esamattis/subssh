@@ -9,9 +9,6 @@ This an example subssh application.
 
 '''
 
-import sys
-
-from subssh import tools
 
 
 

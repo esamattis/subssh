@@ -8,7 +8,7 @@ Created on Mar 20, 2010
 import readline
 
 
-import apploader
+import apprunner
 import tools
 import config
 import active
@@ -17,7 +17,7 @@ import active
 
 
 def complete(text, state):
-    for cmd, app in active.user_apps():
+    for cmd in active.complete:
         if cmd.startswith(text):
             if not state:
                 return cmd
@@ -54,7 +54,7 @@ def prompt(user):
             continue
         
         user.cmd = cmd
-        exit_status = apploader.run(user, args)
+        exit_status = apprunner.run(user, args)
         
     return exit_status
 

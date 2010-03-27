@@ -31,7 +31,7 @@ def to_safe_chars(string):
     return not_safe_char.sub("", string)
             
 
-class SoftException(Exception):
+class UserException(Exception):
     """Exception class that will not get logged as system error when uncaught
     """
 
@@ -58,9 +58,7 @@ def to_cmd_args(input):
     return cmd, args
     
     
-def no_user(f):
-    f.no_user = True
-    return f
+
     
 
 
@@ -122,7 +120,9 @@ def hostusername():
     except OSError:
         return os.environ['LOGNAME']
 
-class InvalidArguments(SoftException): pass
+
+
+class InvalidArguments(UserException): pass
 
 
 
@@ -139,7 +139,7 @@ def assert_args(f, function_args, ignore=0):
     
     # Methods of objects automatically get +1 arg for the object itself
     # We can ignore that.
-    if hasattr(f, 'im_self'):
+    if inspect.ismethod(f):
         ignore += 1
     
     # How many  arguments with default values we have
@@ -153,11 +153,13 @@ def assert_args(f, function_args, ignore=0):
     required_args_count = len(args) - default_count - ignore
     
     
-    max_str = ""
+    # Build error message
     if varargs:
         max_str = "-n"
-    if default_count > 0:
+    elif default_count > 0:
         max_str = "-%s" % (required_args_count + default_count)
+    else:
+        max_str = ""
      
     required = "Required %s%s arguments" % (required_args_count,
                                             max_str) 
@@ -172,7 +174,7 @@ def assert_args(f, function_args, ignore=0):
     if default_count:
         redundant_arg_count = supplied_arg_count - required_args_count
         
-        # Negative redundant_arg_count means that we have to few
+        # Negative redundant_arg_count means that we have too few
         # arguments.
         if redundant_arg_count > 0 and redundant_arg_count <= default_count:
             return
@@ -184,125 +186,11 @@ def assert_args(f, function_args, ignore=0):
     
         
 
-def _default_name(f):
-    return f.__name__.replace("_", "-")
-
-
-def expose(f, *cmd_names):
-    if not cmd_names:
-        # Use name of the function if no name is supplied
-        active.cmds[_default_name(f)] = f
-    else:
-        for name in cmd_names:
-            active.cmds[name] = f    
-    
-
-def expose_as(*cmd_names):
-    """Decorator for exposing functions as subssh commands"""
-    
-    def expose_function(f):
-        expose(f, *cmd_names)
-        return f
-        
-    return expose_function
 
 
 
 
-def exposable_as(*cmd_names):
-    """
-    Methods decorated with this will marked as exposable.
-    Methods can be exposed with expose_instance.
-    """
-    def set_exposed_name(f):
-        if cmd_names:
-            f.exposed_names = cmd_names
-        else:
-            f.exposed_names = _default_name(f),
-        return f
-    
-    return set_exposed_name
 
-
-
-def expose_instance(obj):
-    for key, method in inspect.getmembers(obj):
-        if hasattr(method, "exposed_names"):
-            
-            prefix = getattr(obj, "cmd_prefix", "")
-            suffix = getattr(obj, "cmd_suffix", "")
-            
-            wrapped_names = [prefix + name + suffix
-                              for name in method.exposed_names]
-            
-            expose(method, *wrapped_names)
-            
-
-
-
-
-is_inactive = lambda req: not req and req != 0
-def require_args_deprecated(exactly=None, at_least=None, at_most=None):
-    """
-    Decorator for setting constraints for arguments of a command.
-    
-    Raises  InvalidArguments exception if command 
-    is not supplied with required amount of arguments
-    """
-     
-    requirements = (lambda count: is_inactive(exactly) or count == exactly,
-                    lambda count: is_inactive(at_least) or count >= at_least, 
-                    lambda count: is_inactive(at_most) or count <= at_most)
-
-    
-    def wrapper(f):
-        def args_wrapper(*function_args):
-            # Funtion decorator
-            if len(function_args) == 3:
-                username, cmd, args = function_args
-            # Method decorator
-            elif len(function_args) == 4:
-                obj, username, cmd, args = function_args
-            else:
-                raise TypeError("require_args-decorator takes 3-4 arguments")
-            
-            for require in requirements:
-                if not require(len(args)):
-                    msg = "Required arguments "
-                    if exactly:
-                        msg += "exactly %s. " % exactly 
-                    if at_least:
-                        msg += "at least %s. " % at_least 
-                    if at_most:
-                        msg += "at most %s. " % at_most                                                 
-                        
-                    raise InvalidArguments(msg)
-                
-            return f(*function_args)
-        args_wrapper.__name__ = f.__name__
-        args_wrapper.__doc__ = f.__doc__
-        args_wrapper.__dict__ = f.__dict__
-        return args_wrapper
-    
-        
-    return wrapper
-
-
-
-if __name__ == "__main__":
-    def bar(eka, toka):
-        pass
-    
-    def foo(valu):
-        bar(1,2)
-        
-        
-    try:
-        foo()
-    except TypeError, e:
-        print traceback.extract_stack()
-        t =  sys.exc_info()
-        print t
 
 
 
