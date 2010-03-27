@@ -18,7 +18,7 @@ def import_subssh_app(module_path):
     
     parent = ".".join(module_path.split(".")[:-1])
 
-    imported =  __import__(module_path, globals(), locals(), [last], -1)
+    imported =  __import__(parent, globals(), locals(), [last], -1)
     
         
 #    imported = __import__(module_path, fromlist=[last])
