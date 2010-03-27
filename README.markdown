@@ -29,8 +29,9 @@ Subssh is inspired by [GitHub][h], [Gitosis][s], [YouSource (Verso)][y] and
 ## Installing ##
 
 No stable release is made yet, but you can try installing from git-repository.
-Since this is development version usage of Python a [virtualenv][4] recommended.
-In Debian based distros it can be found from *python-virtualenv* -package.
+Since is there is only a development version available, usage of a Python 
+[virtualenv][4] highly recommended. In Debian based distros it can be found from 
+*python-virtualenv* -package.
 
 [4]: http://pypi.python.org/pypi/virtualenv
 
