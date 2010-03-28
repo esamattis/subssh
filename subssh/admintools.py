@@ -54,6 +54,8 @@ def add_key(username, args):
             return 1
     elif hopefully_a_pubkey == "-":
         key = sys.stdin.read(max_key_size)
+    else:
+        key = hopefully_a_pubkey
             
             
     

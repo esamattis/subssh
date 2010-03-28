@@ -10,19 +10,28 @@ import tempfile
 import os
 import shutil
 
-from subssh.apps.vcs import git, svn
-from subssh.apps.vcs.abstractrepo import InvalidPermissions
+from subssh.app.vcs import git, svn
+from subssh.app.vcs.abstractrepo import InvalidPermissions
+class UserRequest(object):
+    def __init__(self, **kwargs):
+        self.__dict__ = kwargs
 
 class VCSTestBase(object):
     username = "tester"
     vcs_class = None
     manager_class = None
+    repo_name = "testingrepo"
 
 
     def setUp(self):
-        self.dir = tempfile.mkdtemp(prefix="subuser_test_tmp_")
-        manager = self.manager_class(self.dir, self.vcs_class)
-        self.manager(self.dir, self.username)
+        self.tempdir = tempfile.mkdtemp(prefix="subuser_test_tmp_")
+        self.repomanager = self.manager_class(self.tempdir)
+        
+        user = UserRequest(username=self.username)
+        
+        self.repomanager.init(user, self.repo_name)
+        
+        self.dir = self.repomanager.real(self.repo_name)
     
     def test_test(self):
         self.assert_(os.path.exists(self.dir))
@@ -107,7 +116,7 @@ class VCSTestBase(object):
         
         
     def tearDown(self):
-        shutil.rmtree(self.dir, ignore_errors=True)
+        shutil.rmtree(self.tempdir, ignore_errors=True)
         
         
         

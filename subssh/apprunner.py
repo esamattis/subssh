@@ -76,9 +76,14 @@ def run(user, args):
             f.write("%s %s\n" % (user.cmd, args))
             traceback.print_exc(file=f)
             f.close()
+            
+            try:
+                message = e.args[0]
+            except IndexError:
+                message = "..."
             tools.errln("System error (%s): %s: %s" % (timestamp, 
                                                    e.__class__.__name__,
-                                                   e.args[0]))
+                                                   message))
             tools.errln("Please report to admin.")
             
         return 1

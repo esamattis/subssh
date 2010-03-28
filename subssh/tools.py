@@ -94,6 +94,7 @@ class CalledProcessError(Exception):
     def __init__(self, returncode, cmd):
         self.returncode = returncode
         self.cmd = cmd
+        self.args[returncode, cmd]
     def __str__(self):
         return ("Command '%s' returned non-zero exit status %d" 
                 % (self.cmd, self.returncode))

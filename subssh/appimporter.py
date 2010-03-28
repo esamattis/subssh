@@ -57,6 +57,7 @@ def import_all_apps_from_config():
         try:
             import_subssh_app(module_path, options)
         except ImportError, e:
+            # TODO: Should log the traceback
             tools.errln("Warning: Could not import app %s" % module_path)
             logger.error("Could not import app %s reason: %s" 
                          % (module_path, e) )
