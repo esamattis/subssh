@@ -79,14 +79,14 @@ class Subuser(object):
 
     def iter_in_authorized_keys_format(self):
         for key in self.pubkeys.keys():
-            yield self.as_authorized_keys_format(key)
+            yield self.in_authorized_keys_format(key)
     
     def __iter__(self):
         for key, meta in self.pubkeys.items():
             type, comment = meta
             yield type, key, comment
             
-    def as_authorized_keys_format(self, key):
+    def in_authorized_keys_format(self, key):
         type, comment = self.pubkeys[key]
         return ("command=\"%(subssh_cmd)s -t %(username)s\","
                 "%(ssh_options)s "
@@ -127,6 +127,9 @@ class AuthorizedKeysDB(object):
         
         self.load_keys()
 
+
+    def remove_user(self, username):
+        del self.subusers[username]
 
         
 

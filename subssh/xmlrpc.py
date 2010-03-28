@@ -19,8 +19,10 @@ License along with Subssh.  If not, see
 <http://www.gnu.org/licenses/>.
 """
 
+import sys
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
+from optparse import OptionParser
 
 from authorizedkeys import AuthorizedKeysDB
 import tools
@@ -48,20 +50,52 @@ class RequestHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/subssh/rpc2',)
     
 
-
-
-def standalone_xmlrpc_server(listen, port):
+def setup_server(listen, port):
     server = SimpleXMLRPCServer((listen, port),
                                 requestHandler=RequestHandler)
     
     server.register_function(ping)
     server.register_function(add_key)
+    return server    
+
+
+def standalone_xmlrpc_server():
+    """Standalone XML-RPC server. Can be used to manage subssh users from 
+remote machine.
+    """
+    parser = OptionParser(usage="%s [listen address] [port]"  % sys.argv[0],
+                          description=standalone_xmlrpc_server.__doc__ )
+                         
+    
+    
+    options, args = parser.parse_args()
+    
+    
+    try:
+        listen = args[0]
+    except IndexError:
+        listen = "127.0.0.1"
+    
+    try:
+        port = int(args[1])
+    except (IndexError, ValueError):
+        port = 8000
+    
+    
+    server = setup_server(listen, port)
+
     tools.errln("Starting XML-RPC server on http://%s:%s%s" % 
                 (listen, port, RequestHandler.rpc_paths[0]))
-    server.serve_forever()
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        return 0
+    except Exception, e:
+        tools.errln("Got %s" % e)
+        return 1
 
 if __name__ == "__main__":
-    standalone_xmlrpc_server("localhost", 8001)
+    standalone_xmlrpc_server()
     
 
     

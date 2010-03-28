@@ -22,8 +22,8 @@ License along with Subssh.  If not, see
 
 import sys
 
-from subssh import admintools
+from subssh import xmlrpc
 
 
 if __name__ == "__main__":
-    sys.exit(admintools.handle_cmdline() or 0)
+    sys.exit(xmlrpc.standalone_xmlrpc_server() or 0)
