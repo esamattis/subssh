@@ -41,17 +41,25 @@ Subssh is inspired by [GitHub][h], [Gitosis][s], [YouSource (Verso)][y] and
 No releases are made yet, but you can try installing from git-repository.
 
 Since is there is only a development version available, usage of a Python
-[virtualenv][4] is highly recommended. In Debian based distros it can be found 
+[virtualenv][e] is highly recommended. In Debian based distros it can be found 
 from *python-virtualenv* -package.
-
-
-[4]: http://pypi.python.org/pypi/virtualenv
 
     $ virtualenv subsshenv
     $ source subsshenv/bin/activate
+
+If you have also [setuptools][t] installed you can install the HEAD with 
+easy_install:
+
+    $ easy_install http://github.com/epeli/subssh/tarball/master
+
+Otherwise you can install it manually:
+
     $ git clone git://github.com/epeli/subssh.git
     $ cd subssh
     $ python setup.py install
+
+[e]: http://pypi.python.org/pypi/virtualenv
+[t]: http://pypi.python.org/pypi/setuptools 
 
 ## Usage ##
 
