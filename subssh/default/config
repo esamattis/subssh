@@ -24,9 +24,6 @@ urls = Read/Write|ssh://$hostusername@$hostname/$name_on_fs
 
 
 
-
-[app:subssh.app.whoami]
-
 [app:subssh.app.pubkeymanager]
 
 

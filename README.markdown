@@ -3,7 +3,8 @@
 Homepage: http://github.com/epeli/subssh
 
 Subssh is a bare minimal shell for exposing minimal amount of commands for
-untrusted users. Eg. if you want to share  svn- or git-repositories. 
+untrusted users. Eg. if you want to restrict users access to svn- or 
+git-repositories only. 
 
 
 ## Features ##
@@ -29,6 +30,8 @@ Subssh is inspired by [GitHub][h], [Gitosis][s], [YouSource (Verso)][y] and
 ## Requirements ##
 
  - Should work with Python 2.4, 2.5 and 2.6. Mostly tested with 2.5.
+ - OpenSSH server. Well, subssh can be run locally, but there's really no 
+   point doing that...
  - Git (for the Git app).
  - Subversion (for the Subversion app).
 
@@ -37,9 +40,10 @@ Subssh is inspired by [GitHub][h], [Gitosis][s], [YouSource (Verso)][y] and
 
 No releases are made yet, but you can try installing from git-repository.
 
-Since is there is only a development version available, usage of a Python 
-[virtualenv][4] highly recommended. In Debian based distros it can be found from 
-*python-virtualenv* -package.
+Since is there is only a development version available, usage of a Python
+[virtualenv][4] is highly recommended. In Debian based distros it can be found 
+from *python-virtualenv* -package.
+
 
 [4]: http://pypi.python.org/pypi/virtualenv
 

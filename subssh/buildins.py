@@ -19,7 +19,7 @@ License along with Subssh.  If not, see
 <http://www.gnu.org/licenses/>.
 """
 
-
+import os
 from string import Template
 
 
@@ -78,8 +78,17 @@ def exit(user, exitstatus=0):
         return int(exitstatus)
     except ValueError:
         raise subssh.UserException("Bad exits status %s" % exitstatus)
-    
 
+@subssh.expose_as("version")
+def version(user):
+    """
+    Displays the version number of subssh
+    """
+    this_dir = os.path.dirname(__file__)
+    f = open(os.path.join(this_dir,'version.txt'), 'r')
+    version = f.read()
+    f.close()
+    print version
 
 
 
