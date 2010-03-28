@@ -16,7 +16,7 @@ class UserRequest(object):
     def __init__(self, **kwargs):
         self.__dict__ = kwargs
 
-class VCSTestBase(object):
+class VCSMixIn(object):
     username = "tester"
     vcs_class = None
     manager_class = None
@@ -77,7 +77,7 @@ class VCSTestBase(object):
         repo.save()
         
         repo = self.vcs_class(self.dir, self.username)     
-        repo.remove_all_permissions("new")
+        repo.remove_permissions("new")
         repo.save()
         
         repo = self.vcs_class(self.dir, self.username)
@@ -115,6 +115,7 @@ class VCSTestBase(object):
         self.assert_(exception)
         
         
+        
     def tearDown(self):
         shutil.rmtree(self.tempdir, ignore_errors=True)
         
@@ -122,16 +123,69 @@ class VCSTestBase(object):
         
 
 
-class TestSvn(VCSTestBase, unittest.TestCase):
+class TestSvn(VCSMixIn, unittest.TestCase):
     manager_class = svn.SubversionManager
     vcs_class = svn.Subversion 
     
         
         
-class TestGit(VCSTestBase, unittest.TestCase):
+class TestGit(VCSMixIn, unittest.TestCase):
     manager_class = git.GitManager
-    vcs_class = git.Git         
+    vcs_class = git.Git
+    
+
+class RepoManagertMixIn(object):
+    username = "tester"
+    vcs_class = None
+    manager_class = None
+    repo_name = "testingrepo"
+
+
+    def setUp(self):
+        self.tempdir = tempfile.mkdtemp(prefix="subuser_test_tmp_")
+        self.repomanager = self.manager_class(self.tempdir)
+        
+        self.user = UserRequest(username=self.username)
+        
+        self.repomanager.init(self.user, self.repo_name)
         
         
+    def test_get_repo_object(self):
+        self.repomanager.get_repo_object(self.username, self.repo_name)
+
+
+    def test_fork(self):
+        forker = "forker"
+        original_owner = self.username
+        randomdude = "randomdude"
+        
+        repo = self.repomanager.get_repo_object(original_owner, self.repo_name)
+        repo.set_permissions(randomdude, "rw")
+        repo.add_owner(randomdude)
+        repo.save()
+        
+        
+        user = UserRequest(username=forker)
+        self.repomanager.fork(user, self.repo_name, "newfork")
+        
+        newrepo = self.repomanager.get_repo_object(forker, "newfork")
+        self.assert_(newrepo.has_permissions(forker, "rw"))
+        self.assert_(newrepo.is_owner(forker))
+
+        # Original owner is not owner in the fork
+        self.assertFalse(newrepo.has_permissions(original_owner, "w"))
+        self.assertFalse(newrepo.is_owner(original_owner))
+        
+        # Random dude has no permissions either        
+        self.assertFalse(newrepo.has_permissions(randomdude, "w"))
+        self.assertFalse(newrepo.is_owner(randomdude))
+                
+
+class TestGitManager(RepoManagertMixIn, unittest.TestCase):
+    manager_class = git.GitManager
+    
+            
+class TestSubversionManager(RepoManagertMixIn, unittest.TestCase):
+    manager_class = svn.SubversionManager
         
         
