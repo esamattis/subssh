@@ -20,6 +20,7 @@ License along with Subssh.  If not, see
 """
 
 import sys
+import urllib2
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 from optparse import OptionParser
@@ -29,8 +30,13 @@ from admintools import get_key_from_input
 from keyparsers import PubKeyException
 import tools
 import config
+import customlogger
+
+logger = customlogger.get_logger("xmlrpc", filepath=config.XMLRPC_LOG)
 
 class Unauthorized(Exception): pass
+
+
 
 
 def add_key(username, key_input, comment):
@@ -41,15 +47,18 @@ def add_key(username, key_input, comment):
     if key_input == '-':
         raise PubKeyException("Invalid public key")
         
-    key = get_key_from_input(key_input)
     
     db = AuthorizedKeysDB()
     try:
+        key = get_key_from_input(key_input)
         db.add_key_from_str(username, key, comment)
-    except PubKeyException, e:
+    except (PubKeyException, urllib2.HTTPError), e:
         db.close()
+        logger.warning("%s failed to add key. comment: %s key: %s" 
+                       % (username, comment, key_input))
         raise e
     else:
+        logger.info("%s added key. comment: %s" % (username, comment))
         db.commit()
         
     db.close()
@@ -89,12 +98,12 @@ remote machine.
     try:
         listen = args[0]
     except IndexError:
-        listen = "127.0.0.1"
+        listen = config.XMLRPC_LISTEN
     
     try:
         port = int(args[1])
     except (IndexError, ValueError):
-        port = 8000
+        port = config.XMLRPC_PORT
     
     
     server = setup_server(listen, port)
@@ -104,7 +113,8 @@ remote machine.
                 "authentication system. So anyone able to connect can "
                 "add subssh keys!\n")
     tools.errln("Starting XML-RPC server on http://%s:%s%s" % 
-                (listen, port, RequestHandler.rpc_paths[0]))
+                (listen, port, RequestHandler.rpc_paths[0]),
+                log=logger.info)
     
     try:
         server.serve_forever()
