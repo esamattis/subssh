@@ -25,20 +25,35 @@ from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 from optparse import OptionParser
 
 from authorizedkeys import AuthorizedKeysDB
+from admintools import get_key_from_input
+from keyparsers import PubKeyException
 import tools
 import config
 
 class Unauthorized(Exception): pass
 
 
-def add_key(username, pubkey):
+def add_key(username, key_input, comment):
     if username == config.ADMIN:
         raise Unauthorized("Cannot set admin's key over xmlrpc!")
     
+    # Cannot use stdin from xmlprc
+    if key_input == '-':
+        raise PubKeyException("Invalid public key")
+        
+    key = get_key_from_input(key_input)
+    
     db = AuthorizedKeysDB()
-    db.add_key_from_str(username, pubkey)
-    db.commit()
+    try:
+        db.add_key_from_str(username, key, comment)
+    except PubKeyException, e:
+        db.close()
+        raise e
+    else:
+        db.commit()
+        
     db.close()
+    
     
     return True
     
@@ -47,7 +62,7 @@ def ping():
     
 # Restrict to a particular path.
 class RequestHandler(SimpleXMLRPCRequestHandler):
-    rpc_paths = ('/subssh/rpc2',)
+    rpc_paths = ('/' + config.XMLRPC_PATH.strip('/') ,)
     
 
 def setup_server(listen, port):
@@ -84,8 +99,13 @@ remote machine.
     
     server = setup_server(listen, port)
 
+    
+    tools.errln("\nWarning: This standalone server does not have any "
+                "authentication system. So anyone able to connect can "
+                "add subssh keys!\n")
     tools.errln("Starting XML-RPC server on http://%s:%s%s" % 
                 (listen, port, RequestHandler.rpc_paths[0]))
+    
     try:
         server.serve_forever()
     except KeyboardInterrupt:
