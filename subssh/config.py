@@ -64,9 +64,12 @@ if not os.path.exists(CONFIG_PATH):
 
 _config = SafeConfigParser()
 _config.read(CONFIG_PATH)
+this_module = sys.modules[__name__]
 
 for option, value in _config.items("general"):
-    globals()[option.upper()] = value
+    
+    setattr(this_module, option.upper(), value)
+    
 
 
 def first_to_upper(pair_list):

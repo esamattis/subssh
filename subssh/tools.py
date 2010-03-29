@@ -25,6 +25,7 @@ import subprocess
 import re
 import traceback
 import inspect
+import getpass
 
 import active
 import customlogger
@@ -132,10 +133,7 @@ def call(*args, **kw):
 
 
 def hostusername():
-    try:
-        return os.getlogin()
-    except OSError:
-        return os.environ['LOGNAME']
+    return getpass.getuser()
 
 
 
