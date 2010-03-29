@@ -9,6 +9,9 @@
 ## Defaults to system hostname.
 #display_hostname = vcs.linkkijkl.fi
 
+
+# xmlrpc_path = "subssh"
+
 [app:subssh.app.vcs.svn]
 #repositories = ~/.subssh/repos/svn
 #webview = ~/.subssh/repos/websvn

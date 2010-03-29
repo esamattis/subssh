@@ -48,6 +48,8 @@ CONFIG_PATH = os.path.join(SUBSSH_HOME, "config")
 
 ADMIN = "admin"
 
+XMLRPC_PATH = "subssh"
+
 # Used to determine where subssh is installed.
 SUBSSH_PYTHONPATH = ""
 

@@ -1,7 +1,9 @@
 # subssh #
 
 Homepage: http://github.com/epeli/subssh
+
 Author: Esa-Matti Suuronen <esa-matti@suuronen.org>
+
 
 Subssh is a bare minimal shell for exposing minimal amount of commands for
 untrusted users. Eg. if you want to restrict users access to svn- or 

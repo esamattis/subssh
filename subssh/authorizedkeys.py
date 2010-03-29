@@ -195,8 +195,12 @@ class AuthorizedKeysDB(object):
         user.add_key(type, key, comment)
 
 
-    def add_key_from_str(self, username, key):
-        type, key, comment = parse_public_key(key)
+    def add_key_from_str(self, username, key, comment=""):
+        type, key, key_comment = parse_public_key(key)
+        
+        if not comment:
+            comment = key_comment
+        
         self.add_key(username, type, key, comment)
 
 

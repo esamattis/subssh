@@ -41,29 +41,40 @@ def restore_config():
     return 0
 
 
-def add_key(username, args):
-    hopefully_a_pubkey = " ".join(args)
+def get_key_from_input(hopefully_a_pubkey):
+    """
+    Tries to decect input method and gets the key.
+    
+    May raise  urllib2.HTTPError
+    """
     # 4096 is enough for everybody? :)
     max_key_size = 4096
     
     if hopefully_a_pubkey.startswith("http"):
-        try:
-            key = urllib2.urlopen(hopefully_a_pubkey).read(max_key_size)
-        except urllib2.HTTPError, e:
-            tools.errln(e.args[0])
-            return 1
-    elif hopefully_a_pubkey == "-":
-        key = sys.stdin.read(max_key_size)
-    else:
-        key = hopefully_a_pubkey
-            
-            
+        return urllib2.urlopen(hopefully_a_pubkey).read(max_key_size)
+    
+    if hopefully_a_pubkey == "-":
+        return sys.stdin.read(max_key_size)
+    
+    return hopefully_a_pubkey
+    
+
+    
+
+def add_key(username, args, comment=""):
+    
+    try:
+        key = get_key_from_input(" ".join(args))
+    except urllib2.HTTPError, e:
+        tools.errln(e.args[0])
+        return 1
+
     
     exit_status = 0
     
     db = AuthorizedKeysDB()
     try:
-        db.add_key_from_str(username, key)
+        db.add_key_from_str(username, key, comment)
     except PubKeyException, e:
         tools.errln(e.args[0])
         exit_status = 1
@@ -82,7 +93,7 @@ def list_keys(username):
         tools.writeln("%s has no keys" % username)
     else:
         for i, (key, (type, comment)) in enumerate(subuser.pubkeys.items()):
-            tools.writeln("%s. %s\n   %s %s" % 
+            tools.writeln("%s. %s key: %s %s" % 
                           (i+1, comment, type , key))
     
     db.close()
