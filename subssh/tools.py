@@ -23,11 +23,11 @@ import sys
 import os
 import subprocess
 import re
-import traceback
 import inspect
 import getpass
+from string import Template
 
-import active
+import config
 import customlogger
 logger = customlogger.get_logger(__name__)
 
@@ -77,14 +77,19 @@ def to_cmd_args(input):
     
 
 
-def writeln(msg="", out=sys.stdout, log=None):
+def writeln(msg="", out=sys.stdout, log=None, indent=None):
     if log and msg:
         log(msg)
+    
+    if indent != None:
+        for line in msg.split("\n"):
+            out.write("%s%s\n"  %  (" "*indent, line.strip() ))
         
-    out.write("%s\n"  % msg)
+    else:
+        out.write("%s\n"  % msg)
 
-def errln(msg, log=None):
-    writeln(msg, out=sys.stderr, log=log)
+def errln(msg, log=None, indent=None):
+    writeln(msg, out=sys.stderr, log=log, indent=indent)
     
 
 
@@ -139,6 +144,14 @@ def hostusername():
 
 class InvalidArguments(UserException): pass
 
+
+
+def expand_subssh_vars(template, **extra):
+        tmpl_o = Template(template)
+        return tmpl_o.substitute(
+                                hostname=config.DISPLAY_HOSTNAME,
+                                hostusername=hostusername(),
+                                **extra)
 
 
 
