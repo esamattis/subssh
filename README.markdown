@@ -2,7 +2,7 @@
 
 Homepage: http://github.com/epeli/subssh
 
-Author: Esa-Matti Suuronen <esa-matti@suuronen.org>
+Author: Esa-Matti Suuronen <esa-matti aet suuronen dot org>
 
 
 Subssh is a bare minimal shell for exposing minimal amount of commands for
