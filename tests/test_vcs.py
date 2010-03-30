@@ -12,6 +12,8 @@ import shutil
 
 from subssh.app.vcs import git, svn
 from subssh.app.vcs.abstractrepo import InvalidPermissions
+
+
 class UserRequest(object):
     def __init__(self, **kwargs):
         self.__dict__ = kwargs
@@ -31,7 +33,7 @@ class VCSMixIn(object):
         
         self.repomanager.init(user, self.repo_name)
         
-        self.dir = self.repomanager.real(self.repo_name)
+        self.dir = self.repomanager.real_path(self.repo_name)
     
     def test_test(self):
         self.assert_(os.path.exists(self.dir))
@@ -69,6 +71,35 @@ class VCSMixIn(object):
         self.assert_(repo.has_permissions("new", "w"))
         self.assert_(repo.has_permissions("new", "r"))
         
+
+    def test_plus_permissions(self):
+        repo = self.vcs_class(self.dir, self.username)
+        repo.set_permissions("new", "+rw")
+        repo.save()
+        
+        repo = self.vcs_class(self.dir, self.username)
+        self.assert_(repo.has_permissions("new", "rw"))
+
+        repo = self.vcs_class(self.dir, self.username)
+        repo.set_permissions("new2", "+w")
+        repo.save()
+
+        repo = self.vcs_class(self.dir, self.username)
+        self.assert_(repo.has_permissions("new", "w"))
+
+
+    def test_minus_permissions(self):
+        repo = self.vcs_class(self.dir, self.username)
+        repo.set_permissions("new", "rw")
+        repo.save()
+        
+
+        repo = self.vcs_class(self.dir, self.username)
+        repo.set_permissions("new", "-w")
+        repo.save()
+
+        repo = self.vcs_class(self.dir, self.username)
+        self.assertFalse(repo.has_permissions("new", "w"))
     
     
     def test_remove_permissions(self):
@@ -114,7 +145,9 @@ class VCSMixIn(object):
         
         self.assert_(exception)
         
-        
+    
+    
+    
         
     def tearDown(self):
         shutil.rmtree(self.tempdir, ignore_errors=True)
@@ -179,7 +212,39 @@ class RepoManagertMixIn(object):
         # Random dude has no permissions either        
         self.assertFalse(newrepo.has_permissions(randomdude, "w"))
         self.assertFalse(newrepo.is_owner(randomdude))
-                
+    
+    def test_enable_web(self):
+        self.repomanager.web_enable(self.user, self.repo_name)
+        webpath = os.path.join(self.repomanager.web_repos_path,
+                                self.repomanager.real_path(self.repo_name))
+        
+        self.assert_(os.path.exists(webpath))
+        
+    def test_disable_web(self):
+        self.test_enable_web()
+        self.repomanager.web_disable(self.user, self.repo_name)
+        webpath = os.path.join(self.repomanager.web_repos_path,
+                                self.repomanager.real_name(self.repo_name))
+        self.assertFalse(os.path.exists(webpath))
+                 
+    
+    def test_no_web_if_no_global_read_access(self):
+        self.repomanager.set_permissions(self.user, '*', '-r', self.repo_name)
+
+        
+        self.assertRaises(InvalidPermissions, self.repomanager.web_enable,
+                          self.user, self.repo_name)
+    
+    def test_no_web_on_no_global_read_access(self):
+        self.test_enable_web()
+        
+        self.repomanager.set_permissions(self.user, '*', '-r', self.repo_name)
+        
+        webpath = os.path.join(self.repomanager.web_repos_path,
+                                self.repomanager.real_name(self.repo_name))
+        
+        self.assertFalse(os.path.exists(webpath))    
+    
 
 class TestGitManager(RepoManagertMixIn, unittest.TestCase):
     manager_class = git.GitManager
