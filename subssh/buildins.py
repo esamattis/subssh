@@ -20,7 +20,7 @@ License along with Subssh.  If not, see
 """
 
 import os
-from string import Template
+
 
 
 import subssh
@@ -106,11 +106,7 @@ def show_doc(user, command):
         return 1
     
     if doc_tmpl:
-        # Set document variables
-        doc = Template(doc_tmpl).substitute(cmd=command,
-                                            hostname=config.DISPLAY_HOSTNAME,
-                                            hostusername=subssh.hostusername())
-        subssh.writeln(doc)
+        subssh.writeln(tools.expand_subssh_vars(doc_tmpl, cmd=command))
     else:
         subssh.writeln("'%s' has no doc string" % command)
     

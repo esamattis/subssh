@@ -25,7 +25,7 @@ import urllib2
 from optparse import OptionParser
 
 
-import tools
+import subssh
 import config
 from authorizedkeys import AuthorizedKeysDB
 from subssh.keyparsers import PubKeyException
@@ -66,7 +66,7 @@ def add_key(username, args, comment=""):
     try:
         key = get_key_from_input(" ".join(args))
     except urllib2.HTTPError, e:
-        tools.errln(e.args[0])
+        subssh.errln(e.args[0])
         return 1
 
     
@@ -76,7 +76,7 @@ def add_key(username, args, comment=""):
     try:
         db.add_key_from_str(username, key, comment)
     except PubKeyException, e:
-        tools.errln(e.args[0])
+        subssh.errln(e.args[0])
         exit_status = 1
     else:
         db.commit()
@@ -90,10 +90,10 @@ def list_keys(username):
     try:
         subuser = db.subusers[username]
     except KeyError:
-        tools.writeln("%s has no keys" % username)
+        subssh.writeln("%s has no keys" % username)
     else:
         for i, (key, (type, comment)) in enumerate(subuser.pubkeys.items()):
-            tools.writeln("%s. %s key: %s %s" % 
+            subssh.writeln("%s. %s key: %s %s" % 
                           (i+1, comment, type , key))
     
     db.close()
@@ -112,7 +112,7 @@ def remove_user(username):
     try:
         db.remove_user(username)
     except KeyError:
-        tools.errln("No such user '%s'" % username)   
+        subssh.errln("No such user '%s'" % username)   
     else:
         db.commit()
     db.close()
