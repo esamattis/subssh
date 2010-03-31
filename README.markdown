@@ -6,8 +6,8 @@ Author: Esa-Matti Suuronen <esa-matti aet suuronen dot org>
 
 
 Subssh is a bare minimal shell for exposing minimal amount of commands for
-untrusted users. Eg. if you want to restrict users access to svn- or 
-git-repositories only. 
+untrusted users. Eg. if you want to restrict users access to svn- or
+git-repositories only.
 
 
 ## Features ##
@@ -18,15 +18,15 @@ git-repositories only.
    - Keys can be managed from the shell.
  - Easily extendable. [Example](http://github.com/epeli/subssh/blob/master/subssh/app/example.py).
  - Version control management (currently Git and Subversion support).
-   - Users can create, delete, fork and rename repositories. 
-   - Permissions management. Users can set who can read/write their 
+   - Users can create, delete, fork and rename repositories.
+   - Permissions management. Users can set who can read/write their
      repositories.
-   - Repository publishing. Users can make their repositories public using 
-     some web interface (eg. gitweb, websvn). Not included. Subssh just 
+   - Repository publishing. Users can make their repositories public using
+     some web interface (eg. gitweb, websvn). Not included. Subssh just
      makes symklinks to a configured repository when user decides to publish
      a repository
 
-Subssh is inspired by [GitHub][h], [Gitosis][s], [YouSource (Verso)][y] and 
+Subssh is inspired by [GitHub][h], [Gitosis][s], [YouSource (Verso)][y] and
 [CherryPy][c] (for the extension system).
 
 [h]: http://github.com/
@@ -37,7 +37,7 @@ Subssh is inspired by [GitHub][h], [Gitosis][s], [YouSource (Verso)][y] and
 ## Requirements ##
 
  - Should work with Python 2.4, 2.5 and 2.6. Mostly tested with 2.5.
- - OpenSSH server. Well, subssh can be run locally, but there's really no 
+ - OpenSSH server. Well, subssh can be run locally, but there's really no
    point doing that...
  - Git (for the Git app).
  - Subversion (for the Subversion app).
@@ -48,13 +48,13 @@ Subssh is inspired by [GitHub][h], [Gitosis][s], [YouSource (Verso)][y] and
 No releases are made yet, but you can try installing from git-repository.
 
 Since is there is only a development version available, usage of a Python
-[virtualenv][e] is highly recommended. In Debian based distros it can be found 
+[virtualenv][e] is highly recommended. In Debian based distros it can be found
 from *python-virtualenv* -package.
 
     $ virtualenv subsshenv
     $ source subsshenv/bin/activate
 
-If you have also [setuptools][t] installed you can install the HEAD with 
+If you have also [setuptools][t] installed you can install the HEAD with
 easy_install:
 
     $ easy_install http://github.com/epeli/subssh/tarball/master
@@ -66,7 +66,7 @@ Otherwise you can install it manually:
     $ python setup.py install
 
 [e]: http://pypi.python.org/pypi/virtualenv
-[t]: http://pypi.python.org/pypi/setuptools 
+[t]: http://pypi.python.org/pypi/setuptools
 
 ## Usage ##
 
@@ -79,3 +79,44 @@ Add a public key with subssh-admin
     $ subssh-admin --add-key desired_username ssh-rsa AAAmyekeyhere...
 
 and login with that key.
+
+## Example session ##
+
+    $ subssh@subsshserver.example.com
+    me@subsshserver.example.com> git-init myrepo
+    Initialized empty Git repository in /home/subssh/repos/git/myrepo.git/
+
+
+     Created new repository 'myrepo'
+
+
+    Owners: me
+
+    Permissions:
+        * = r
+        me = rw
+
+    Anonymous web view is disabled
+
+    Access:
+        Read/Write ssh://subssh@subsshserver.example.com/myrepo.git
+
+    me@subsshserver.example.com> git-set-permissions myfriend +rw myrepo
+    me@subsshserver.example.com> git-web-enable myrepo
+    me@subsshserver.example.com> git-info myrepo
+
+    Owners: me
+
+    Permissions:
+        * = r
+        me = rw
+        myfriend = rw
+
+    Anonymous web view is enabled
+
+    Access:
+        Read/Write ssh://subssh@subsshserver.example.com/myrepo.git
+        Anonymous read http://subsshserver.example.com/repo/myrepo.git
+        Web view http://subsshserver.example.com/viewgit/?a=summary&p=myrepo.git
+
+    me@subsshserver.example.com>
