@@ -5,7 +5,8 @@
 ## subssh "binary" location
 #subssh_bin = /usr/bin/subssh
 
-## Hostname display on eg. on promt.
+## Hostname displayed on promt. 
+## This will be also the $hostname -variable in urls
 ## Defaults to system hostname.
 #display_hostname = vcs.linkkijkl.fi
 
@@ -14,16 +15,23 @@
 
 [app:subssh.app.vcs.svn]
 #repositories = ~/.subssh/repos/svn
-#webview = ~/.subssh/repos/websvn
-urls = Read/Write|svn+ssh://$hostusername@$hostname/$name_on_fs
-       Webview|http://$hostname/websvn/listing.php?repname=$name_on_fs
+
+#web_dir = ~/.subssh/repos/websvn
+
+#url_rw = svn+ssh://$hostusername@$hostname/$name_on_fs
+#url_web_view = http://$hostname/websvn/listing.php?repname=$name_on_fs
+
+
 
 [app:subssh.app.vcs.git]
 #repositories = ~/.subssh/repos/svn
-#webview = ~/.subssh/repos/websvn
-urls = Read/Write|ssh://$hostusername@$hostname/$name_on_fs
-       Read only clone|http://$hostname/repo/$name_on_fs
-       Webview|http://$hostname/gitphp/index.php?p=$name_on_fs&a=tree
+
+#web_dir = ~/.subssh/repos/websvn
+
+#url_rw = ssh://$hostusername@$hostname/$name_on_fs
+#url_http_clone = http://$hostname/repo/$name_on_fs
+#url_web_view = http://$hostname/gitweb?p=$name_on_fs
+
 
 
 
