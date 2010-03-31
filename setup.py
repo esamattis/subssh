@@ -12,7 +12,7 @@ from distutils.core import setup
 docs = [os.path.join("doc", dir) for dir in os.listdir("doc")]
 
 f = open('subssh/version.txt', 'r')
-version = f.read()
+version = f.read().strip()
 f.close()
 
 

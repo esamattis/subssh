@@ -6,7 +6,7 @@ Author: Esa-Matti Suuronen <esa-matti aet suuronen dot org>
 
 
 Subssh is a bare minimal shell for exposing minimal amount of commands for
-untrusted users. Eg. if you want to restrict users access to svn- or
+untrusted users. Eg. if you want to restrict users' access to svn- or/and
 git-repositories only.
 
 
@@ -23,7 +23,7 @@ git-repositories only.
      repositories.
    - Repository publishing. Users can make their repositories public using
      some web interface (eg. gitweb, websvn). Not included. Subssh just
-     makes symklinks to a configured repository when user decides to publish
+     makes symlinks to a configured repository when user decides to publish
      a repository
 
 Subssh is inspired by [GitHub][h], [Gitosis][s], [YouSource (Verso)][y] and
