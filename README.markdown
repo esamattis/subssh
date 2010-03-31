@@ -13,14 +13,18 @@ git-repositories only.
 ## Features ##
 
  - Interactive shell.
- - Git and Subversion support with repository managers.
-   - Users can add, delete and rename repositories. 
-   - Permissions management. Users can set who can read/write to their 
-     repositories.
  - Multiple users can use single account.
    - Users are distinguished by public SSH-keys in ~/.ssh/authorized_keys file.
    - Keys can be managed from the shell.
  - Easily extendable. [Example](http://github.com/epeli/subssh/blob/master/subssh/app/example.py).
+ - Version control management (currently Git and Subversion support).
+   - Users can create, delete, fork and rename repositories. 
+   - Permissions management. Users can set who can read/write their 
+     repositories.
+   - Repository publishing. Users can make their repositories public using 
+     some web interface (eg. gitweb, websvn). Not included. Subssh just 
+     makes symklinks to a configured repository when user decides to publish
+     a repository
 
 Subssh is inspired by [GitHub][h], [Gitosis][s], [YouSource (Verso)][y] and 
 [CherryPy][c] (for the extension system).
