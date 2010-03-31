@@ -82,7 +82,7 @@ and login with that key.
 
 ## Example session ##
 
-    $ subssh@subsshserver.example.com
+    $ ssh subssh@subsshserver.example.com
     me@subsshserver.example.com> git-init myrepo
     Initialized empty Git repository in /home/subssh/repos/git/myrepo.git/
 
