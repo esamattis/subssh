@@ -69,7 +69,8 @@ def prompt(user):
             continue
         
         user.cmd = cmd
-        exit_status = apprunner.run(user, args)
+        user.args = args
+        exit_status = apprunner.run(user)
         
     return exit_status
 

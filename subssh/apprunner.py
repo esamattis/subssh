@@ -30,12 +30,12 @@ import active
 
     
 
-def run(user, args):
+def run(user):
     # Log all commands that are ran
     # TODO: preserve history for prompt
     
     
-    user.logger.info("%s %s" % (user.cmd, args)) 
+    user.logger.info("%s %s" % (user.cmd, user.args)) 
     
     try:
         app = active.cmds[user.cmd]
@@ -47,9 +47,9 @@ def run(user, args):
     
     try:
         # Ignore "user" which is always supplied.
-        tools.assert_args(app, args, ignore=1)
+        tools.assert_args(app, user.args, ignore=1)
         # Execute the app
-        return app(user, *args)
+        return app(user, *user.args)
     except tools.InvalidArguments, e:
         tools.errln("Invalid arguments. %s" % e.args[0])
         buildins.show_doc(user, user.cmd)
@@ -73,7 +73,7 @@ def run(user, args):
                                   "%s-%s" % (timestamp, user.username)), 
                     "w")
             
-            f.write("%s %s\n" % (user.cmd, args))
+            f.write("%s %s\n" % (user.cmd, user.args))
             traceback.print_exc(file=f)
             f.close()
             

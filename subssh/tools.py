@@ -26,12 +26,13 @@ import re
 import inspect
 import getpass
 from string import Template
+from optparse import OptionParser
 
 import config
 import customlogger
 logger = customlogger.get_logger(__name__)
 
-safe_chars = r"a-zA-Z_\-\."
+safe_chars = r"a-zA-Z0-9_\-\."
 
 safe_chars_only_pat = re.compile(r"^[%s]+$" % safe_chars )
 
@@ -213,10 +214,72 @@ def assert_args(f, function_args, ignore=0):
                            % (supplied_arg_count, required))
     
         
+parser = OptionParser()
+
+
+parser.add_option("-t", "--ssh-tunnel", dest="ssh_username",
+                  help="Run subssh as user. Command is read from "
+                  "SSH_ORIGINAL_COMMAND enviroment variable.", 
+                  metavar="<username>")
 
 
 
 
+def from_ssh(username):
+    
+    if os.environ.has_key('SSH_CONNECTION'):
+        from_ip = os.environ.get('SSH_CONNECTION', '').split()[0]
+    else:
+        from_ip = "localhost"
+    
+    
+    
+    try:
+        ssh_original_command = os.environ['SSH_ORIGINAL_COMMAND']
+    except KeyError:
+        ssh_original_command = None
+
+    
+
+    
+    
+    if not ssh_original_command:
+        return "", []
+
+    # Clean up the original command
+    parts = [part.strip("'\" ") for part in ssh_original_command.split()]
+    
+    cmd = parts[0]
+    args = parts[1:]
+    return cmd, args
+    
+
+
+class UserRequest(object):
+    def __init__(self, **kwargs):
+        self.__dict__ = kwargs
+    
+
+def get_user_object():
+
+    options, args = parser.parse_args()
+    
+    
+    if options.ssh_username:
+        username = options.ssh_username
+        if username == config.ADMIN:
+            errln("Cannot login as admin '%s' over SSH!" % username)
+            return 1
+        cmd, args = from_ssh(username)
+    else:
+        username = hostusername()
+        cmd, args = to_cmd_args(sys.argv[1:])
+        
+    return UserRequest(username=username, 
+                       cmd=cmd,
+                       args=args,
+                       from_ssh=bool(options.ssh_username),
+                       logger=customlogger.get_user_logger(username))    
 
 
 

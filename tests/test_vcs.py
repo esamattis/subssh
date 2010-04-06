@@ -10,7 +10,7 @@ import tempfile
 import os
 import shutil
 
-from subssh.app.vcs import git, svn
+from subssh.app.vcs import git, svn, hg
 from subssh.app.vcs.abstractrepo import InvalidPermissions
 
 
@@ -167,6 +167,10 @@ class TestGit(VCSMixIn, unittest.TestCase):
     vcs_class = git.Git
     
 
+class TestMercurial(VCSMixIn, unittest.TestCase):
+    manager_class = hg.MercurialManager
+    vcs_class = hg.Mercurial
+
 class RepoManagertMixIn(object):
     username = "tester"
     vcs_class = None
@@ -253,4 +257,7 @@ class TestGitManager(RepoManagertMixIn, unittest.TestCase):
 class TestSubversionManager(RepoManagertMixIn, unittest.TestCase):
     manager_class = svn.SubversionManager
         
-        
+    
+class TestMercurialManager(RepoManagertMixIn, unittest.TestCase):
+    manager_class = hg.MercurialManager    
+    
