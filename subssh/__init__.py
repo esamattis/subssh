@@ -25,7 +25,7 @@ from tools import InvalidArguments, UserException
 from tools import safe_chars, safe_chars_only_pat
 from tools import hostusername
 from tools import expand_subssh_vars
-from tools import get_user_object
+from tools import get_user
 
 from appexpose import expose, expose_instance
 

@@ -41,7 +41,7 @@ appimporter.import_all_apps_from_config()
 
 def dispatch():
     
-    user = tools.get_user_object()
+    user = tools.get_user()
 
     
     if user.cmd:

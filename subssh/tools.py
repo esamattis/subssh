@@ -260,7 +260,7 @@ class UserRequest(object):
         self.__dict__ = kwargs
     
 
-def get_user_object():
+def get_user():
 
     options, args = parser.parse_args()
     
