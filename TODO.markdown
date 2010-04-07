@@ -1,3 +1,0 @@
-
-- Mercurial support
-- Debian package
