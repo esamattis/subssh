@@ -61,7 +61,7 @@ version in repository) with easy_install:
 
 Otherwise you can install it manually:
 
-    $ git clone git://github.com/epeli/subssh.git
+    $ hg clone http://bitbucket.org/epeli/subssh/
     $ cd subssh
     $ python setup.py install
 
