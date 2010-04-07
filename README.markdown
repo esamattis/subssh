@@ -1,6 +1,6 @@
 # subssh #
 
-Homepage: http://github.com/epeli/subssh
+Homepage: http://bitbucket.org/epeli/subssh/
 
 Author: Esa-Matti Suuronen <esa-matti aet suuronen dot org>
 
@@ -16,8 +16,8 @@ git-repositories only.
  - Multiple users can use single account.
    - Users are distinguished by public SSH-keys in ~/.ssh/authorized_keys file.
    - Keys can be managed from the shell.
- - Easily extendable. [Example](http://github.com/epeli/subssh/blob/master/subssh/app/example.py).
- - Version control management (currently Git and Subversion support).
+ - Easily extendable. [Example](http://bitbucket.org/epeli/subssh/src/tip/subssh/app/example.py).
+ - Version control management (Git, Mercurial and Subversion are supported).
    - Users can create, delete, fork and rename repositories.
    - Permissions management. Users can set who can read/write their
      repositories.
@@ -54,10 +54,10 @@ from *python-virtualenv* -package.
     $ virtualenv subsshenv
     $ source subsshenv/bin/activate
 
-If you have also [setuptools][t] installed you can install the HEAD with
-easy_install:
+If you have also [setuptools][t] installed you can install the tip (latest
+version in repository) with easy_install:
 
-    $ easy_install http://github.com/epeli/subssh/tarball/master
+    $ easy_install http://bitbucket.org/epeli/subssh/get/tip.tar.bz2
 
 Otherwise you can install it manually:
 
