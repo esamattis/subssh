@@ -7,7 +7,7 @@ Author: Esa-Matti Suuronen <esa-matti aet suuronen dot org>
 
 
 Subssh is a bare minimal shell for exposing minimal amount of commands for
-untrusted users. Eg. if you want to restrict users' access to svn- or/and
+untrusted users. Eg. if you want to restrict users' access to svn- Mercurial- or/and
 git-repositories only.
 
 
@@ -41,6 +41,7 @@ Subssh is inspired by [GitHub][h], [Gitosis][s], [YouSource (Verso)][y] and
  - OpenSSH server. Well, subssh can be run locally, but there's really no
    point doing that...
  - Git (for the Git app).
+ - Mercurial (for the Mercurial app).
  - Subversion (for the Subversion app).
 
 

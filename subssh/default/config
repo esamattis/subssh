@@ -15,7 +15,6 @@
 
 [app:subssh.app.vcs.svn]
 #repositories = ~/.subssh/repos/svn
-
 #web_dir = ~/.subssh/repos/websvn
 
 #url_rw = svn+ssh://$hostusername@$hostname/$name_on_fs
@@ -25,14 +24,21 @@
 
 [app:subssh.app.vcs.git]
 #repositories = ~/.subssh/repos/svn
-
 #web_dir = ~/.subssh/repos/websvn
 
 #url_rw = ssh://$hostusername@$hostname/$name_on_fs
 #url_http_clone = http://$hostname/repo/$name_on_fs
 #url_web_view = http://$hostname/gitweb?p=$name_on_fs
+#url_web_view = http://$hostname/cgit/$name_on_fs/
 
 
+[app:subssh.app.vcs.hg]
+#repositories = ~/.subssh/repos/hg
+#web_dir = ~/.subssh/repos/websvn
+
+#url_rw = ssh://$hostusername@$hostname/$name_on_fs
+#url_web_view = http://$hostname/hgweb/$name_on_fs/
+#url_http_clone = http://$hostname/hgweb/$name_on_fs/
 
 
 [app:subssh.app.pubkeymanager]
