@@ -51,9 +51,24 @@ class UserException(Exception):
     """Exception class that will not get logged as system error when uncaught
     """
 
-def to_bool(value):
-        return str(value).lower() in ("true", "1",  "enabled")
+_LOWER_BOOL_STRS_TRUE = ("true", "1", "enabled", "yes")
+_LOWER_BOOL_STRS_FALSE = ("false", "0", "disabled", "no")
 
+def to_bool(value):
+    """Return a boolean value represented by `value` string.
+    
+    Valid values for True: "true", "1", "enabled" or "yes"
+    Valid values for False: "false", "0", "disabled" or "no"
+    
+    Case of the `value` is ignored. Raise ValueError if `value` is invalid.
+    """
+    
+    val = value.lower()
+    if val in _LOWER_BOOL_STRS_TRUE:
+        return True
+    elif val in _LOWER_BOOL_STRS_FALSE:
+        return False
+    raise ValueError("%s is not a valid boolean value" % value)
 
 def to_cmd_args(input):
     if isinstance(input, str):
