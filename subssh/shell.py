@@ -19,17 +19,12 @@ License along with Subssh.  If not, see
 <http://www.gnu.org/licenses/>.
 """
 
-
 import readline
-
 
 import apprunner
 import tools
 import config
 import active
-
-
-
 
 def complete(text, state):
     for cmd, app in active.user_apps():
@@ -39,15 +34,11 @@ def complete(text, state):
             else:
                 state -= 1
 
-
 readline.set_completer_delims(' `~!@#$%^&*()=+[{]}\|;:\'",<>/?')
 readline.parse_and_bind("tab: complete")
 readline.set_completer(complete)
 
 def prompt(user):
-    
-
-    
     exit_status = 0
     cmd = ""
     args = []
@@ -63,7 +54,7 @@ def prompt(user):
             print "exit",
             return 0
         
-        cmd, args = tools.to_cmd_args(input)
+        cmd, args = tools.to_cmd_args(input.split())
         
         if not cmd:
             continue
@@ -73,5 +64,3 @@ def prompt(user):
         exit_status = apprunner.run(user)
         
     return exit_status
-
-    

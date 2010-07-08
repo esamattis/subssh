@@ -70,28 +70,19 @@ def to_bool(value):
         return False
     raise ValueError("%s is not a valid boolean value" % value)
 
-def to_cmd_args(input):
-    if isinstance(input, str):
-        parts = input.split()
-    else:
-        parts = input
+def to_cmd_args(parts):
+    """Return (cmd, args) pair from a list of strings.
+
+    The first element of `parts` is the command string and the rest are
+    string arguments. If `parts` is empty, ("", []) is returned.
+    """
     
     try:
         cmd = parts[0]
     except IndexError:
-        cmd = ""
+        return "", []
     
-    try:
-        args = parts[1:]
-    except IndexError:
-        args = []        
-        
-    return cmd, args
-    
-    
-
-    
-
+    return cmd, parts[1:]
 
 def writeln(msg="", out=sys.stdout, log=None, indent=None):
     if log and msg:
