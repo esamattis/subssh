@@ -39,8 +39,8 @@ def import_subssh_app(module_path, options):
             setattr(imported.config, option, value)
     
     # Run init if app has one
-    if hasattr(imported, "__appinit"):
-        imported.__appinit()        
+    if hasattr(imported, "appinit"):
+        imported.appinit()        
 
     return imported    
     
