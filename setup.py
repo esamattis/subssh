@@ -27,7 +27,10 @@ setup(
     package_dir={'subssh': 'subssh'},
     include_package_data = True,
     packages = find_packages(),
-    entry_points = {
-        'console_scripts': "subssh=subssh.dispatcher:dispatch",
-    },
+    entry_points = """
+        [console_scripts]
+        subssh = subssh.entry_points:main
+        subssh-admin = subssh.entry_points:admin_tools
+        subssh-xmlrpc-server = subssh.entry_points:xmlrpc_server
+    """
 )
