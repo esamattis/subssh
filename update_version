@@ -3,7 +3,7 @@
 
 if [ -f subssh/version.txt ]
 then
-    date +"%Y%m%d-%H%M%S-hgdev" > subssh/version.txt
+    date +"%Y%m%d-%H%M%S-dev" > subssh/version.txt
 else
     echo subssh/version.txt does not exist!
     exit 1
