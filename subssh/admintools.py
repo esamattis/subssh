@@ -53,7 +53,7 @@ def get_key_from_input(hopefully_a_pubkey):
 
     hopefully_a_pubkey = hopefully_a_pubkey.strip()
 
-    # User gave the directly
+    # User gave the key directly
     if hopefully_a_pubkey.startswith("ssh-"):
         return hopefully_a_pubkey
 
@@ -61,7 +61,7 @@ def get_key_from_input(hopefully_a_pubkey):
     if hopefully_a_pubkey.startswith("http"):
         return urllib2.urlopen(hopefully_a_pubkey).read(max_key_size)
 
-    # Uu, standard in
+    # Uu, standard input
     if hopefully_a_pubkey == "-":
         return sys.stdin.read(max_key_size)
 
@@ -141,7 +141,7 @@ def build_parser(args=sys.argv[1:]):
     parser.add_option("-a", "--add-key", dest="add_key_username",
                       metavar="<username> <input>",
                       help="Add public key to user (creates the user). Input may be an url, - for "
-                           "stdin or the key itself")
+                           "stdin, path to the key or the key itself")
 
 
     parser.add_option("-u", "--update-keys", action="store_true",
