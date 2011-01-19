@@ -5,8 +5,8 @@ Copyright (C) 2010 Esa-Matti Suuronen <esa-matti@suuronen.org>
 This file is part of subssh.
 
 Subssh is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as 
-published by the Free Software Foundation, either version 3 of 
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of
 the License, or (at your option) any later version.
 
 Subssh is distributed in the hope that it will be useful,
@@ -14,8 +14,8 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Affero General Public License for more details.
 
-You should have received a copy of the GNU Affero General Public 
-License along with Subssh.  If not, see 
+You should have received a copy of the GNU Affero General Public
+License along with Subssh.  If not, see
 <http://www.gnu.org/licenses/>.
 """
 
@@ -43,7 +43,7 @@ def prompt(user):
     cmd = ""
     args = []
     promt_str = "%s@%s> " % (user.username, config.DISPLAY_HOSTNAME)
-    
+
     while cmd not in ("exit", "logout"):
         try:
             input = raw_input(promt_str)
@@ -53,14 +53,14 @@ def prompt(user):
         except EOFError:
             print "exit",
             return 0
-        
+
         cmd, args = tools.to_cmd_args(input.split())
-        
+
         if not cmd:
             continue
-        
+
         user.cmd = cmd
         user.args = args
         exit_status = apprunner.run(user)
-        
+
     return exit_status

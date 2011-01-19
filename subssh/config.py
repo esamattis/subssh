@@ -17,6 +17,11 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public
 License along with Subssh.  If not, see
 <http://www.gnu.org/licenses/>.
+
+
+This file is not for editing! You can override these settings in ~/.subssg/config -file
+
+
 """
 
 
@@ -26,8 +31,18 @@ import socket
 import shutil
 from ConfigParser import SafeConfigParser
 
+from subssh.dirtools import create_required_directories_or_die
 
+
+_read_only_settings = set(("SUBSSH_HOME", "CONFIG_PATH", "DEFAULT_CONFIG_PATH"))
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
+SUBSSH_HOME = os.path.join(os.environ['HOME'], ".subssh")
+CONFIG_PATH = os.path.join(SUBSSH_HOME, "config")
+# TODO: should use pkg_resources
+DEFAULT_CONFIG_PATH = os.path.join(_THIS_DIR, "default", "config")
+
+
+DEBUG = False
 
 LOG_ACCESS = os.path.join( os.environ["HOME"], ".subssh", "log", "access.log" )
 
@@ -39,20 +54,11 @@ TRACEBACKS = os.path.join( os.environ["HOME"], ".subssh", "log", "tracebacks" )
 
 DISPLAY_HOSTNAME = socket.gethostname()
 
-
 SUBSSH_BIN = os.path.join(os.getcwd(),
                           os.path.dirname(sys.argv[0]),
                           "subssh")
 
-SUBSSH_HOME = os.path.join(os.environ['HOME'], ".subssh")
 
-
-
-DEFAULT_HOOKS_PATH = os.path.join(_THIS_DIR, "default", "hooks")
-HOOKS_PATH = os.path.join(SUBSSH_HOME, "hooks")
-
-CONFIG_PATH = os.path.join(SUBSSH_HOME, "config")
-DEFAULT_CONFIG_PATH = os.path.join(_THIS_DIR, "default", "config")
 
 ADMIN = "admin"
 
@@ -67,14 +73,10 @@ SUBSSH_PYTHONPATH = ""
 
 
 # Create necessary paths
-for dir in (SUBSSH_HOME, os.path.dirname(LOG_ACCESS), LOG_USERS, TRACEBACKS):
-    if not os.path.exists(dir):
-        try:
-            os.mkdir(dir)
-        except OSError, e:
-            sys.stderr.write("Cannot create dir '%s' Reason: %s \n"
-                             % (dir, " ".join(e.args()) ))
-            sys.exit(1)
+create_required_directories_or_die((SUBSSH_HOME,
+                                    os.path.dirname(LOG_ACCESS),
+                                    LOG_USERS,
+                                    TRACEBACKS))
 
 
 # Copy default config
@@ -88,36 +90,34 @@ if not os.path.exists(CONFIG_PATH):
 
 
 
-# Copy default hooks to subssh home
-# TODO: Should be in subssh.app.vcs
-if not os.path.exists(HOOKS_PATH):
-    os.makedirs(HOOKS_PATH)
-    if not os.path.exists(os.path.join(HOOKS_PATH, "git")):
-        os.makedirs(os.path.join(HOOKS_PATH, "git"))
-    if not os.path.exists(os.path.join(HOOKS_PATH, "svn")):
-        os.makedirs(os.path.join(HOOKS_PATH, "svn"))
-    if not os.path.exists(os.path.join(HOOKS_PATH, "hg")):
-        os.makedirs(os.path.join(HOOKS_PATH, "hg"))
 
 
-_config = SafeConfigParser()
-_config.read(CONFIG_PATH)
-this_module = sys.modules[__name__]
+_user_config = SafeConfigParser()
+_user_config.read(CONFIG_PATH)
+_this_module = sys.modules[__name__]
 
-for option, value in _config.items("general"):
 
-    setattr(this_module, option.upper(), value)
+# Override defaults with user configurations
+for option, value in _user_config.items("general"):
+    option = option.upper()
+
+    # Don't allow funny settings
+    if option in _read_only_settings or option.startswith("_"):
+        # TODO: should show warning or even die
+        continue # skip
+
+    setattr(_this_module, option, value)
 
 
 
-def first_to_upper(pair_list):
+def _first_to_upper(pair_list):
     return [(first.upper(), second) for first, second in pair_list]
 
 
 def yield_enabled_apps():
-    for sec in _config.sections():
+    for sec in _user_config.sections():
         if sec.startswith("app:"):
             yield (sec.replace("app:", "").strip(),
-                   first_to_upper(_config.items(sec)))
+                   _first_to_upper(_user_config.items(sec)))
 
 
