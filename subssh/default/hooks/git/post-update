@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# Prepare a packed repository for use over
+# dumb transports. Installed by subssh.app.vcs
+#
+
+exec git-update-server-info
+
