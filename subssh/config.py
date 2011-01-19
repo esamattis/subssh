@@ -29,13 +29,13 @@ from ConfigParser import SafeConfigParser
 
 _THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 
-LOG_ACCESS = os.path.join( os.environ["HOME"], ".subssh", "access.log" )
+LOG_ACCESS = os.path.join( os.environ["HOME"], ".subssh", "log", "access.log" )
 
-LOG_ERROR = os.path.join( os.environ["HOME"], ".subssh", "error.log" )
+LOG_ERROR = os.path.join( os.environ["HOME"], ".subssh", "log", "error.log" )
 
-LOG_USERS = os.path.join( os.environ["HOME"], ".subssh", "users" )
+LOG_USERS = os.path.join( os.environ["HOME"], ".subssh", "log", "users" )
 
-TRACEBACKS = os.path.join( os.environ["HOME"], ".subssh", "tracebacks" )
+TRACEBACKS = os.path.join( os.environ["HOME"], ".subssh", "log", "tracebacks" )
 
 DISPLAY_HOSTNAME = socket.gethostname()
 
@@ -44,16 +44,20 @@ SUBSSH_BIN = os.path.join(os.getcwd(),
                           os.path.dirname(sys.argv[0]),
                           "subssh")
 
-DEFAULT_CONFIG_PATH = os.path.join(_THIS_DIR, "default", "config")
-
 SUBSSH_HOME = os.path.join(os.environ['HOME'], ".subssh")
 
+
+
+DEFAULT_HOOKS_PATH = os.path.join(_THIS_DIR, "default", "hooks")
+HOOKS_PATH = os.path.join(SUBSSH_HOME, "hooks")
+
 CONFIG_PATH = os.path.join(SUBSSH_HOME, "config")
+DEFAULT_CONFIG_PATH = os.path.join(_THIS_DIR, "default", "config")
 
 ADMIN = "admin"
 
+# XMLRPC shit
 XMLRPC_PATH = "subssh"
-
 XMLRPC_LOG = os.path.join( os.environ["HOME"], ".subssh", "xmlrpc.log" )
 XMLRPC_LISTEN = "127.0.0.1"
 XMLRPC_PORT = 8000
@@ -63,7 +67,7 @@ SUBSSH_PYTHONPATH = ""
 
 
 # Create necessary paths
-for dir in (SUBSSH_HOME, LOG_USERS, TRACEBACKS):
+for dir in (SUBSSH_HOME, os.path.dirname(LOG_ACCESS), LOG_USERS, TRACEBACKS):
     if not os.path.exists(dir):
         try:
             os.mkdir(dir)
@@ -82,6 +86,18 @@ if not os.path.exists(CONFIG_PATH):
                          % (DEFAULT_CONFIG_PATH, CONFIG_PATH, " ".join(e.args()) ))
         sys.exit(1)
 
+
+
+# Copy default hooks to subssh home
+# TODO: Should be in subssh.app.vcs
+if not os.path.exists(HOOKS_PATH):
+    os.makedirs(HOOKS_PATH)
+    if not os.path.exists(os.path.join(HOOKS_PATH, "git")):
+        os.makedirs(os.path.join(HOOKS_PATH, "git"))
+    if not os.path.exists(os.path.join(HOOKS_PATH, "svn")):
+        os.makedirs(os.path.join(HOOKS_PATH, "svn"))
+    if not os.path.exists(os.path.join(HOOKS_PATH, "hg")):
+        os.makedirs(os.path.join(HOOKS_PATH, "hg"))
 
 
 _config = SafeConfigParser()
