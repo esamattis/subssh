@@ -26,6 +26,11 @@ setup(
     license='AGPL',
     package_dir={'subssh': 'subssh'},
     include_package_data = True,
+    package_data = {
+        'subssh': [
+            'default/*',
+        ],
+    },
     packages = find_packages(),
     entry_points = """
         [console_scripts]
