@@ -28,7 +28,7 @@ from optparse import OptionParser
 
 import subssh
 import config
-from authorizedkeys import AuthorizedKeysDB
+from authorizedkeys import AuthorizedKeysDB, AuthorizedKeysException
 from subssh.keyparsers import PubKeyException
 
 def rewrite_authorized_keys():
@@ -87,7 +87,7 @@ def add_key(username, args, comment=""):
     db = AuthorizedKeysDB()
     try:
         db.add_key_from_str(username, key, comment)
-    except PubKeyException, e:
+    except (PubKeyException, AuthorizedKeysException), e:
         subssh.errln(e.args[0])
         exit_status = 1
     else:

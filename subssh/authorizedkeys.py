@@ -106,6 +106,7 @@ class Subuser(object):
 class AuthorizedKeysException(Exception):
     pass
 
+
 class AuthorizedKeysDB(object):
     _lock_timeout = 500
 
@@ -130,6 +131,23 @@ class AuthorizedKeysDB(object):
 
     def remove_user(self, username):
         del self.subusers[username]
+
+
+
+    def get_key_owner(self, key):
+        """
+        Returns the key owner. Raises KeyError if the key is not found and
+        AuthorizedKeysException if key is in use outside of subssh
+        """
+        for user in self.subusers.values():
+            if user.pubkeys.has_key(key):
+                return user
+
+        for key_line in self.custom_key_lines:
+            if key in key_line: # cheap test, but should suffice
+                raise AuthorizedKeysException("The key is already in use outside of Subssh")
+
+        raise KeyError("Key  owner not found")
 
 
 
@@ -185,12 +203,25 @@ class AuthorizedKeysDB(object):
 
 
     def add_key(self, username, type, key, comment):
+        """
+        Adds key to given user. Makes sure that there are no 
+        duplicate keys.
+        """
+
+        try:
+            key_owner = self.get_key_owner(key)
+        except KeyError:
+            key_owner = None
 
         try:
             user = self.subusers[username]
         except KeyError:
             user = Subuser(username)
             self.subusers[username] = user
+
+        if key_owner and key_owner != user:
+            raise AuthorizedKeysException("Given key is already in use "
+                                          "by some other user")
 
         user.add_key(type, key, comment)
 

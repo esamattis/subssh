@@ -59,6 +59,28 @@ class TestAuthorizedKeysDB(unittest.TestCase):
         self.assertEquals(len(db.custom_key_lines), manual_keys_before_adding)
 
 
+    def test_get_key_owner(self):
+        db = AuthorizedKeysDB(self.dir)
+        db.add_key_from_str("tester", "tester ssh-rsa justakey comment foobar")
+        db.commit()
+        db.close()
+
+        db = AuthorizedKeysDB(self.dir)
+        user = db.get_key_owner("justakey")
+        self.assertEqual(user.username, "tester")
+
+
+    def test_get_nonexistent_key_owner(self):
+        db = AuthorizedKeysDB(self.dir)
+        self.assertRaises(KeyError,
+                          db.get_key_owner, "nonexistentuser")
+
+    def test_get_key_that_is_used_outside_of_subssh(self):
+        db = AuthorizedKeysDB(self.dir)
+        self.assertRaises(AuthorizedKeysException,
+                          db.get_key_owner, "keyUsedOutsidefOfSubssh")
+
+
     def test_users_have_only_unique_keys(self):
         db = AuthorizedKeysDB(self.dir)
         db.add_key_from_str("tester", "tester ssh-rsa duplicatekey comment foobar")
