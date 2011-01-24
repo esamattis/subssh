@@ -41,7 +41,7 @@
 #url_http_clone = http://$hostname/hgweb/$name_on_fs/
 
 
-[app:subssh.app.pubkeymanager]
+[app:subssh.pubkeymanager]
 
 
 # [app:subssh.app.example]
