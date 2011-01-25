@@ -205,7 +205,8 @@ class AuthorizedKeysDB(object):
     def add_key(self, username, type, key, comment):
         """
         Adds key to given user. Makes sure that there are no 
-        duplicate keys.
+        duplicate keys. May raise AuthorizedKeysException or
+        PubKeyException if the key cannot be added.
         """
 
         try:
