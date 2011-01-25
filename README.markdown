@@ -1,123 +1,29 @@
-# subssh #
+# Subssh
 
-Homepage: http://bitbucket.org/epeli/subssh/
+Homepage: https://github.com/epeli/subssh
 
 Author: Esa-Matti Suuronen <esa-matti aet suuronen dot org>
 
+Subssh is a small framework for building custom shells that work under a
+single OpenSSH-account. It separates users from each other with SSH public keys.
+This means that you don't have to create real accounts for Subssh-users.
 
-Subssh is a bare minimal shell for exposing minimal amount of commands for
-untrusted users. Eg. if you want to restrict users' access to svn- Mercurial- or/and
-git-repositories only.
+Framework also helps you to manage the public keys. It does that by managing
+keys in the authorizes\_keys-file. The file are managed in a friendly way so
+that you can also keep your own keys the file. Subssh makes sure that they
+remain untouched.
 
+Subssh comes with bundled key management application which allows users
+to add and remove their keys. You can manually select which Subssh applications
+are activated.
 
-## Features ##
-
- - Interactive shell.
- - Multiple users can use single account.
-   - Users are distinguished by public SSH-keys in ~/.ssh/authorized_keys file.
-   - Keys can be managed from the shell.
- - Easily extendable. [Example](http://bitbucket.org/epeli/subssh/src/tip/subssh/app/example.py).
- - Version control management (Git, Mercurial and Subversion are supported).
-   - Users can create, delete, fork and rename repositories.
-   - Permissions management. Users can set who can read/write their
-     repositories.
-   - Repository publishing. Users can make their repositories public using
-     some web interface (eg. gitweb, websvn). Not included. Subssh just
-     makes symlinks to a configured repository when user decides to publish
-     a repository
-
-Subssh is inspired by [GitHub][h], [Gitosis][s], [YouSource (Verso)][y] and
-[CherryPy][c] (for the extension system).
-
-[h]: http://github.com/
-[s]: http://eagain.net/gitweb/?p=gitosis.git
-[y]: http://sovellusprojektit.it.jyu.fi/verso/
-[c]: http://cherrypy.org/
-
-## Requirements ##
-
- - Should work with Python 2.4, 2.5 and 2.6. Mostly tested with 2.5.
- - OpenSSH server. Well, subssh can be run locally, but there's really no
-   point doing that...
- - Git (for the Git app).
- - Mercurial (for the Mercurial app).
- - Subversion (for the Subversion app).
+Subssh is a great tool if you want to build for example a restricted
+ssh-account for just [rsync][] or [rdiff-backup][] usage. For a working example
+see [Revision Cask][]. It's a revision control management tool for which Subssh
+was originally written for.
 
 
-## Installing ##
 
-No releases are made yet, but you can try installing from git-repository.
-
-Since is there is only a development version available, usage of a Python
-[virtualenv][e] is highly recommended. In Debian based distros it can be found
-from *python-virtualenv* -package.
-
-    $ virtualenv subsshenv
-    $ source subsshenv/bin/activate
-
-If you have also [setuptools][t] installed you can install the tip (latest
-version in repository) with easy_install:
-
-    $ easy_install https://github.com/epeli/subssh/tarball/master
-
-Otherwise you can install it manually:
-
-    $ hg clone http://bitbucket.org/epeli/subssh/
-    $ cd subssh
-    $ python setup.py install
-
-[e]: http://pypi.python.org/pypi/virtualenv
-[t]: http://pypi.python.org/pypi/setuptools
-
-## Usage ##
-
-Just run *subssh* and type *help*.
-
-### Usage over SSH ###
-
-Add a public key with subssh-admin
-
-    $ subssh-admin --add-key desired_username ssh-rsa AAAmyekeyhere...
-
-and login with that key.
-
-## Example session ##
-
-    $ ssh subssh@subsshserver.example.com
-    me@subsshserver.example.com> git-init myrepo
-    Initialized empty Git repository in /home/subssh/repos/git/myrepo.git/
-
-
-     Created new repository 'myrepo'
-
-
-    Owners: me
-
-    Permissions:
-        * = r
-        me = rw
-
-    Anonymous web view is disabled
-
-    Access:
-        Read/Write ssh://subssh@subsshserver.example.com/myrepo.git
-
-    me@subsshserver.example.com> git-set-permissions myfriend +rw myrepo
-    me@subsshserver.example.com> git-web-enable myrepo
-    me@subsshserver.example.com> git-info myrepo
-
-    Owners: me
-
-    Permissions:
-        * = r
-        me = rw
-        myfriend = rw
-
-    Anonymous web view is enabled
-
-    Access:
-        Read/Write ssh://subssh@subsshserver.example.com/myrepo.git
-        Anonymous read http://subsshserver.example.com/repo/myrepo.git
-        Web view http://subsshserver.example.com/viewgit/?a=summary&p=myrepo.git
-
-    me@subsshserver.example.com>
+[rsync]: http://samba.anu.edu.au/rsync/
+[rdiff-backup]: http://www.nongnu.org/rdiff-backup/
+[Revision Cask]: http://esa-matti.suuronen.org/projects/revisioncask/
