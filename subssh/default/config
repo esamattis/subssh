@@ -13,7 +13,7 @@
 
 # xmlrpc_path = "subssh"
 
-[app:subssh.app.vcs.svn]
+[app:revisioncask.svn]
 #repositories = ~/.subssh/repos/svn
 #web_dir = ~/.subssh/repos/websvn
 
@@ -22,7 +22,7 @@
 
 
 
-[app:subssh.app.vcs.git]
+[app:revisioncask.git]
 #repositories = ~/.subssh/repos/svn
 #web_dir = ~/.subssh/repos/websvn
 
@@ -32,7 +32,7 @@
 #url_web_view = http://$hostname/cgit/$name_on_fs/
 
 
-[app:subssh.app.vcs.hg]
+[app:revisioncask.hg]
 #repositories = ~/.subssh/repos/hg
 #web_dir = ~/.subssh/repos/websvn
 
@@ -41,7 +41,7 @@
 #url_http_clone = http://$hostname/hgweb/$name_on_fs/
 
 
-[app:subssh.app.pubkeymanager]
+[app:subssh.pubkeymanager]
 
 
 # [app:subssh.app.example]

@@ -9,7 +9,6 @@ import os
 from setuptools import find_packages, setup
 
 
-docs = [os.path.join("doc", dir) for dir in os.listdir("doc")]
 
 f = open('subssh/version.txt', 'r')
 version = f.read().strip()
