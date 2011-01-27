@@ -323,6 +323,9 @@ colors = {
 }
 
 def set_text_color(color):
+    """
+    Change terminal text color.
+    """
     sys.stderr.write( "\033[%sm" % colors[color])
 
 def reset_text_color():
