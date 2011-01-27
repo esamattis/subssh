@@ -131,12 +131,6 @@ def call(*args, **kw):
     return subprocess.call(*args, **kw)
 
 
-def hostusername():
-    return getpass.getuser()
-
-
-
-class InvalidArguments(UserException): pass
 
 
 
@@ -148,6 +142,8 @@ def expand_subssh_vars(template, **extra):
                                 **extra)
 
 
+
+class InvalidArguments(UserException): pass
 
 def assert_args(f, function_args, ignore=0):
     """
@@ -229,13 +225,11 @@ def assert_args(f, function_args, ignore=0):
                            % (supplied_arg_count, required))
 
 
-parser = OptionParser()
 
 
-parser.add_option("-t", "--ssh-tunnel", dest="ssh_username",
-                  help="Run subssh as user. Command is read from "
-                  "SSH_ORIGINAL_COMMAND enviroment variable.",
-                  metavar="<username>")
+
+
+
 
 def get_user_ip():
 
@@ -245,21 +239,6 @@ def get_user_ip():
         # User invoked locally the subssh shell, not over SSH
         return  "direct"
 
-
-
-def parse_host_args(parts):
-    """Return (cmd, args) pair from a list of strings.
-
-    The first element of `parts` is the command string and the rest are
-    string arguments. If `parts` is empty, ("", []) is returned.
-    """
-
-    try:
-        cmd = parts[0]
-    except IndexError:
-        return "", []
-
-    return cmd, parts[1:]
 
 
 def get_local_cmd():
@@ -306,6 +285,19 @@ def get_ssh_cmd():
 class UserRequest(object):
     def __init__(self, **kwargs):
         self.__dict__ = kwargs
+
+def hostusername():
+    return getpass.getuser()
+
+
+
+
+
+parser = OptionParser()
+parser.add_option("-t", "--ssh-tunnel", dest="ssh_username",
+                  help="Run subssh as user. Command is read from "
+                  "SSH_ORIGINAL_COMMAND enviroment variable.",
+                  metavar="<username>")
 
 
 def get_user():

@@ -57,7 +57,7 @@ def prompt(user):
 
     while cmd not in ("exit", "logout"):
         try:
-            input = raw_input(promt_str)
+            input_string = raw_input(promt_str)
         except KeyboardInterrupt:
             print
             continue
@@ -65,7 +65,7 @@ def prompt(user):
             print "exit",
             return 0
 
-        cmd, args = parse_command(input)
+        cmd, args = parse_command(input_string)
 
         if not cmd:
             continue
