@@ -292,7 +292,7 @@ def get_user():
 
 def create_required_directories_or_die(directories):
     """
-    Try to create directories in given order. Raises SystemExit if creation fails 
+    Try to create directories in given order. Raises SystemExit if creation fails
     """
     for dir in directories:
         if not os.path.exists(dir):
@@ -303,5 +303,28 @@ def create_required_directories_or_die(directories):
                                  % (dir, " ".join(e.args()) ))
                 sys.exit(1)
 
+colors = {
+    "black": "0;30",
+    "dark": "Gray 1;30",
+    "blue": "0;34",
+    "light": "Blue 1;34",
+    "green": "0;32",
+    "light": "Green 1;32",
+    "cyan": "0;36",
+    "light": "Cyan 1;36",
+    "red": "0;31",
+    "light": "Red 1;31",
+    "purple": "0;35",
+    "light": "Purple 1;35",
+    "brown": "0;33",
+    "yellow": "1;33",
+    "Light Gray": "0;37",
+    "white": "1;37",
+}
 
+def set_text_color(color):
+    sys.stderr.write( "\033[%sm" % colors[color])
+
+def reset_text_color():
+    sys.stderr.write("\033[00m")
 

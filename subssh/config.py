@@ -43,6 +43,7 @@ DEFAULT_CONFIG_PATH = os.path.join(_THIS_DIR, "default", "config")
 
 
 DEBUG = False
+DEBUG_USER = False
 
 LOG_ACCESS = os.path.join( os.environ["HOME"], ".subssh", "log", "access.log" )
 

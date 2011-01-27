@@ -57,13 +57,20 @@ def run(user):
     except tools.UserException, e:
         # Expected exception. Print error to user.
         tools.errln("%s: %s" % (e.__class__.__name__, e.args[0]))
+        if config.DEBUG_USER:
+            tools.set_text_color("green")
+            tools.errln("USER DEBUG MODE (no real error):")
+            traceback.print_exc()
+            tools.reset_text_color()
         return 1
     except Exception, e:
         # Unexpected exception! Log it!
 
         #  We can just print the traceback if user is admin or if we are in debug mode
         if user.username == config.ADMIN or config.DEBUG:
+            tools.set_text_color("red")
             traceback.print_exc()
+            tools.reset_text_color()
         else:
             # Log traceback
             import time
@@ -84,7 +91,8 @@ def run(user):
             tools.errln("System error (%s): %s: %s" % (timestamp,
                                                    e.__class__.__name__,
                                                    message))
-            tools.errln("Please report to admin.")
+        tools.errln("Could be a bug in the software. "
+                    "Please report: https://github.com/epeli/revisioncask/issues")
 
         return 1
 
