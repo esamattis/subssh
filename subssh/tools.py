@@ -163,6 +163,21 @@ def expand_subssh_vars(template, **extra):
 
 
 def assert_args(f, function_args, ignore=0):
+    """
+    Assert that given function_args-list is valid input for function f.
+    If this function does not raise InvalidArguments it should be safe to call:
+
+        f(*function_args)
+
+    """
+
+    # We could use just try-except for detecting invalid arguments given by the
+    # Subssh user, but that's not really wise, since the same exception could
+    # be risen by a bug in subsequent function calls in Subssh. Nobody likes
+    # eating bugs.
+
+
+    ## Start by collecting required data from the given function
 
     (args,
      varargs,
@@ -188,16 +203,10 @@ def assert_args(f, function_args, ignore=0):
     required_args_count = len(args) - default_count - ignore
 
 
-    # Build error message
-    if varargs:
-        max_str = "-n"
-    elif default_count > 0:
-        max_str = "-%s" % (required_args_count + default_count)
-    else:
-        max_str = ""
 
-    required = "Required %s%s arguments" % (required_args_count,
-                                            max_str)
+
+
+    ## Assert arguments
 
     if supplied_arg_count == required_args_count:
         return
@@ -215,6 +224,19 @@ def assert_args(f, function_args, ignore=0):
             return
 
 
+
+
+    ## Build error message and throw it
+
+    if varargs:
+        max_str = "-n"
+    elif default_count > 0:
+        max_str = "-%s" % (required_args_count + default_count)
+    else:
+        max_str = ""
+
+    required = "Required %s%s arguments" % (required_args_count,
+                                            max_str)
 
     raise InvalidArguments("Invalid argument count %s. %s."
                            % (supplied_arg_count, required))
