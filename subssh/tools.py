@@ -70,19 +70,6 @@ def to_bool(value):
         return False
     raise ValueError("%s is not a valid boolean value" % value)
 
-def to_cmd_args(parts):
-    """Return (cmd, args) pair from a list of strings.
-
-    The first element of `parts` is the command string and the rest are
-    string arguments. If `parts` is empty, ("", []) is returned.
-    """
-
-    try:
-        cmd = parts[0]
-    except IndexError:
-        return "", []
-
-    return cmd, parts[1:]
 
 def writeln(msg="", out=sys.stdout, log=None, indent=None):
     if log and msg:
@@ -250,28 +237,61 @@ parser.add_option("-t", "--ssh-tunnel", dest="ssh_username",
                   "SSH_ORIGINAL_COMMAND enviroment variable.",
                   metavar="<username>")
 
+def get_user_ip():
+
+    try:
+        return os.environ['SSH_CONNECTION'].split()[0]
+    except KeyError:
+        # User invoked locally the subssh shell, not over SSH
+        return  "direct"
 
 
 
-def from_ssh(username):
+def parse_host_args(parts):
+    """Return (cmd, args) pair from a list of strings.
 
-    if os.environ.has_key('SSH_CONNECTION'):
-        from_ip = os.environ.get('SSH_CONNECTION', '').split()[0]
-    else:
-        from_ip = "localhost"
+    The first element of `parts` is the command string and the rest are
+    string arguments. If `parts` is empty, ("", []) is returned.
+    """
+
+    try:
+        cmd = parts[0]
+    except IndexError:
+        return "", []
+
+    return cmd, parts[1:]
 
 
+def get_local_cmd():
+    """
+    Get command given by local user
+    """
+
+    cmd_pos = 1
+
+    # This is bit cheap. 
+    if len(sys.argv) > 1 and sys.argv[1] in ('-t', '--ssh-tunnel'):
+        cmd_pos += 2
+
+    try:
+        cmd = sys.argv[cmd_pos]
+    except IndexError:
+        # No command given
+        return "", []
+
+    return cmd, sys.argv[cmd_pos+1:]
+
+
+
+def get_ssh_cmd():
+    """
+    Get command given by ssh user
+    """
 
     try:
         ssh_original_command = os.environ['SSH_ORIGINAL_COMMAND']
     except KeyError:
-        ssh_original_command = None
-
-
-
-
-
-    if not ssh_original_command:
+        # No command given
         return "", []
 
     # Clean up the original command
@@ -282,7 +302,7 @@ def from_ssh(username):
     return cmd, args
 
 
-
+# Just a convience object
 class UserRequest(object):
     def __init__(self, **kwargs):
         self.__dict__ = kwargs
@@ -292,16 +312,15 @@ def get_user():
 
     options, args = parser.parse_args()
 
-
     if options.ssh_username:
         username = options.ssh_username
-        if username == config.ADMIN:
-            errln("Cannot login as admin '%s' over SSH!" % username)
-            return 1
-        cmd, args = from_ssh(username)
     else:
         username = hostusername()
-        cmd, args = to_cmd_args(sys.argv[1:])
+
+    if get_user_ip() == "direct":
+        cmd, args = get_local_cmd()
+    else:
+        cmd, args = get_ssh_cmd()
 
     return UserRequest(username=username,
                        cmd=cmd,

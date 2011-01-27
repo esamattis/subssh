@@ -38,6 +38,17 @@ readline.set_completer_delims(' `~!@#$%^&*()=+[{]}\|;:\'",<>/?')
 readline.parse_and_bind("tab: complete")
 readline.set_completer(complete)
 
+def parse_command(cmd_string):
+
+    parts = cmd_string.split()
+
+    try:
+        cmd = parts[0]
+    except IndexError:
+        return "", []
+
+    return cmd, parts[1:]
+
 def prompt(user):
     exit_status = 0
     cmd = ""
@@ -54,7 +65,7 @@ def prompt(user):
             print "exit",
             return 0
 
-        cmd, args = tools.to_cmd_args(input.split())
+        cmd, args = parse_command(input)
 
         if not cmd:
             continue
