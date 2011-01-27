@@ -10,14 +10,11 @@ from setuptools import find_packages, setup
 
 
 
-f = open('subssh/version.txt', 'r')
-version = f.read().strip()
-f.close()
 
 
 setup(
     name='subssh',
-    version=version,
+    version="1.0",
     description='Bare minimal shell for using eg. Git and Subversion over SSH',
     author='Esa-Matti Suuronen',
     author_email='esa-matti@suuronen.org',
