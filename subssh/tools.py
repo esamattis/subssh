@@ -326,22 +326,22 @@ def create_required_directories_or_die(directories):
                 sys.exit(1)
 
 colors = {
-    "black": "0;30",
-    "dark": "Gray 1;30",
-    "blue": "0;34",
-    "light": "Blue 1;34",
-    "green": "0;32",
-    "light": "Green 1;32",
-    "cyan": "0;36",
-    "light": "Cyan 1;36",
-    "red": "0;31",
-    "light": "Red 1;31",
-    "purple": "0;35",
-    "light": "Purple 1;35",
-    "brown": "0;33",
-    "yellow": "1;33",
-    "Light Gray": "0;37",
-    "white": "1;37",
+    "black":        "0;30",
+    "dark gray":    "1;30",
+    "light gray":   "0;37",
+    "blue":         "0;34",
+    "light blue":   "1;34",
+    "green":        "0;32",
+    "light green":  "1;32",
+    "cyan":         "0;36",
+    "light cyan":   "1;36",
+    "red":          "0;31",
+    "light red":    "1;31",
+    "purple":       "0;35",
+    "light purple": "1;35",
+    "brown":        "0;33",
+    "yellow":       "1;33",
+    "white":        "1;37",
 }
 
 def set_text_color(color):
