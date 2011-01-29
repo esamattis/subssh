@@ -133,7 +133,7 @@ def remove_user(username):
 
 
 
-
+# TODO: add option to remove particular key from user
 def build_parser(args=sys.argv[1:]):
 
     parser = OptionParser(description=handle_cmdline.__doc__)

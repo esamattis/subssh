@@ -19,7 +19,7 @@ License along with Subssh.  If not, see
 <http://www.gnu.org/licenses/>.
 """
 
-
+# TODO: remove particular key from user
 
 import os
 import sys
