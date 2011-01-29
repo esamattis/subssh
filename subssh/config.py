@@ -99,7 +99,7 @@ _this_module = sys.modules[__name__]
 
 
 # Override defaults with user configurations
-for option, value in _user_config.items("general"):
+for option, value in _user_config.items("subssh"):
     option = option.upper()
 
     # Don't allow funny settings

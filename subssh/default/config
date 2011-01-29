@@ -1,29 +1,21 @@
-[general]
-
-#log = "~/.subssh/error.log"
-
-## subssh "binary" location
-#subssh_bin = /usr/bin/subssh
-
-## Hostname displayed on promt. 
-## This will be also the $hostname -variable in urls
-## Defaults to system hostname.
-#display_hostname = vcs.linkkijkl.fi
+[subssh]
 
 
-# xmlrpc_path = "subssh"
+## Hostname displayed on promt.  This will be also the $hostname -variable in
+## urls Defaults to system hostname.
+#display_hostname = example.com
 
-[app:revisioncask.svn]
-#repositories = ~/.subssh/repos/svn
-#web_dir = ~/.subssh/repos/websvn
 
-#url_rw = svn+ssh://$hostusername@$hostname/$name_on_fs
-#url_web_view = http://$hostname/websvn/listing.php?repname=$name_on_fs
 
+# Activated applications. Aplications are just python modules in your python
+# path. Uncomment [app:<pythonmodule>] -lines to disable them.
+
+
+[app:subssh.pubkeymanager]
 
 
 [app:revisioncask.git]
-#repositories = ~/.subssh/repos/svn
+#repositories = ~/.subssh/vcs/repos/svn
 #web_dir = ~/.subssh/repos/websvn
 
 #url_rw = ssh://$hostusername@$hostname/$name_on_fs
@@ -33,15 +25,20 @@
 
 
 [app:revisioncask.hg]
-#repositories = ~/.subssh/repos/hg
+#repositories = ~/.subssh/vcs/repos/hg
 #web_dir = ~/.subssh/repos/websvn
 
 #url_rw = ssh://$hostusername@$hostname/$name_on_fs
 #url_web_view = http://$hostname/hgweb/$name_on_fs/
 #url_http_clone = http://$hostname/hgweb/$name_on_fs/
 
+[app:revisioncask.svn]
+#repositories = ~/.subssh/vcs/repos/svn
+#web_dir = ~/.subssh/repos/websvn
 
-[app:subssh.pubkeymanager]
+#url_rw = svn+ssh://$hostusername@$hostname/$name_on_fs
+#url_web_view = http://$hostname/websvn/listing.php?repname=$name_on_fs
+
 
 
 # [app:subssh.app.example]

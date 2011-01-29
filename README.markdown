@@ -13,9 +13,9 @@ keys in the authorizes\_keys-file. The file are managed in a friendly way so
 that you can also keep your own keys the file. Subssh makes sure that they
 remain untouched.
 
-Subssh comes with bundled key management application which allows users
-to add and remove their keys. You can manually select which Subssh applications
-are activated.
+Subssh comes with bundled key management application which allows users to add
+and remove their keys. You can configure from [~/.subssh/config][config]  which Subssh
+applications are activated.
 
 Subssh is a great tool if you want to build for example a restricted
 ssh-account for just [rsync][] or [rdiff-backup][] usage. For a working example
@@ -30,3 +30,4 @@ distribution.
 [rdiff-backup]: http://www.nongnu.org/rdiff-backup/
 [Revision Cask]: http://esa-matti.suuronen.org/projects/revisioncask/
 [exampleapp.py]: https://github.com/epeli/subssh/blob/master/exampleapp.py
+[config]: https://github.com/epeli/subssh/blob/master/subssh/default/config
