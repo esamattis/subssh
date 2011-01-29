@@ -336,6 +336,7 @@ def create_required_directories_or_die(directories):
                                  % (dir, " ".join(e.args()) ))
                 sys.exit(1)
 
+# http://hacktux.com/bash/colors
 colors = {
     "black":        "0;30",
     "dark gray":    "1;30",
