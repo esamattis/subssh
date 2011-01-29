@@ -22,8 +22,11 @@ ssh-account for just [rsync][] or [rdiff-backup][] usage. For a working example
 see [Revision Cask][]. It's a revision control management tool for which Subssh
 was originally written for.
 
+For simple Subssh application example see the [exampleapp.py][] file in the
+distribution.
 
 
 [rsync]: http://samba.anu.edu.au/rsync/
 [rdiff-backup]: http://www.nongnu.org/rdiff-backup/
 [Revision Cask]: http://esa-matti.suuronen.org/projects/revisioncask/
+[exampleapp.py]: https://github.com/epeli/subssh/blob/master/exampleapp.py
