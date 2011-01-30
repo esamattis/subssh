@@ -136,7 +136,7 @@ class AuthorizedKeysDB(object):
         del self.subusers[username]
 
 
-    def get_user(username):
+    def get_user(self, username):
         return self.subusers[username]
 
     def get_key_owner(self, key):
