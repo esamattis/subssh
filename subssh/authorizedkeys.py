@@ -259,6 +259,9 @@ class AuthorizedKeysDB(object):
 
 
     def close(self):
+        if not self.disable_lock:
+            self.commit()
         self._unlock()
+        f.close()
 
 
