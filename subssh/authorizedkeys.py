@@ -69,6 +69,9 @@ class Subuser(object):
             self.pubkeys[key] = type, comment
 
 
+    def remove_key(self, key):
+        del self.pubkeys[key]
+
 
     def has_key_str(self, key):
         type, key, comment = parse_public_key(key)
@@ -133,6 +136,8 @@ class AuthorizedKeysDB(object):
         del self.subusers[username]
 
 
+    def get_user(username):
+        return self.subusers[username]
 
     def get_key_owner(self, key):
         """
