@@ -260,6 +260,5 @@ class AuthorizedKeysDB(object):
 
     def close(self):
         self._unlock()
-        f.close()
 
 
