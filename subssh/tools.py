@@ -32,6 +32,8 @@ import config
 import customlogger
 logger = customlogger.get_logger(__name__)
 
+username_chars = r"a-zA-Z_-"
+
 safe_chars = r"a-zA-Z0-9_\-\."
 
 safe_chars_only_pat = re.compile(r"^[%s]+$" % safe_chars )
