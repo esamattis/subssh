@@ -19,6 +19,7 @@ License along with Subssh.  If not, see
 <http://www.gnu.org/licenses/>.
 """
 
+import re
 import sys
 import os.path
 import shutil
@@ -30,6 +31,14 @@ import subssh
 import config
 from authorizedkeys import AuthorizedKeysDB, AuthorizedKeysException
 from subssh.keyparsers import PubKeyException
+from tools import username_chars
+
+username_pattern = re.compile(
+                             # Username is restricted because
+                             # otherwise authorized keys parser fails
+                             # if we allow some weird characters.
+                             r"^[%s]+$" % username_chars
+                             )
 
 def rewrite_authorized_keys():
     db = AuthorizedKeysDB()
@@ -72,6 +81,10 @@ def get_key_from_input(hopefully_a_pubkey):
 
 
 def add_key(username, args, comment=""):
+
+    if not username_pattern.search(username):
+        subssh.writeln("User name \"%s\" contains restricted characters" % username)
+        return 1
 
     try:
         key = get_key_from_input(" ".join(args))
