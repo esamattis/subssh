@@ -26,6 +26,7 @@ import subprocess
 class PubKeyException(Exception):
     pass
 
+from tools import username_chars
 
 pubkey_pattern = re.compile(
                     # Starts with command. After that is other optional
@@ -72,13 +73,15 @@ def parse_public_key(key):
 options_pattern = re.compile(
                              # Starts with subssh command. command will
                              # determine the user
-                             r"^command=\"[^\"]*subssh -t ([a-z0-9]+)\"[^ ]* +"
+                             r"^command=\"[^\"]*subssh -t ([%s]+)\"[^ ]* +"
                              # Key type. Must start with rsa or dsa
                              r"(ssh-(?:rsa|dss)) +"
                              # Key itself. No spaces in it
                              r"([^ ]+) *"
                              # In the end there is is an optional comment
                              r"(.*)"
+                             # Allowed characters in username
+                             % username_chars
                              )
 def parse_subssh_key(line):
     """
